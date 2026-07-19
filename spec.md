@@ -430,9 +430,11 @@ Ban đầu chỉ trang chủ có ảnh bìa; nay **mỗi trang công khai có 1 
 
 ---
 
-## 16. Deploy & Hosting — Đã chốt: Nuxt 3 trên Oracle Cloud Always Free
+## 16. Deploy & Hosting
 
-**Quyết định:** Stack **Nuxt 3** (Vue 3, gộp frontend + API vào 1 app Node.js), deploy trên **Oracle Cloud Infrastructure (OCI) — gói "Always Free"**. Đây là lựa chọn thoả cả 2 điều kiện: (1) miễn phí thật/vĩnh viễn, (2) có ổ đĩa bền vững đúng như kiến trúc lưu file JSON + ảnh ở mục 14.
+> **CẬP NHẬT — ĐÃ DEPLOY THẬT (khác kế hoạch ban đầu bên dưới):** vì không có thẻ Visa/Mastercard quốc tế để đăng ký Oracle Cloud, dự án đã chuyển sang **Hosting cPanel của TinoHost** (thanh toán chuyển khoản/MoMo), deploy tự động qua **GitHub Actions** (build trong container `almalinux:8` để khớp glibc với server, vì server không đủ tài nguyên để tự build — xem chi tiết đầy đủ, các lỗi thật đã gặp và cách khắc phục tại **`DEPLOY.md`** ở gốc repo). Phần mô tả Oracle Cloud bên dưới giữ lại làm tài liệu tham khảo/phương án dự phòng nếu sau này đổi hosting.
+
+**Kế hoạch ban đầu (không còn áp dụng, xem ghi chú trên):** Stack **Nuxt 3** (Vue 3, gộp frontend + API vào 1 app Node.js), deploy trên **Oracle Cloud Infrastructure (OCI) — gói "Always Free"**. Đây là lựa chọn thoả cả 2 điều kiện: (1) miễn phí thật/vĩnh viễn, (2) có ổ đĩa bền vững đúng như kiến trúc lưu file JSON + ảnh ở mục 14.
 
 ### 16.1 Vì sao KHÔNG dùng Vercel/Netlify (serverless mặc định)
 Các nền tảng này chạy code dạng serverless function — hệ thống file là **tạm thời/chỉ đọc**, mọi file ghi lúc runtime sẽ **mất khi function khởi động lại**. Ảnh và JSON của bạn sẽ biến mất bất ngờ → không phù hợp với kiến trúc lưu trữ đã chọn ở mục 14. Đây là lý do loại phương án này ngay từ đầu.
