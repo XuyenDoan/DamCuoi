@@ -114,27 +114,29 @@ const downloadAlbumUrl = computed(() => {
         </p>
       </div>
 
-      <div v-else class="mx-auto flex max-w-6xl gap-3 sm:gap-4">
-        <div v-for="(column, ci) in masonryColumns" :key="ci" class="flex flex-1 flex-col gap-3 sm:gap-4">
-          <button
-            v-for="photo in column"
-            :key="photo.id"
-            v-reveal="(pagedPhotos.indexOf(photo) % 12) * 40"
-            type="button"
-            class="block w-full overflow-hidden rounded-lg"
-            @click="openLightbox(pagedPhotos.indexOf(photo))"
-          >
-            <img
-              :src="`/uploads/${photo.thumbnail}`"
-              :width="photo.width"
-              :height="photo.height"
-              :alt="photo.caption || 'Ảnh cưới'"
-              loading="lazy"
-              class="h-auto w-full rounded-lg object-cover transition-transform duration-300 ease-out hover:scale-[1.03]"
-            />
-          </button>
+      <Transition name="page-swap" mode="out-in">
+        <div :key="page" class="mx-auto flex max-w-6xl gap-3 sm:gap-4">
+          <div v-for="(column, ci) in masonryColumns" :key="ci" class="flex flex-1 flex-col gap-3 sm:gap-4">
+            <button
+              v-for="photo in column"
+              :key="photo.id"
+              v-reveal="(pagedPhotos.indexOf(photo) % 12) * 40"
+              type="button"
+              class="group block w-full overflow-hidden rounded-lg transition-shadow duration-300 hover:shadow-xl"
+              @click="openLightbox(pagedPhotos.indexOf(photo))"
+            >
+              <img
+                :src="`/uploads/${photo.thumbnail}`"
+                :width="photo.width"
+                :height="photo.height"
+                :alt="photo.caption || 'Ảnh cưới'"
+                loading="lazy"
+                class="h-auto w-full rounded-lg object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+              />
+            </button>
+          </div>
         </div>
-      </div>
+      </Transition>
 
       <PhotoPager v-model:page="page" :total-pages="totalPages" />
     </section>
@@ -148,3 +150,25 @@ const downloadAlbumUrl = computed(() => {
     />
   </div>
 </template>
+
+<style scoped>
+.page-swap-enter-active,
+.page-swap-leave-active {
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.page-swap-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-swap-enter-active,
+  .page-swap-leave-active {
+    transition: none;
+  }
+}
+</style>

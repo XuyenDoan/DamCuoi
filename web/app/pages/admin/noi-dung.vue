@@ -18,17 +18,27 @@ const form = ref<Settings>(
         heroTagline: '',
         welcomeMessage: '',
         loveStory: [],
-        eventInfo: { ceremonyTime: '', venueName: '', venueAddress: '', mapEmbedUrl: '' },
+        eventInfo: {
+          groom: { ceremonyTime: '', venueName: '', venueAddress: '', mapEmbedUrl: '' },
+          bride: { ceremonyTime: '', venueName: '', venueAddress: '', mapEmbedUrl: '' }
+        },
         footerText: '',
         pageBackgrounds: {},
         hiddenPages: []
       }
 )
 
-const ceremonyLocal = computed({
-  get: () => isoToVietnamLocalInput(form.value.eventInfo.ceremonyTime),
+const groomCeremonyLocal = computed({
+  get: () => isoToVietnamLocalInput(form.value.eventInfo.groom.ceremonyTime),
   set: (val: string) => {
-    form.value.eventInfo.ceremonyTime = vietnamLocalInputToIso(val)
+    form.value.eventInfo.groom.ceremonyTime = vietnamLocalInputToIso(val)
+  }
+})
+
+const brideCeremonyLocal = computed({
+  get: () => isoToVietnamLocalInput(form.value.eventInfo.bride.ceremonyTime),
+  set: (val: string) => {
+    form.value.eventInfo.bride.ceremonyTime = vietnamLocalInputToIso(val)
   }
 })
 
@@ -334,17 +344,17 @@ async function save() {
           @close="editingMilestoneId = null"
         />
 
-        <!-- Thông tin lễ cưới -->
+        <!-- Thông tin lễ cưới nhà trai -->
         <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
-          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới</legend>
+          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Nhà trai</legend>
 
           <div>
-            <label for="ceremony-time" class="mb-2 block text-sm font-medium text-text">
+            <label for="groom-ceremony-time" class="mb-2 block text-sm font-medium text-text">
               Giờ tổ chức (giờ Việt Nam)
             </label>
             <input
-              id="ceremony-time"
-              v-model="ceremonyLocal"
+              id="groom-ceremony-time"
+              v-model="groomCeremonyLocal"
               type="datetime-local"
               class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
               style="min-height: 44px"
@@ -352,10 +362,10 @@ async function save() {
           </div>
 
           <div>
-            <label for="venue-name" class="mb-2 block text-sm font-medium text-text">Tên địa điểm</label>
+            <label for="groom-venue-name" class="mb-2 block text-sm font-medium text-text">Tên địa điểm</label>
             <input
-              id="venue-name"
-              v-model="form.eventInfo.venueName"
+              id="groom-venue-name"
+              v-model="form.eventInfo.groom.venueName"
               type="text"
               class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
@@ -363,10 +373,10 @@ async function save() {
           </div>
 
           <div>
-            <label for="venue-address" class="mb-2 block text-sm font-medium text-text">Địa chỉ</label>
+            <label for="groom-venue-address" class="mb-2 block text-sm font-medium text-text">Địa chỉ</label>
             <input
-              id="venue-address"
-              v-model="form.eventInfo.venueAddress"
+              id="groom-venue-address"
+              v-model="form.eventInfo.groom.venueAddress"
               type="text"
               class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
@@ -374,12 +384,68 @@ async function save() {
           </div>
 
           <div>
-            <label for="map-embed" class="mb-2 block text-sm font-medium text-text">
+            <label for="groom-map-embed" class="mb-2 block text-sm font-medium text-text">
               Link nhúng Google Maps (không bắt buộc)
             </label>
             <textarea
-              id="map-embed"
-              v-model="form.eventInfo.mapEmbedUrl"
+              id="groom-map-embed"
+              v-model="form.eventInfo.groom.mapEmbedUrl"
+              rows="2"
+              placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <p class="mt-1 text-xs text-text-muted">
+              Lấy từ Google Maps → Chia sẻ → Nhúng bản đồ. Dán nguyên cả đoạn mã (kể cả thẻ &lt;iframe&gt;) hoặc chỉ link trong thuộc tính src đều được — hệ thống tự nhận diện và trích đúng link khi lưu.
+            </p>
+          </div>
+        </fieldset>
+
+        <!-- Thông tin lễ cưới nhà gái -->
+        <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
+          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Nhà gái</legend>
+
+          <div>
+            <label for="bride-ceremony-time" class="mb-2 block text-sm font-medium text-text">
+              Giờ tổ chức (giờ Việt Nam)
+            </label>
+            <input
+              id="bride-ceremony-time"
+              v-model="brideCeremonyLocal"
+              type="datetime-local"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="bride-venue-name" class="mb-2 block text-sm font-medium text-text">Tên địa điểm</label>
+            <input
+              id="bride-venue-name"
+              v-model="form.eventInfo.bride.venueName"
+              type="text"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="bride-venue-address" class="mb-2 block text-sm font-medium text-text">Địa chỉ</label>
+            <input
+              id="bride-venue-address"
+              v-model="form.eventInfo.bride.venueAddress"
+              type="text"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="bride-map-embed" class="mb-2 block text-sm font-medium text-text">
+              Link nhúng Google Maps (không bắt buộc)
+            </label>
+            <textarea
+              id="bride-map-embed"
+              v-model="form.eventInfo.bride.mapEmbedUrl"
               rows="2"
               placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
               class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"

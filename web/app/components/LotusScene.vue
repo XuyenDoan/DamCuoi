@@ -178,6 +178,9 @@ function clampSize(remMultiplier: number, vwMultiplier: number): string {
   return `min(${remMultiplier.toFixed(2)}rem, ${vwMultiplier.toFixed(2)}vw)`
 }
 
+/** Tăng nhẹ kích thước toàn bộ hoa + lá theo yêu cầu ("tăng kích thước hoa sen lên xíu") */
+const FLOWER_SCALE = 1.18
+
 /**
  * Kích thước lá cho bông nhìn từ trên xuống — luôn tính THEO TỈ LỆ với kích
  * thước chính bông hoa đó (thay vì 1 con số cố định độc lập như trước), để
@@ -189,25 +192,60 @@ function topLeafSize(f: TopFlower): number {
 }
 
 /**
- * Chuồn chuồn — chỉ vài con (yêu cầu "vài con chuồn chuồn"), bay lượn CHẬM
- * RÃI theo 1 trong 3 kiểu đường bay lượn lớn (`flyPattern` a/b/c, xem CSS),
- * KHÔNG đập cánh nhanh kiểu hoạt hình — giữ đúng tông thanh lịch, chậm rãi
- * của cả trang. Vị trí rải rác, tránh đè lên cụm hoa lớn ở giữa trang.
+ * Chuồn chuồn/chim — bay theo mô phỏng vật lý thật (né hoa/lá, né mặt
+ * nước, né va chạm nhau, thỉnh thoảng bay tới đậu đúng 1 bông hoa) thay vì
+ * đường bay CSS @keyframes cố định trước đây — xem `useCreatureFlight.ts`.
+ * Chướng ngại vật = chính các bông hoa trong mảng `flowers` ở trên, quy đổi
+ * toạ độ % + bán kính né theo kích thước từng bông.
  */
-interface Dragonfly {
-  left: string
-  top: string
-  size: number
-  tone: 'text-secondary' | 'text-gold'
-  flyPattern: 'a' | 'b' | 'c'
-  duration: string
-  delay: string
-}
-const dragonflies: Dragonfly[] = [
-  { left: '10%', top: '46%', size: 1.1, tone: 'text-gold', flyPattern: 'a', duration: '26s', delay: '0s' },
-  { left: '88%', top: '58%', size: 0.9, tone: 'text-secondary', flyPattern: 'b', duration: '32s', delay: '-9s' },
-  { left: '48%', top: '82%', size: 1.0, tone: 'text-gold', flyPattern: 'c', duration: '29s', delay: '-4s' }
+const flowerObstacles: FlightObstacle[] = flowers.map((f) => ({
+  x: parseFloat(f.left),
+  y: f.kind === 'top' ? parseFloat(f.top) : 100 - parseFloat(f.bottom),
+  r: f.size * FLOWER_SCALE * 5
+}))
+
+/** Mép trên vùng nước (WaterRipple cao 42vh từ đáy -> né từ % này trở xuống) */
+const WATER_TOP_PERCENT = 58
+
+const flightConfigs: FlightCreatureConfig[] = [
+  { id: 'dragonfly-1', kind: 'dragonfly', tone: 'text-gold', size: 1.3, collisionRadius: 4.4, startX: 10, startY: 46 },
+  { id: 'dragonfly-2', kind: 'dragonfly', tone: 'text-secondary', size: 1.05, collisionRadius: 3.8, startX: 88, startY: 30 },
+  { id: 'dragonfly-3', kind: 'dragonfly', tone: 'text-gold', size: 1.15, collisionRadius: 4, startX: 48, startY: 20 },
+  { id: 'dragonfly-4', kind: 'dragonfly', tone: 'text-secondary', size: 1.1, collisionRadius: 3.9, startX: 25, startY: 38 },
+  { id: 'dragonfly-5', kind: 'dragonfly', tone: 'text-gold', size: 1.0, collisionRadius: 3.6, startX: 70, startY: 25 },
+  // Chim vẽ nhỏ lại theo phản hồi — thu size + bán kính né tương ứng
+  { id: 'bird-1', kind: 'bird', tone: 'text-secondary', size: 1.0, collisionRadius: 6.2, startX: 20, startY: 15 },
+  { id: 'bird-2', kind: 'bird', tone: 'text-gold', size: 0.9, collisionRadius: 5.6, startX: 76, startY: 10 },
+  { id: 'bird-3', kind: 'bird', tone: 'text-secondary', size: 0.95, collisionRadius: 5.9, startX: 55, startY: 22 }
 ]
+
+const { creatures: flyingCreatures } = useCreatureFlight(flightConfigs, flowerObstacles, WATER_TOP_PERCENT)
+const dragonflyCreatures = computed(() => flyingCreatures.filter((c) => c.kind === 'dragonfly'))
+const birdCreatures = computed(() => flyingCreatures.filter((c) => c.kind === 'bird'))
+
+/**
+ * Hướng hiển thị của chuồn chuồn/chim — SỬA LỖI "bay lật ngược": trước đây
+ * dùng thẳng `rotate(toDeg(angle))` theo đúng hướng bay thực (atan2), nghĩa
+ * là khi bay hướng lên/xuống gần thẳng đứng hoặc quay đầu bay ngược lại,
+ * cả hình xoay tới ~90-270° khiến hình trông LẬT NGƯỢC (bụng quay lên
+ * trời) — vì hình vẽ 2D nhìn nghiêng không có "mặt sau", chỉ có thể XOAY
+ * PHẲNG (yaw) bằng cách LẬT NGANG (mirror trái/phải), không thể xoay tới
+ * mọi góc như vật thể 3D thật. Khắc phục: tách hướng bay thành 2 phần —
+ * (1) quay đầu trái/phải -> lật ngang bằng `scaleX(-1)`, (2) độ dốc lên/
+ * xuống -> chỉ NGHIÊNG NHẸ (tối đa `MAX_TILT_DEG`) chứ không xoay hết cỡ.
+ */
+const MAX_TILT_DEG = 26
+
+function isFacingLeft(c: FlightCreatureState): boolean {
+  return Math.cos(c.angle) < 0
+}
+function tiltDeg(c: FlightCreatureState): number {
+  const verticalDir = Math.sin(c.angle) // -1..1, âm = đang bay lên (trục y màn hình hướng xuống)
+  return (verticalDir < 0 ? -1 : 1) * Math.min(1, Math.abs(verticalDir)) * MAX_TILT_DEG
+}
+function creatureTransform(c: FlightCreatureState): string {
+  return `translate(-50%, -50%) rotate(${tiltDeg(c)}deg) scaleX(${isFacingLeft(c) ? -1 : 1})`
+}
 </script>
 
 <template>
@@ -225,7 +263,10 @@ const dragonflies: Dragonfly[] = [
         <LotusFlower
           :bloom-progress="bloomOf(f)"
           class="-mb-2"
-          :style="{ width: clampSize(f.size * 6, f.size * 10), height: clampSize(f.size * 4.9, f.size * 8.17) }"
+          :style="{
+            width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * 10 * FLOWER_SCALE),
+            height: clampSize(f.size * 4.9 * FLOWER_SCALE, f.size * 8.17 * FLOWER_SCALE)
+          }"
         />
         <svg
           viewBox="0 0 40 100"
@@ -248,7 +289,7 @@ const dragonflies: Dragonfly[] = [
           class="absolute bottom-0 left-1/2"
           :class="f.leaf.tone"
           :style="{
-            width: clampSize((f.leaf.size ?? f.size) * 9, (f.leaf.size ?? f.size) * 10),
+            width: clampSize((f.leaf.size ?? f.size) * 9 * FLOWER_SCALE, (f.leaf.size ?? f.size) * 10 * FLOWER_SCALE),
             opacity: fadeOpacity(f.appearAt) * 0.5,
             transform: `translate(calc(-50% + ${f.leaf.offsetX ?? 0}%), 60%) rotate(${f.leaf.rotate ?? 0}deg) scaleY(0.42)`
           }"
@@ -269,7 +310,7 @@ const dragonflies: Dragonfly[] = [
           class="absolute left-1/2 top-1/2"
           :class="f.leaf.tone"
           :style="{
-            width: clampSize(topLeafSize(f) * 9, topLeafSize(f) * 10),
+            width: clampSize(topLeafSize(f) * 9 * FLOWER_SCALE, topLeafSize(f) * 10 * FLOWER_SCALE),
             opacity: fadeOpacity(f.appearAt) * 0.5,
             transform: `translate(-50%, -50%) rotate(${f.leaf.rotate ?? 0}deg)`
           }"
@@ -279,7 +320,10 @@ const dragonflies: Dragonfly[] = [
         <LotusFlowerTop
           :bloom-progress="bloomOf(f)"
           class="relative"
-          :style="{ width: clampSize(f.size * 6, f.size * 10), height: clampSize(f.size * 6, f.size * 10) }"
+          :style="{
+            width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * 10 * FLOWER_SCALE),
+            height: clampSize(f.size * 6 * FLOWER_SCALE, f.size * 10 * FLOWER_SCALE)
+          }"
         />
       </div>
     </template>
@@ -287,21 +331,36 @@ const dragonflies: Dragonfly[] = [
     <!-- Mặt nước — dải gợn sóng trôi ngang rất chậm ở phần dưới màn hình -->
     <WaterRipple />
 
-    <!-- Chuồn chuồn bay lượn chậm rãi -->
+    <!-- Chuồn chuồn — vị trí/góc quay tính real-time bởi useCreatureFlight (né hoa/lá/nước/nhau) -->
     <div
-      v-for="(d, di) in dragonflies"
-      :key="`dragonfly-${di}`"
+      v-for="c in dragonflyCreatures"
+      :key="c.id"
       class="lotus-dragonfly-wrap absolute opacity-60"
-      :class="[d.tone, `lotus-dragonfly-wrap--${d.flyPattern}`]"
+      :class="c.tone"
       :style="{
-        left: d.left,
-        top: d.top,
-        width: clampSize(d.size * 5, d.size * 6.5),
-        animationDuration: d.duration,
-        animationDelay: d.delay
+        left: `${c.x}%`,
+        top: `${c.y}%`,
+        width: clampSize(c.size * 9, c.size * 11.7),
+        transform: creatureTransform(c)
       }"
     >
-      <LotusDragonfly />
+      <LotusDragonfly :landed="c.landed" />
+    </div>
+
+    <!-- Chim -->
+    <div
+      v-for="c in birdCreatures"
+      :key="c.id"
+      class="lotus-bird-wrap absolute opacity-55"
+      :class="c.tone"
+      :style="{
+        left: `${c.x}%`,
+        top: `${c.y}%`,
+        width: clampSize(c.size * 7.2, c.size * 9.4),
+        transform: creatureTransform(c)
+      }"
+    >
+      <LotusBird :landed="c.landed" />
     </div>
   </div>
 </template>
@@ -317,75 +376,14 @@ const dragonflies: Dragonfly[] = [
   }
 }
 
-/* Chuồn chuồn — 3 kiểu đường bay lượn lớn, chậm rãi, lặp vô hạn. Dùng
-   translate theo vw/vh (không phải % của chính nó) để biên độ bay ổn định
-   theo màn hình, không phụ thuộc kích thước phần tử. */
-.lotus-dragonfly-wrap {
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-}
-.lotus-dragonfly-wrap--a {
-  animation-name: dragonfly-fly-a;
-}
-.lotus-dragonfly-wrap--b {
-  animation-name: dragonfly-fly-b;
-}
-.lotus-dragonfly-wrap--c {
-  animation-name: dragonfly-fly-c;
-}
-
-@keyframes dragonfly-fly-a {
-  0% {
-    transform: translate(0, 0) rotate(-4deg);
-  }
-  25% {
-    transform: translate(7vw, -4vh) rotate(8deg);
-  }
-  50% {
-    transform: translate(11vw, 1vh) rotate(-3deg);
-  }
-  75% {
-    transform: translate(3vw, 5vh) rotate(5deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(-4deg);
-  }
-}
-@keyframes dragonfly-fly-b {
-  0% {
-    transform: translate(0, 0) rotate(6deg) scaleX(-1);
-  }
-  30% {
-    transform: translate(-8vw, 3vh) rotate(-5deg) scaleX(-1);
-  }
-  60% {
-    transform: translate(-4vw, -5vh) rotate(4deg) scaleX(-1);
-  }
-  100% {
-    transform: translate(0, 0) rotate(6deg) scaleX(-1);
-  }
-}
-@keyframes dragonfly-fly-c {
-  0% {
-    transform: translate(0, 0) rotate(-2deg);
-  }
-  20% {
-    transform: translate(5vw, 4vh) rotate(6deg);
-  }
-  55% {
-    transform: translate(-6vw, 2vh) rotate(-7deg);
-  }
-  80% {
-    transform: translate(-2vw, -4vh) rotate(3deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(-2deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lotus-dragonfly-wrap {
-    animation: none;
-  }
+/* Vị trí/góc quay của chuồn chuồn + chim giờ do useCreatureFlight.ts tính
+   mỗi khung hình (né hoa/lá/nước/nhau) và gán thẳng vào `:style` — không
+   còn CSS @keyframes cho đường bay nữa, chỉ giữ gợi ý trình duyệt tối ưu
+   hiệu năng khi `transform` đổi liên tục. Khi `prefers-reduced-motion`,
+   `useCreatureFlight` không chạy vòng lặp -> vị trí đứng yên tại chỗ, phù
+   hợp không cần thêm CSS gì riêng ở đây. */
+.lotus-dragonfly-wrap,
+.lotus-bird-wrap {
+  will-change: transform;
 }
 </style>

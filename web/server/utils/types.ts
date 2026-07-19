@@ -18,17 +18,23 @@ export interface LoveStoryMilestone {
   photos: LightboxPhoto[]
 }
 
+export interface EventInfoBlock {
+  ceremonyTime: string
+  venueName: string
+  venueAddress: string
+  mapEmbedUrl: string
+}
+
 export interface Settings {
   coupleNames: { groom: string; bride: string }
   weddingDate: string
   heroTagline: string
   welcomeMessage: string
   loveStory: LoveStoryMilestone[]
+  /** Thông tin lễ (giờ/địa điểm) của từng nhà — nhà trai hiển thị trước, nhà gái sau */
   eventInfo: {
-    ceremonyTime: string
-    venueName: string
-    venueAddress: string
-    mapEmbedUrl: string
+    groom: EventInfoBlock
+    bride: EventInfoBlock
   }
   footerText: string
   /**

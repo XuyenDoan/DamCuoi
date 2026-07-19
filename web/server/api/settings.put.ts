@@ -1,6 +1,6 @@
 import { requireAdmin } from '../utils/adminSession'
 import { settingsStore } from '../utils/store'
-import type { Settings } from '../utils/types'
+import type { EventInfoBlock, Settings } from '../utils/types'
 import { MANAGED_PAGES, isHideablePageKey } from '#shared/pages'
 
 /**
@@ -12,6 +12,15 @@ function extractMapEmbedSrc(value: string): string {
   const trimmed = value.trim()
   const match = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i)
   return match?.[1] ?? trimmed
+}
+
+function sanitizeEventInfoBlock(v: Partial<EventInfoBlock> | undefined): EventInfoBlock {
+  return {
+    ceremonyTime: v?.ceremonyTime ?? '',
+    venueName: v?.venueName?.trim() ?? '',
+    venueAddress: v?.venueAddress?.trim() ?? '',
+    mapEmbedUrl: extractMapEmbedSrc(v?.mapEmbedUrl ?? '')
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -41,10 +50,8 @@ export default defineEventHandler(async (event) => {
       photos: m.photos ?? []
     })),
     eventInfo: {
-      ceremonyTime: body.eventInfo?.ceremonyTime ?? '',
-      venueName: body.eventInfo?.venueName?.trim() ?? '',
-      venueAddress: body.eventInfo?.venueAddress?.trim() ?? '',
-      mapEmbedUrl: extractMapEmbedSrc(body.eventInfo?.mapEmbedUrl ?? '')
+      groom: sanitizeEventInfoBlock(body.eventInfo?.groom),
+      bride: sanitizeEventInfoBlock(body.eventInfo?.bride)
     },
     footerText: body.footerText?.trim() ?? '',
     // pageBackgrounds thực chất được quản lý qua /api/admin/page-background/[pageKey]
