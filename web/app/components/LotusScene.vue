@@ -191,61 +191,6 @@ function topLeafSize(f: TopFlower): number {
   return f.size * 0.9
 }
 
-/**
- * Chuồn chuồn/chim — bay theo mô phỏng vật lý thật (né hoa/lá, né mặt
- * nước, né va chạm nhau, thỉnh thoảng bay tới đậu đúng 1 bông hoa) thay vì
- * đường bay CSS @keyframes cố định trước đây — xem `useCreatureFlight.ts`.
- * Chướng ngại vật = chính các bông hoa trong mảng `flowers` ở trên, quy đổi
- * toạ độ % + bán kính né theo kích thước từng bông.
- */
-const flowerObstacles: FlightObstacle[] = flowers.map((f) => ({
-  x: parseFloat(f.left),
-  y: f.kind === 'top' ? parseFloat(f.top) : 100 - parseFloat(f.bottom),
-  r: f.size * FLOWER_SCALE * 5
-}))
-
-/** Mép trên vùng nước (WaterRipple cao 42vh từ đáy -> né từ % này trở xuống) */
-const WATER_TOP_PERCENT = 58
-
-const flightConfigs: FlightCreatureConfig[] = [
-  { id: 'dragonfly-1', kind: 'dragonfly', tone: 'text-gold', size: 1.3, collisionRadius: 4.4, startX: 10, startY: 46 },
-  { id: 'dragonfly-2', kind: 'dragonfly', tone: 'text-secondary', size: 1.05, collisionRadius: 3.8, startX: 88, startY: 30 },
-  { id: 'dragonfly-3', kind: 'dragonfly', tone: 'text-gold', size: 1.15, collisionRadius: 4, startX: 48, startY: 20 },
-  { id: 'dragonfly-4', kind: 'dragonfly', tone: 'text-secondary', size: 1.1, collisionRadius: 3.9, startX: 25, startY: 38 },
-  { id: 'dragonfly-5', kind: 'dragonfly', tone: 'text-gold', size: 1.0, collisionRadius: 3.6, startX: 70, startY: 25 },
-  // Chim vẽ nhỏ lại theo phản hồi — thu size + bán kính né tương ứng
-  { id: 'bird-1', kind: 'bird', tone: 'text-secondary', size: 1.0, collisionRadius: 6.2, startX: 20, startY: 15 },
-  { id: 'bird-2', kind: 'bird', tone: 'text-gold', size: 0.9, collisionRadius: 5.6, startX: 76, startY: 10 },
-  { id: 'bird-3', kind: 'bird', tone: 'text-secondary', size: 0.95, collisionRadius: 5.9, startX: 55, startY: 22 }
-]
-
-const { creatures: flyingCreatures } = useCreatureFlight(flightConfigs, flowerObstacles, WATER_TOP_PERCENT)
-const dragonflyCreatures = computed(() => flyingCreatures.filter((c) => c.kind === 'dragonfly'))
-const birdCreatures = computed(() => flyingCreatures.filter((c) => c.kind === 'bird'))
-
-/**
- * Hướng hiển thị của chuồn chuồn/chim — SỬA LỖI "bay lật ngược": trước đây
- * dùng thẳng `rotate(toDeg(angle))` theo đúng hướng bay thực (atan2), nghĩa
- * là khi bay hướng lên/xuống gần thẳng đứng hoặc quay đầu bay ngược lại,
- * cả hình xoay tới ~90-270° khiến hình trông LẬT NGƯỢC (bụng quay lên
- * trời) — vì hình vẽ 2D nhìn nghiêng không có "mặt sau", chỉ có thể XOAY
- * PHẲNG (yaw) bằng cách LẬT NGANG (mirror trái/phải), không thể xoay tới
- * mọi góc như vật thể 3D thật. Khắc phục: tách hướng bay thành 2 phần —
- * (1) quay đầu trái/phải -> lật ngang bằng `scaleX(-1)`, (2) độ dốc lên/
- * xuống -> chỉ NGHIÊNG NHẸ (tối đa `MAX_TILT_DEG`) chứ không xoay hết cỡ.
- */
-const MAX_TILT_DEG = 26
-
-function isFacingLeft(c: FlightCreatureState): boolean {
-  return Math.cos(c.angle) < 0
-}
-function tiltDeg(c: FlightCreatureState): number {
-  const verticalDir = Math.sin(c.angle) // -1..1, âm = đang bay lên (trục y màn hình hướng xuống)
-  return (verticalDir < 0 ? -1 : 1) * Math.min(1, Math.abs(verticalDir)) * MAX_TILT_DEG
-}
-function creatureTransform(c: FlightCreatureState): string {
-  return `translate(-50%, -50%) rotate(${tiltDeg(c)}deg) scaleX(${isFacingLeft(c) ? -1 : 1})`
-}
 </script>
 
 <template>
@@ -330,38 +275,6 @@ function creatureTransform(c: FlightCreatureState): string {
 
     <!-- Mặt nước — dải gợn sóng trôi ngang rất chậm ở phần dưới màn hình -->
     <WaterRipple />
-
-    <!-- Chuồn chuồn — vị trí/góc quay tính real-time bởi useCreatureFlight (né hoa/lá/nước/nhau) -->
-    <div
-      v-for="c in dragonflyCreatures"
-      :key="c.id"
-      class="lotus-dragonfly-wrap absolute opacity-60"
-      :class="c.tone"
-      :style="{
-        left: `${c.x}%`,
-        top: `${c.y}%`,
-        width: clampSize(c.size * 9, c.size * 11.7),
-        transform: creatureTransform(c)
-      }"
-    >
-      <LotusDragonfly :landed="c.landed" />
-    </div>
-
-    <!-- Chim -->
-    <div
-      v-for="c in birdCreatures"
-      :key="c.id"
-      class="lotus-bird-wrap absolute opacity-55"
-      :class="c.tone"
-      :style="{
-        left: `${c.x}%`,
-        top: `${c.y}%`,
-        width: clampSize(c.size * 7.2, c.size * 9.4),
-        transform: creatureTransform(c)
-      }"
-    >
-      <LotusBird :landed="c.landed" />
-    </div>
   </div>
 </template>
 
@@ -374,16 +287,5 @@ function creatureTransform(c: FlightCreatureState): string {
     transition: none;
     opacity: 1 !important;
   }
-}
-
-/* Vị trí/góc quay của chuồn chuồn + chim giờ do useCreatureFlight.ts tính
-   mỗi khung hình (né hoa/lá/nước/nhau) và gán thẳng vào `:style` — không
-   còn CSS @keyframes cho đường bay nữa, chỉ giữ gợi ý trình duyệt tối ưu
-   hiệu năng khi `transform` đổi liên tục. Khi `prefers-reduced-motion`,
-   `useCreatureFlight` không chạy vòng lặp -> vị trí đứng yên tại chỗ, phù
-   hợp không cần thêm CSS gì riêng ở đây. */
-.lotus-dragonfly-wrap,
-.lotus-bird-wrap {
-  will-change: transform;
 }
 </style>
