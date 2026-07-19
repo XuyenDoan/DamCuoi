@@ -119,8 +119,8 @@ async function submitUpload() {
 <template>
   <div class="relative overflow-hidden">
     <section class="relative overflow-hidden px-6 pb-8 pt-32 text-center sm:pt-40">
-      <h1 class="font-heading text-4xl text-text sm:text-5xl">Gửi Ảnh Cho Cô Dâu Chú Rể</h1>
-      <p class="mx-auto mt-3 max-w-xl text-text-muted">
+      <h1 v-reveal="0" class="font-heading text-4xl text-text sm:text-5xl">Gửi Ảnh Cho Cô Dâu Chú Rể</h1>
+      <p v-reveal="80" class="mx-auto mt-3 max-w-xl text-text-muted">
         Bạn có ảnh đẹp chụp cùng tại tiệc cưới? Gửi ngay để chúng tôi lưu giữ nhé! Ảnh sẽ hiển thị
         công khai sau khi được duyệt.
       </p>

@@ -21,8 +21,8 @@ const selectedWish = ref<Wish | null>(null)
 <template>
   <div class="relative overflow-hidden">
     <section class="relative overflow-hidden px-6 pb-8 pt-32 text-center sm:pt-40">
-      <h1 class="font-heading text-4xl text-text sm:text-5xl">Lời Chúc</h1>
-      <p class="mx-auto mt-3 max-w-xl text-text-muted">
+      <h1 v-reveal="0" class="font-heading text-4xl text-text sm:text-5xl">Lời Chúc</h1>
+      <p v-reveal="80" class="mx-auto mt-3 max-w-xl text-text-muted">
         Gửi lời chúc phúc đến cô dâu và chú rể — mỗi lời nhắn đều là món quà quý giá.
       </p>
     </section>

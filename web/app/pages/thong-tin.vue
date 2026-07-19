@@ -29,8 +29,8 @@ function hasContent(info: EventInfoBlock | undefined) {
 <template>
   <div class="relative overflow-hidden">
     <section class="relative overflow-hidden px-6 pb-8 pt-32 text-center sm:pt-40">
-      <h1 class="font-heading text-4xl text-text sm:text-5xl">Thông Tin Lễ Cưới</h1>
-      <p class="mx-auto mt-3 max-w-xl text-text-muted">
+      <h1 v-reveal="0" class="font-heading text-4xl text-text sm:text-5xl">Thông Tin Lễ Cưới</h1>
+      <p v-reveal="80" class="mx-auto mt-3 max-w-xl text-text-muted">
         Rất mong được đón tiếp bạn trong ngày trọng đại của chúng tôi.
       </p>
     </section>

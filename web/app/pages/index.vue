@@ -46,47 +46,58 @@ const brideCountdown = computed(() => countdownFor(settings.value?.eventInfo.bri
 </script>
 
 <template>
-  <section class="relative flex min-h-screen items-center justify-center px-6 py-32 text-center">
-    <div class="relative flex max-w-2xl flex-col items-center gap-6">
-      <p
-        v-if="settings?.heroTagline"
-        class="font-accent text-lg italic tracking-wide text-text-muted"
-      >
-        {{ settings.heroTagline }}
-      </p>
-
-      <h1 class="font-heading text-5xl leading-tight text-text sm:text-6xl md:text-7xl">
-        <span>{{ settings?.coupleNames.groom }}</span>
-        <span class="mx-3 text-primary">&amp;</span>
-        <span>{{ settings?.coupleNames.bride }}</span>
-      </h1>
-
-      <p v-if="formattedDate" class="text-sm uppercase tracking-[0.3em] text-text-muted">
-        {{ formattedDate }}
-      </p>
-
-      <div v-if="groomCountdown || brideCountdown" class="flex flex-wrap items-center justify-center gap-3">
+  <div>
+    <section class="relative flex min-h-screen items-center justify-center px-6 py-32 text-center">
+      <div class="relative flex max-w-2xl flex-col items-center gap-6">
         <p
-          v-if="groomCountdown"
-          class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+          v-if="settings?.heroTagline"
+          v-reveal="0"
+          class="font-accent text-lg italic tracking-wide text-text-muted"
         >
-          <span class="font-medium">Nhà Trai:</span> {{ groomCountdown }}
+          {{ settings.heroTagline }}
         </p>
+
+        <h1 v-reveal="100" class="font-heading text-5xl leading-tight text-text sm:text-6xl md:text-7xl">
+          <span>{{ settings?.coupleNames.groom }}</span>
+          <span class="mx-3 text-primary">&amp;</span>
+          <span>{{ settings?.coupleNames.bride }}</span>
+        </h1>
+
+        <p v-if="formattedDate" v-reveal="180" class="text-sm uppercase tracking-[0.3em] text-text-muted">
+          {{ formattedDate }}
+        </p>
+
+        <div
+          v-if="groomCountdown || brideCountdown"
+          v-reveal="260"
+          class="flex flex-wrap items-center justify-center gap-3"
+        >
+          <p
+            v-if="groomCountdown"
+            class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+          >
+            <span class="font-medium">Nhà Trai:</span> {{ groomCountdown }}
+          </p>
+          <p
+            v-if="brideCountdown"
+            class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+          >
+            <span class="font-medium">Nhà Gái:</span> {{ brideCountdown }}
+          </p>
+        </div>
+
         <p
-          v-if="brideCountdown"
-          class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+          v-if="settings?.welcomeMessage"
+          v-reveal="340"
+          class="max-w-xl text-base leading-relaxed text-text-muted"
         >
-          <span class="font-medium">Nhà Gái:</span> {{ brideCountdown }}
+          {{ settings.welcomeMessage }}
         </p>
+
+        <NuxtLink to="/album" v-reveal="420" class="btn-primary mt-2">Xem Album Ảnh</NuxtLink>
       </div>
+    </section>
 
-      <p v-if="settings?.welcomeMessage" class="max-w-xl text-base leading-relaxed text-text-muted">
-        {{ settings.welcomeMessage }}
-      </p>
-
-      <NuxtLink to="/album" class="btn-primary mt-2">Xem Album Ảnh</NuxtLink>
-    </div>
-  </section>
-
-  <LoveStorySection />
+    <LoveStorySection />
+  </div>
 </template>

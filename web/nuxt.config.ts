@@ -12,6 +12,17 @@ export default defineNuxtConfig({
   },
 
   app: {
+    // ĐÃ THỬ VÀ BỎ (bug thật đã gặp — mục nâng cấp "hiệu ứng chuyển trang"):
+    // bật `pageTransition` (cả 2 kiểu có/không `mode: 'out-in'`) làm điều
+    // hướng SPA giữa các trang bị TREO VĨNH VIỄN ở nội dung trang CŨ — xác
+    // nhận bằng test tay nhiều lần, kể cả ở tab trình duyệt hoàn toàn mới
+    // (loại trừ nguyên nhân cache/HMR): URL và tiêu đề `<title>` đổi đúng
+    // sang trang mới, nhưng DOM bên trong `<main>` không bao giờ đổi theo.
+    // Chưa xác định được nguyên nhân gốc trong thời gian cho phép (nghi vấn
+    // liên quan tới cách `useAsyncData`/top-level await trong các trang kết
+    // hợp với Suspense nội bộ của `<NuxtPage>`). Vì đây là bug NGHIÊM TRỌNG
+    // hơn hẳn việc "thiếu hiệu ứng" (trang bị đơ hẳn không dùng được), đã
+    // gỡ bỏ hoàn toàn để không làm hỏng trải nghiệm thật của khách truy cập.
     head: {
       htmlAttrs: { lang: 'vi' },
       link: [

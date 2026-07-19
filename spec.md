@@ -624,6 +624,17 @@ Vì tài khoản Always Free có rủi ro bị thu hồi (mục 16.2), backup **
 ### 19.5 Component mới tổng hợp (đợt nâng cấp này)
 `WishSubmitModal.vue`, `FallingPetal.vue`.
 
+## 20. Rà soát đồng nhất tổng thể — hiệu ứng còn thiếu (đợt sau mục 19)
+
+Sau khi tách đếm ngược riêng theo nhà (mục 19.1 + `index.vue`), chủ dự án yêu cầu rà lại toàn site tìm chỗ chưa đồng nhất/thiếu hiệu ứng. Đã tìm và chủ dự án duyệt 4 điểm, xử lý như sau:
+
+- **A. Hero trang chủ thiếu hiệu ứng xuất hiện** — ĐÃ SỬA: thêm `v-reveal` tuần tự (0/100/180/260/340/420ms) cho tagline/tên/ngày/2 badge đếm ngược/lời ngỏ/nút "Xem Album Ảnh" trong `index.vue`.
+- **B. Tiêu đề đầu mỗi trang không có hiệu ứng** — ĐÃ SỬA: thêm `v-reveal` cho khối H1+phụ đề ở `album.vue`, `loi-chuc.vue`, `gui-anh.vue`, `thong-tin.vue`.
+- **C. Popup xem lời chúc/xem ảnh thiếu hiệu ứng mở-đóng** (trong khi popup Gửi Lời Chúc đã có) — ĐÃ SỬA: thêm `<Transition>` fade+trượt nhẹ giống `WishSubmitModal.vue` vào `WishModal.vue`; thêm `<Transition>` fade (không trượt/scale, phù hợp lightbox toàn màn hình) vào `PhotoLightbox.vue`.
+- **D. Hiệu ứng chuyển trang (fade) khi điều hướng qua menu** — ĐÃ THỬ VÀ BỎ, xem chi tiết ở `nuxt.config.ts`: bật `app.pageTransition` (thử cả có/không `mode: 'out-in'`) làm điều hướng SPA giữa các trang bị **TREO VĨNH VIỄN** ở nội dung trang CŨ dù URL/`<title>` đã đổi đúng sang trang mới — bug thật, xác nhận bằng test tay nhiều lần kể cả ở tab trình duyệt hoàn toàn mới (loại trừ cache/HMR). Chưa xác định được nguyên nhân gốc trong thời gian cho phép; vì đây là lỗi nghiêm trọng hơn hẳn việc thiếu hiệu ứng (trang bị đơ, không dùng được), đã gỡ bỏ hoàn toàn để không ảnh hưởng khách truy cập thật. Nếu muốn làm lại sau này, cần điều tra kỹ hơn tương tác giữa `useAsyncData`/top-level `await` trong các trang và `<Suspense>` nội bộ của `<NuxtPage>`.
+
+**Bug phát hiện thêm trong lúc làm mục D (đã sửa, không phụ thuộc D)**: `index.vue` có 2 node gốc ở `<template>` (`<section>` và `<LoveStorySection>`) — vi phạm yêu cầu single-root-node của Vue `<Transition>`, tự nó không gây lỗi khi chưa có `pageTransition` nhưng là nợ kỹ thuật tiềm ẩn. Đã bọc lại trong 1 `<div>` duy nhất.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

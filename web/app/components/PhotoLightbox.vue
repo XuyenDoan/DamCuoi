@@ -45,6 +45,7 @@ function onTouchEnd(e: TouchEvent) {
 
 <template>
   <Teleport to="body">
+    <Transition name="lightbox-fade">
     <div
       v-if="currentPhoto"
       ref="dialogRef"
@@ -122,5 +123,24 @@ function onTouchEnd(e: TouchEvent) {
         {{ currentPhoto.caption }}
       </p>
     </div>
+    </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+.lightbox-fade-enter-active,
+.lightbox-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.lightbox-fade-enter-from,
+.lightbox-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-fade-enter-active,
+  .lightbox-fade-leave-active {
+    transition: none;
+  }
+}
+</style>
