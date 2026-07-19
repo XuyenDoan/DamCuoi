@@ -7,9 +7,13 @@ name: Deploy to production
 # cPanel (Node.js Selector), không có quyền root và giới hạn số luồng/tiến
 # trình rất thấp — không build trực tiếp trên server được (đã xác nhận thật
 # qua thử nghiệm: @tailwindcss/oxide panic "OS can't spawn worker thread"
-# ngay cả khi giới hạn 1 core CPU). Nên build ở GitHub Actions rồi chỉ rsync
+# ngay cả khi giới hạn 1 core CPU). Nên build ở GitHub Actions rồi chỉ đẩy
 # thư mục `.output` (đã build xong, thuần JS + binary đúng glibc) lên server,
 # sau đó gọi cloudlinux-selector restart để Passenger nạp bản mới.
+# Dùng `tar` nén rồi truyền qua SSH thay vì `rsync` — server hosting chia sẻ
+# này không có sẵn lệnh `rsync` (không có quyền cài, đã xác nhận thật:
+# "bash: rsync: command not found") nhưng `tar`/`gzip` luôn có sẵn trên mọi
+# hệ Linux kể cả hosting hạn chế nhất.
 on:
   push:
     branches: [main]
@@ -24,7 +28,7 @@ jobs:
     steps:
       - name: Cài Node.js 20 + công cụ cần thiết
         run: |
-          dnf install -y git openssh-clients rsync tar gzip
+          dnf install -y git openssh-clients tar gzip
           curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
           dnf install -y nodejs
           node -v
@@ -56,6 +60,6 @@ jobs:
           # được thay khi nằm bên trong giá trị 1 biến (đã gặp lỗi thật:
           # "Identity file ~/.ssh/... not accessible: No such file").
           SSH_OPTS="-i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "mkdir -p ~/repo/web/.output"
-          rsync -az --delete -e "ssh $SSH_OPTS" repo/web/.output/ "$SSH_USER@$SSH_HOST:~/repo/web/.output/"
+          ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "rm -rf ~/repo/web/.output && mkdir -p ~/repo/web/.output"
+          tar -czf - -C repo/web/.output . | ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "tar -xzf - -C ~/repo/web/.output"
           ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "/usr/sbin/cloudlinux-selector restart --json --interpreter nodejs --app-root repo/web"
