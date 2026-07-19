@@ -1,27 +1,53 @@
 name: Deploy to production
 
-# Mỗi lần push lên nhánh main, tự SSH vào VM và cập nhật app đang chạy —
-# xem hướng dẫn thiết lập đầy đủ (bao gồm cách tạo các secret bên dưới) tại
-# DEPLOY.md ở gốc repo.
+# Mỗi lần push lên main: build bên trong container AlmaLinux 8 (khớp glibc
+# 2.28 với server CloudLinux 8 của TinoHost — bắt buộc vì các gói native như
+# sharp/@tailwindcss/oxide biên dịch riêng theo glibc, build trên Ubuntu
+# runner mặc định sẽ KHÔNG chạy được trên server). Server này là gói hosting
+# cPanel (Node.js Selector), không có quyền root và giới hạn số luồng/tiến
+# trình rất thấp — không build trực tiếp trên server được (đã xác nhận thật
+# qua thử nghiệm: @tailwindcss/oxide panic "OS can't spawn worker thread"
+# ngay cả khi giới hạn 1 core CPU). Nên build ở GitHub Actions rồi chỉ rsync
+# thư mục `.output` (đã build xong, thuần JS + binary đúng glibc) lên server,
+# sau đó gọi cloudlinux-selector restart để Passenger nạp bản mới.
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    container:
+      image: almalinux:8
+
     steps:
-      - name: SSH và cập nhật app trên server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            set -e
-            cd ~/damcuoi
-            git pull origin main
-            cd web
-            npm ci
-            npm run build
-            pm2 restart damcuoi
+      - name: Cài Node.js 20 + công cụ cần thiết
+        run: |
+          dnf install -y git openssh-clients rsync tar gzip
+          curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+          dnf install -y nodejs
+          node -v
+
+      - name: Clone code nhánh main mới nhất
+        run: git clone --depth 1 --branch main https://github.com/${{ github.repository }}.git repo
+
+      - name: Cài dependencies (kể cả devDependencies) + build
+        working-directory: repo/web
+        run: |
+          npm ci --include=dev
+          npm run build
+
+      - name: Đẩy bản build lên server qua rsync/SSH + khởi động lại app
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "mkdir -p ~/repo/web/.output"
+          rsync -az --delete -e "ssh -i ~/.ssh/id_ed25519" repo/web/.output/ "$SSH_USER@$SSH_HOST:~/repo/web/.output/"
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "/usr/sbin/cloudlinux-selector restart --json --interpreter nodejs --app-root repo/web"
