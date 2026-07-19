@@ -1,0 +1,27 @@
+name: Deploy to production
+
+# Mỗi lần push lên nhánh main, tự SSH vào VM và cập nhật app đang chạy —
+# xem hướng dẫn thiết lập đầy đủ (bao gồm cách tạo các secret bên dưới) tại
+# DEPLOY.md ở gốc repo.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH và cập nhật app trên server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/damcuoi
+            git pull origin main
+            cd web
+            npm ci
+            npm run build
+            pm2 restart damcuoi

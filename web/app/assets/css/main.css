@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/*
+  Design tokens theo D:\Dev\DamCuoi\spec.md mục 4 (Bảng màu) & mục 6 (Typography).
+  Không thêm màu ngoài palette này (checklist 17.1).
+*/
+@theme {
+  --font-heading: "Playfair Display", "Times New Roman", serif;
+  --font-accent: "Cormorant Garamond", "Playfair Display", serif;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+
+  --color-primary: #db2777;
+  --color-primary-light: #f9a8d4;
+  --color-secondary: #4d7c5f;
+  --color-secondary-light: #a7c4a0;
+  --color-bg: #ffffff;
+  --color-surface: #fdf2f8;
+  --color-text: #3f2a33;
+  --color-text-muted: #7a6a70;
+  --color-gold: #c9a227;
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Chặn triệt để thanh cuộn ngang ngoài ý muốn (yêu cầu tối ưu responsive) —
+     lưới ảnh, hoạ tiết hoa sen nền... không được phép làm trang cuộn ngang.
+     LƯU Ý (bug thật đã gặp & fix): dùng `overflow-x: clip` ở đây từng làm
+     MẤT LUÔN khả năng cuộn dọc của cả trang — khi overflow-x ở 1 giá trị
+     không phải `visible`/`hidden`/`auto` (VD `clip`) còn overflow-y vẫn
+     `visible`, một số engine không áp dụng đúng quy tắc "trục còn lại tự
+     chuyển sang `auto`", khiến cả 2 trục bị khoá cuộn. Dùng `hidden` (giá
+     trị chuẩn, được hỗ trợ đúng quy tắc này ở mọi trình duyệt) thay vì `clip`.
+     CHỈ đặt overflow-x ở `html`, KHÔNG lặp lại ở `body` — nếu cả 2 cùng đặt,
+     `body` tự trở thành 1 scroll container RIÊNG tách khỏi viewport/`window`,
+     khiến `window.scrollTo`/cuộn trang bằng chuột không còn hoạt động (đã
+     xác nhận bug thật bằng test tay: `window.scrollY` đứng yên ở 0 dù trang
+     dài hơn viewport nhiều lần). */
+  overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-8 py-3.5
+      font-body text-sm font-medium tracking-wide text-white shadow-sm transition-all
+      duration-150 ease-out hover:bg-primary/90 active:scale-95;
+    min-height: 44px;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border border-secondary
+      px-8 py-3.5 font-body text-sm font-medium tracking-wide text-secondary transition-all
+      duration-150 ease-out hover:bg-secondary hover:text-white active:scale-95;
+    min-height: 44px;
+  }
+}
+
+/* Scroll-reveal (v-reveal directive) — spec.md mục 8 */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  transition: opacity 350ms ease-out, transform 350ms ease-out;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}

@@ -1,0 +1,15 @@
+# Dữ liệu riêng tư — TUYỆT ĐỐI không commit lên Git công khai (spec.md mục 14.4)
+/data
+/uploads
+
+# Cấu hình cục bộ của Claude Code (không cần thiết để chạy/deploy app)
+/.claude
+
+# Nuxt app (web/) đã có .gitignore riêng, nhưng phòng khi lint chạy ở root
+web/node_modules
+web/.output
+web/.nuxt
+web/.nitro
+web/.env
+web/.env.*
+!web/.env.example
