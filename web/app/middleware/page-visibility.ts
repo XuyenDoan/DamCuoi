@@ -1,4 +1,4 @@
-import { pageKeyFromPath } from '../../shared/pages'
+import { pageKeyFromPath } from '#shared/pages'
 
 /**
  * Chặn truy cập trực tiếp vào 1 trang đang bị admin tắt hiển thị (mục nâng

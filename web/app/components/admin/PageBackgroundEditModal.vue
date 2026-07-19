@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ManagedPage } from '../../../shared/pages'
+import type { ManagedPage } from '#shared/pages'
 
 const props = defineProps<{
   page: ManagedPage

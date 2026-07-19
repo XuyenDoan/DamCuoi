@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MANAGED_PAGES } from '../../shared/pages'
+import { MANAGED_PAGES } from '#shared/pages'
 
 const { data: settings } = useSiteSettings()
 

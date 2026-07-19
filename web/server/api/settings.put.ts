@@ -1,7 +1,7 @@
 import { requireAdmin } from '../utils/adminSession'
 import { settingsStore } from '../utils/store'
 import type { Settings } from '../utils/types'
-import { MANAGED_PAGES, isHideablePageKey } from '../../shared/pages'
+import { MANAGED_PAGES, isHideablePageKey } from '#shared/pages'
 
 /**
  * Google Maps mặc định cho sao chép cả đoạn HTML <iframe>...</iframe>, không

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '../../../server/utils/types'
-import { MANAGED_PAGES } from '../../../shared/pages'
+import { MANAGED_PAGES } from '#shared/pages'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 useHead({ title: 'Nội Dung Trang — Quản Trị' })

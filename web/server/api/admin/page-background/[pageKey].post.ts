@@ -5,7 +5,7 @@ import { requireAdmin } from '../../../utils/adminSession'
 import { uploadsSubdir, getUploadsDir } from '../../../utils/paths'
 import { settingsStore } from '../../../utils/store'
 import { sharp } from '../../../utils/sharpLoader'
-import { isManagedPageKey } from '../../../../shared/pages'
+import { isManagedPageKey } from '#shared/pages'
 
 const genId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10)
 const MAX_FILE_SIZE = 15 * 1024 * 1024

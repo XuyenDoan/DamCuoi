@@ -3,7 +3,7 @@ import path from 'node:path'
 import { requireAdmin } from '../../../utils/adminSession'
 import { getUploadsDir } from '../../../utils/paths'
 import { settingsStore } from '../../../utils/store'
-import { isManagedPageKey } from '../../../../shared/pages'
+import { isManagedPageKey } from '#shared/pages'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)

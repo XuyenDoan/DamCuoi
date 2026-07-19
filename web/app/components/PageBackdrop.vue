@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pageKeyFromPath } from '../../shared/pages'
+import { pageKeyFromPath } from '#shared/pages'
 
 /**
  * Nền toàn trang, cố định khi cuộn, nằm phía sau nội dung (mục 15.2 spec.md):
