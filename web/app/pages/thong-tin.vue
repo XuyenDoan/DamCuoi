@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { EventInfoBlock } from '../../server/utils/types'
-
 definePageMeta({ middleware: 'page-visibility' })
 useHead({ title: 'Thông Tin Lễ Cưới — Album Cưới' })
 
@@ -10,11 +8,6 @@ const families = computed(() => [
   { key: 'groom', label: 'Nhà Trai', info: settings.value?.eventInfo.groom },
   { key: 'bride', label: 'Nhà Gái', info: settings.value?.eventInfo.bride }
 ])
-
-/** Nhà nào chưa nhập gì thì không hiện khối rỗng gây rối mắt cho khách */
-function hasContent(info: EventInfoBlock | undefined) {
-  return !!(info?.ceremonyTime || info?.venueName || info?.venueAddress)
-}
 </script>
 
 <template>
@@ -30,7 +23,7 @@ function hasContent(info: EventInfoBlock | undefined) {
       <div class="grid gap-8 sm:grid-cols-2">
         <template v-for="family in families" :key="family.key">
           <div
-            v-if="hasContent(family.info)"
+            v-if="hasEventContent(family.info)"
             v-reveal
             class="flex flex-col rounded-xl border border-secondary-light/40 bg-surface p-6 sm:p-8"
           >

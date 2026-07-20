@@ -134,7 +134,7 @@ const wordmark = computed(() => {
       </p>
       <NuxtLink
         to="/admin"
-        class="focus-ring relative mt-6 inline-block rounded-sm text-xs text-text-muted/60 underline-offset-4 transition-colors duration-200 hover:text-text-muted hover:underline"
+        class="focus-ring relative mt-6 inline-block rounded-sm text-xs text-text-muted underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
       >
         Quản trị
       </NuxtLink>

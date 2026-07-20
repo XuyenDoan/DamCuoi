@@ -98,13 +98,16 @@ function onTouchEnd(e: TouchEvent) {
           </svg>
         </button>
 
-        <img
-          :src="`/uploads/${currentPhoto.filename}`"
-          :alt="currentPhoto.caption || 'Ảnh cưới'"
-          :width="currentPhoto.width"
-          :height="currentPhoto.height"
-          class="max-h-[75vh] max-w-full rounded-md object-contain"
-        />
+        <Transition name="photo-fade" mode="out-in">
+          <img
+            :key="currentPhoto.id"
+            :src="`/uploads/${currentPhoto.filename}`"
+            :alt="currentPhoto.caption || 'Ảnh cưới'"
+            :width="currentPhoto.width"
+            :height="currentPhoto.height"
+            class="max-h-[75vh] max-w-full rounded-md object-contain"
+          />
+        </Transition>
 
         <button
           v-if="photos.length > 1"
@@ -137,9 +140,20 @@ function onTouchEnd(e: TouchEvent) {
   opacity: 0;
 }
 
+.photo-fade-enter-active,
+.photo-fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+.photo-fade-enter-from,
+.photo-fade-leave-to {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lightbox-fade-enter-active,
-  .lightbox-fade-leave-active {
+  .lightbox-fade-leave-active,
+  .photo-fade-enter-active,
+  .photo-fade-leave-active {
     transition: none;
   }
 }

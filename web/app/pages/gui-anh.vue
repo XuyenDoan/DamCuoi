@@ -127,9 +127,11 @@ async function submitUpload() {
     </section>
 
     <section class="mx-auto max-w-xl px-6 pb-24">
-      <div v-if="successCount > 0" class="mb-6 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-        Đã gửi thành công {{ successCount }} ảnh — cảm ơn bạn! Ảnh sẽ xuất hiện trong Album sau khi được duyệt.
-      </div>
+      <Transition name="notice-fade">
+        <div v-if="successCount > 0" class="mb-6 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          Đã gửi thành công {{ successCount }} ảnh — cảm ơn bạn! Ảnh sẽ xuất hiện trong Album sau khi được duyệt.
+        </div>
+      </Transition>
 
       <form @submit.prevent="submitUpload">
         <label class="mb-2 block text-sm font-medium text-text" for="uploader-name">
@@ -205,9 +207,15 @@ async function submitUpload() {
           </li>
         </ul>
 
-        <p v-if="submitError" role="alert" class="mt-4 text-sm text-error">{{ submitError }}</p>
+        <Transition name="notice-fade">
+          <p v-if="submitError" role="alert" class="mt-4 text-sm text-error">{{ submitError }}</p>
+        </Transition>
 
-        <button type="submit" class="btn-primary mt-6 w-full" :disabled="!canSubmit">
+        <button type="submit" class="btn-primary mt-6 w-full gap-2" :disabled="!canSubmit">
+          <svg v-if="isSubmitting" viewBox="0 0 24 24" fill="none" class="h-4 w-4 animate-spin">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
           <template v-if="isSubmitting">Đang gửi...</template>
           <template v-else-if="readyFiles.length > 0">Gửi {{ readyFiles.length }} Ảnh</template>
           <template v-else>Gửi Ảnh</template>
@@ -216,3 +224,22 @@ async function submitUpload() {
     </section>
   </div>
 </template>
+
+<style scoped>
+.notice-fade-enter-active,
+.notice-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.notice-fade-enter-from,
+.notice-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-fade-enter-active,
+  .notice-fade-leave-active {
+    transition: none;
+  }
+}
+</style>

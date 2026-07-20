@@ -156,3 +156,18 @@ body {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
+
+/* Scroll indicator ở đáy Hero (index.vue) — trôi lên xuống rất nhẹ, chậm,
+   không phải bounce (không nảy/giật) — chu kỳ dài 2s, biên độ chỉ 6px. */
+@keyframes gentle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+.scroll-hint-icon {
+  animation: gentle-float 2s ease-in-out infinite;
+}
