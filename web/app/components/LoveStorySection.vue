@@ -49,7 +49,7 @@ function prevPhoto() {
         class="flex gap-5"
       >
         <div class="flex flex-col items-center">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-sm text-primary transition-colors duration-200 hover:bg-primary/20">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-sm text-primary shadow-none transition-all duration-200 hover:bg-primary/25 hover:shadow-[0_0_14px_rgba(219,39,119,0.35)]">
             {{ milestone.year }}
           </span>
           <LotusMotif v-if="i < loveStory.length - 1" class="my-2 h-6 w-6 shrink-0 text-secondary-light" />

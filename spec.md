@@ -819,6 +819,16 @@ Không có nơi nào đã có sẵn 1 kiểu hover riêng cho loại nội dung 
 
 **Thành phần sửa**: `assets/css/main.css` (class `.text-hover`/`.text-hover-dark`), `pages/index.vue`, `layouts/default.vue`, `components/EventInfoCard.vue`, `components/LoveStorySection.vue`, `components/PhotoLightbox.vue`.
 
+### 27.5 Tăng cường độ rõ (phản hồi: hiệu ứng ban đầu "mờ nhạt quá")
+
+Bản đầu chỉ đổi màu chữ (`hover:text-primary`) — không đủ nổi bật, nhất là với đoạn văn dài chữ nhỏ. Tăng thêm 2 lớp hiệu ứng, vẫn trong nhóm được phép (chuyển màu + chuyển động rất nhỏ bằng `transform`), không đổi layout:
+
+- Thêm quầng sáng mềm `text-shadow: 0 0 18px` màu primary 35% alpha (biến thể tối dùng trắng 50% alpha) — tạo cảm giác "phát sáng nhẹ" giúp mắt nhận ra ngay, không đổi opacity/kích thước chữ nên không giảm khả năng đọc.
+- Nhấc nhẹ `transform: translateY(-2px)` — chuyển động rất nhỏ, không ảnh hưởng bố cục xung quanh (`transform` không tác động dòng chảy layout, các phần tử khác không bị đẩy).
+- Badge năm mốc thời gian (`LoveStorySection.vue`) tăng từ `hover:bg-primary/20` lên `hover:bg-primary/25` + thêm `hover:shadow-[...]` cùng tông quầng sáng cho đồng bộ.
+
+Đã verify lại: chụp ảnh trước/sau hover xác nhận trực quan rõ ràng hơn hẳn (chữ mờ xám → hồng đậm kèm quầng sáng), không tràn ngang, `prefers-reduced-motion` vẫn đóng băng đúng.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

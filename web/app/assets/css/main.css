@@ -129,16 +129,20 @@ body {
   Layers.
 */
 .text-hover {
-  transition: color 200ms;
+  transition: color 200ms, transform 200ms;
 }
 .text-hover:hover {
   color: var(--color-primary);
+  transform: translateY(-2px);
+  text-shadow: 0 0 18px rgba(219, 39, 119, 0.35);
 }
 .text-hover-dark {
-  transition: color 200ms;
+  transition: color 200ms, transform 200ms;
 }
 .text-hover-dark:hover {
   color: #fff;
+  transform: translateY(-2px);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
 }
 
 /* Scroll-reveal (v-reveal directive) — spec.md mục 8 */
