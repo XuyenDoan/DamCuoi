@@ -37,7 +37,15 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    adminSessionSecret: process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-in-production',
+    // Lỗi thật đã gặp (rà soát dev): chuỗi mặc định cũ 'dev-secret-change-in-production'
+    // chỉ dài 31 ký tự — `useSession` (h3, dùng iron-webcrypto) yêu cầu TỐI
+    // THIỂU 32 ký tự, thiếu 1 ký tự làm /admin/login lỗi 500 ngay cả khi mật
+    // khẩu đúng (không liên quan logic đăng nhập, lỗi xảy ra ở bước tạo cookie
+    // phiên). Chỉ ảnh hưởng khi CHƯA set `ADMIN_SESSION_SECRET` trong `.env`
+    // (luôn phải set khi deploy thật — xem `.env.example`); nối thêm hậu tố
+    // cho đủ 32+ ký tự để môi trường dev mới clone chạy được ngay không cần
+    // cấu hình gì thêm.
+    adminSessionSecret: process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-in-production-32',
     dataDir: process.env.DATA_DIR || '',
     uploadsDir: process.env.UPLOADS_DIR || ''
   }

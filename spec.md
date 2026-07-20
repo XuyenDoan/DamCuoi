@@ -701,4 +701,25 @@ Rà soát trước khi sửa: dự án có **5 popup** — `WishModal`, `WishSub
 
 ---
 
+## 23. Môi trường Staging + quy trình dev/test nhanh cho AI code (đợt sau mục 22)
+
+Chủ dự án đã có sẵn **môi trường staging thật**: **https://gocnha.tino.page/** — mỗi lần commit/push lên nhánh `main` trên GitHub sẽ TỰ ĐỘNG deploy lên đây (trigger CI/CD có sẵn, chi tiết pipeline xem `DEPLOY.md`). Đây là nơi chủ dự án tự mở bằng điện thoại/trình duyệt thật để xem kết quả sau khi AI code đã push.
+
+### 23.1 Giới hạn quan trọng — AI code (phiên chạy trong môi trường "Claude Code on the web") KHÔNG tự mở được link staging
+Đã thử `curl` trực tiếp tới `https://gocnha.tino.page/` từ phiên làm việc AI — bị chặn (HTTP 403) bởi proxy mạng nội bộ của môi trường sandbox. Xác nhận qua endpoint chẩn đoán (`$HTTPS_PROXY/__agentproxy/status`): phiên AI chỉ được phép truy cập ra ngoài tới 1 danh sách domain cố định phục vụ cài đặt gói (npm, pypi, GitHub, anthropic.com...) — **không được phép truy cập tuỳ ý ra internet**, kể cả các trang web bình thường (đã thử luôn `google.com` cũng bị chặn tương tự). Đây là giới hạn ở cấp cấu hình môi trường (network policy chọn lúc tạo environment), KHÔNG phải lỗi tạm thời, AI không có cách nào tự vượt qua từ bên trong phiên.
+
+**Hệ quả bắt buộc cho AI các phiên sau**: KHÔNG được giả định có thể mở/kiểm tra `https://gocnha.tino.page/` trực tiếp để tự verify thay đổi. Vẫn phải dùng cách hiện có: chạy `npm run dev` cục bộ trong sandbox + Playwright (đã dùng xuyên suốt mục 18–22) để tự kiểm tra trước khi commit. Nếu chủ dự án tương lai đổi network policy của environment để mở rộng quyền truy cập internet (xem docs Claude Code on the web), AI có thể thử lại `curl` tới link staging để xác nhận đã truy cập được trước khi phụ thuộc vào nó.
+
+### 23.2 Rút ngắn thời gian dựng môi trường dev — `npm run seed:dev`
+Trước đây mỗi lần cần dữ liệu mẫu để test (tên cô dâu/chú rể, giờ lễ 2 nhà, câu chuyện tình yêu, tài khoản admin...) đều phải gõ tay từng file JSON + tự băm mật khẩu bằng script rời — tốn thời gian, dễ quên field. Đã thêm **`web/scripts/dev-seed.mjs`** (chạy qua `npm run seed:dev` trong thư mục `web/`): tạo sẵn `/data/settings.json` + `/data/albums.json` + `/data/admin.json` (mật khẩu admin dev cố định `dev12345`, đã hash bcrypt) chỉ trong 1 lệnh. Mặc định KHÔNG ghi đè file đã tồn tại (an toàn nếu đang có dữ liệu test dở); thêm `--force` để ghi đè. `/data` và `/uploads` vẫn nằm trong `.gitignore` như quy định mục 14.4, script không phá vỡ nguyên tắc đó.
+
+**Lỗi thật phát hiện & fix kèm theo**: khi test đăng nhập admin trên môi trường dev mới (chưa set file `.env`), `/api/admin/login` báo lỗi 500 "Password string too short (min 32 characters required)" dù mật khẩu nhập đúng — lỗi xảy ra ở bước `useSession` (h3, dùng `iron-webcrypto`) tạo cookie phiên, KHÔNG liên quan logic kiểm tra mật khẩu. Nguyên nhân: chuỗi mặc định `adminSessionSecret` trong `nuxt.config.ts` (dùng khi chưa set `ADMIN_SESSION_SECRET` trong `.env`) chỉ dài **31 ký tự**, thiếu đúng 1 ký tự so với yêu cầu tối thiểu 32 của thư viện. Đã sửa thành `'dev-secret-change-in-production-32'` (34 ký tự) — chỉ ảnh hưởng môi trường dev chưa cấu hình `.env`; khi deploy thật vẫn PHẢI tự set `ADMIN_SESSION_SECRET` riêng (đã ghi chú rõ hơn trong `.env.example`, không đổi gì ở production hiện tại vì production đã có `.env` riêng qua CI/CD).
+
+### 23.3 Quy trình khuyến nghị cho AI khi cần test lại UI (áp dụng từ đây)
+1. `cd web && npm run seed:dev` (nếu `/data` chưa có hoặc muốn dữ liệu mẫu mới) rồi `npm run dev`.
+2. Trong CÙNG 1 phiên làm việc, **không cần dọn sạch `/data`, `/uploads` hay tắt server dev giữa các lần sửa** — giữ nguyên để tái sử dụng cho lần kiểm tra tiếp theo, chỉ dọn dẹp ở bước cuối cùng trước khi kết thúc phiên (vì `/data`/`/uploads` không nằm trong git, không ảnh hưởng gì tới việc dọn hay không dọn đối với repo, chỉ là thói quen giữ sandbox sạch).
+3. Dùng Playwright (đã cài sẵn ở `/opt/pw-browsers`, xem hướng dẫn `NODE_PATH`/`executablePath` trong các đợt trước) để chụp ảnh/đo đạc thay vì đoán bằng mắt khi có nghi ngờ về responsive/animation — cách này đã giúp phát hiện chính xác nhiều lỗi thật (tràn ngang, đè nội dung, vùng chạm dưới chuẩn) mà đọc code không thấy được.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*
