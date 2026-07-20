@@ -63,18 +63,18 @@ const openFamilyLabel = computed(() => (openFamily.value === 'groom' ? 'Nhà Tra
         <p
           v-if="settings?.heroTagline"
           v-reveal="0"
-          class="font-accent text-lg italic tracking-wide text-text-muted"
+          class="text-hover font-accent text-lg italic tracking-wide text-text-muted"
         >
           {{ settings.heroTagline }}
         </p>
 
         <h1 v-reveal="100" class="font-heading text-5xl leading-tight text-text sm:text-6xl md:text-7xl">
-          <span>{{ settings?.coupleNames.groom }}</span>
+          <span class="text-hover">{{ settings?.coupleNames.groom }}</span>
           <span class="mx-3 text-primary">&amp;</span>
-          <span>{{ settings?.coupleNames.bride }}</span>
+          <span class="text-hover">{{ settings?.coupleNames.bride }}</span>
         </h1>
 
-        <p v-if="formattedDate" v-reveal="180" class="text-sm uppercase tracking-[0.3em] text-text-muted">
+        <p v-if="formattedDate" v-reveal="180" class="text-hover text-sm uppercase tracking-[0.3em] text-text-muted">
           {{ formattedDate }}
         </p>
 
@@ -104,7 +104,7 @@ const openFamilyLabel = computed(() => (openFamily.value === 'groom' ? 'Nhà Tra
         <p
           v-if="settings?.welcomeMessage"
           v-reveal="340"
-          class="max-w-xl text-base leading-relaxed text-text-muted"
+          class="text-hover max-w-xl text-base leading-relaxed text-text-muted"
         >
           {{ settings.welcomeMessage }}
         </p>

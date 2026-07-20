@@ -774,4 +774,51 @@ Quét toàn bộ `app/pages`, `app/components`, `app/layouts` tìm 3 nhóm vấn
 
 ---
 
+## 26. Hover cho liên kết dạng chữ thuần (đợt sau mục 25)
+
+Bổ sung theo yêu cầu riêng: gạch chân mềm (`hover:underline underline-offset-4`) khi hover cho các liên kết chỉ là chữ (không có khung nút) — wordmark, menu nav desktop/mobile, "Quản trị" ở footer (`layouts/default.vue`) — giữ nguyên hiệu ứng đổi màu `hover:text-primary` đã có, chỉ thêm gạch chân làm rõ hơn đây là link. Đồng thời tên khách trong card Lời chúc (`loi-chuc.vue`) được thêm `group-hover:text-primary` — trước đó chỉ icon hoa sen fallback đổi màu khi hover cả card, tên khách chưa phản hồi.
+
+Không thêm hover cho văn bản tĩnh không dẫn tới hành động nào (tiêu đề trang, mô tả, nội dung mốc thời gian...).
+
+**Thành phần sửa**: `layouts/default.vue`, `pages/loi-chuc.vue`.
+
+---
+
+## 27. Hover cho nội dung văn bản cấu hình từ Admin (đợt sau mục 26)
+
+### 27.1 Rà soát — vị trí hiển thị nội dung động từ Admin trên trang công khai
+
+Quét toàn bộ `app/pages`/`app/components` (loại trừ `admin/*` theo đúng phạm vi yêu cầu) tìm nơi hiển thị dữ liệu do Admin nhập ở `admin/noi-dung.vue`/`admin/anh.vue`, đối chiếu với `Settings`/`Photo` type (`server/utils/types.ts`):
+
+| Nội dung Admin cấu hình | Vị trí hiển thị công khai | Trước đợt này |
+|---|---|---|
+| `coupleNames.groom`/`.bride` | `index.vue` (h1), wordmark `layouts/default.vue` | Wordmark đã có hover (nằm trong link — mục 26); h1 trang chủ **chưa có** |
+| `heroTagline`, `welcomeMessage` | `index.vue` | Chưa có |
+| `weddingDate` (định dạng thành `formattedDate`) | `index.vue` | Chưa có |
+| `footerText` | `layouts/default.vue` (footer) | Chưa có |
+| `eventInfo.{groom,bride}.ceremonyTime/venueName/venueAddress` | `EventInfoCard.vue` (dùng chung ở `/thong-tin` và popup đếm ngược trang chủ) | Chưa có |
+| `loveStory[].year/title/content` | `LoveStorySection.vue` | Chưa có |
+| `photos[].caption` (Admin sửa ở `admin/anh.vue`) | `PhotoLightbox.vue` (chú thích dưới ảnh) | Chưa có |
+
+Không có nơi nào đã có sẵn 1 kiểu hover riêng cho loại nội dung này — hệ thống hover hiện tại (mục 25) chỉ phủ phần tử **bấm được**. Các đoạn text trên đều là hiển thị thuần, không gắn `@click`, nên tự thiết kế 1 cặp class mới thay vì tái dùng `.focus-ring`/nav-link (dùng lại nguyên xi sẽ ngụ ý "bấm được" sai bản chất).
+
+### 27.2 Hiệu ứng đã thiết kế & áp dụng
+
+- `.text-hover` (nền sáng): `transition-colors duration-200` + `hover:text-primary` — đổi màu nhẹ sang hồng thương hiệu, KHÔNG dùng underline/con trỏ pointer (tránh ngụ ý bấm được, chỉ là phản hồi "đang rê chuột tới").
+- `.text-hover-dark` (nền tối — chú thích ảnh trong `PhotoLightbox` nền đen): `hover:text-white` (sáng dần lên) thay vì ngả màu primary, cùng logic đã dùng với `.focus-ring-dark`.
+- Áp dụng cho: `heroTagline`, 2 span tên cô dâu/chú rể trong h1, `formattedDate`, `welcomeMessage` (`index.vue`); `footerText` (`layouts/default.vue`); `formattedTime`, `venueName`, `venueAddress` (`EventInfoCard.vue` — tự động áp dụng cho cả trang Thông tin lẫn popup đếm ngược nhờ dùng chung 1 component); `milestone.title`, `milestone.content` (`LoveStorySection.vue`) + badge `milestone.year` dùng `hover:bg-primary/20` (đổi nền thay vì chữ vì chữ trong badge đã ở `text-primary` tối đa, không đổi tiếp được) ; `photo.caption` (`PhotoLightbox.vue`, dùng biến thể `-dark`).
+- Không thêm hover cho nhãn UI mặc định trong code (VD "Thời gian"/"Địa điểm", tiêu đề "Câu Chuyện Của Chúng Tôi", `family.label` "Nhà Trai"/"Nhà Gái" — các chuỗi này hardcode trong component, không phải dữ liệu Admin nhập).
+
+### 27.3 Lỗi thật gặp phải & fix trong lúc code (không phải lúc verify)
+
+Đặt `.text-hover`/`.text-hover-dark` trong `@layer components` (giống `.focus-ring` ở mục 25) khiến hiệu ứng **không chạy ở gần hết mọi nơi áp dụng**, chỉ chạy đúng ở 2 span tên cô dâu/chú rể. Nguyên nhân: Tailwind v4 khai báo thứ tự cascade layer `theme, base, components, utilities` — layer đứng sau (`utilities`) luôn thắng layer đứng trước (`components`) bất kể độ đặc hiệu selector hay có pseudo-class `:hover` hay không (đặc tả CSS Cascade Layers: so sánh layer trước, chỉ so specificity khi cùng layer). Mọi vị trí áp dụng đều có kèm 1 utility màu chữ khác ngay trên cùng thẻ (VD `text-text-muted`, `text-text`) — utility đó nằm ở layer `utilities` nên đè mất `.text-hover:hover` dù đã hover đúng vị trí. Chỉ 2 span tên cô dâu/chú rể (không có utility màu riêng, màu kế thừa từ `h1` cha) mới tình cờ không bị đè, dễ gây nhầm lẫn tưởng code đúng ở chỗ khác. **Fix**: đưa hẳn `.text-hover`/`.text-hover-dark` ra NGOÀI mọi `@layer` (đặt cạnh `.reveal-init`/`.reveal-visible` — cũng đang unlayered) — CSS không gắn layer luôn thắng MỌI CSS có gắn layer bất kể layer nào, theo đúng đặc tả. Đã verify lại bằng Playwright: tất cả 10/10 vị trí dùng `.text-hover` đổi màu đúng khi hover (đo `getComputedStyle().color` trước/sau), riêng `.text-hover-dark` (chú thích ảnh) ban đầu tưởng vẫn lỗi khi test tự động (`force: true` hover) — hoá ra do khung nổi Nuxt DevTools (chỉ xuất hiện ở môi trường dev) che đúng vị trí cuối màn hình, chặn hit-test của trình duyệt; xoá phần tử `#nuxt-devtools-container` trước khi hover trong script test thì đổi màu đúng — không phải lỗi code, chỉ là nhiễu từ công cụ dev.
+
+### 27.4 Tự kiểm tra sau khi hoàn thành
+
+`npx vue-tsc --noEmit` sạch. Playwright xác nhận toàn bộ 11 vị trí (`heroTagline`, 2 tên, `formattedDate`, `welcomeMessage`, `footerText`, `formattedTime`, `venueAddress`, `milestone.title`, `milestone.content`, `photo.caption`) đổi màu đúng khi hover, không đổi ở 1 vị trí nào ngoài ý muốn khác; không tràn ngang ở trang chủ và `/thong-tin`; `prefers-reduced-motion` vẫn đóng băng transition mới (đo `transitionDuration` ≈ 0ms) nhờ quy tắc chặn cứng sẵn có trong `main.css`, không cần code riêng.
+
+**Thành phần sửa**: `assets/css/main.css` (class `.text-hover`/`.text-hover-dark`), `pages/index.vue`, `layouts/default.vue`, `components/EventInfoCard.vue`, `components/LoveStorySection.vue`, `components/PhotoLightbox.vue`.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

@@ -104,6 +104,43 @@ body {
   }
 }
 
+/*
+  Hover cho nội dung văn bản CẤU HÌNH TỪ ADMIN nhưng không gắn hành động click
+  nào (VD: câu chào mừng, mô tả, mốc thời gian câu chuyện tình yêu, giờ/địa
+  điểm lễ cưới...) — khác `.focus-ring` (dành cho phần tử BẤM ĐƯỢC). Mục đích
+  chỉ là phản hồi "đang rê chuột tới" cho cảm giác sống động, KHÔNG ngụ ý có
+  thể bấm (không dùng underline/con trỏ pointer). `.text-hover`: nền sáng.
+  `.text-hover-dark`: nền tối (VD chú thích ảnh trong PhotoLightbox) — sáng
+  dần lên thay vì ngả màu primary để hợp nền tối, cùng logic với
+  `.focus-ring-dark`.
+
+  LƯU Ý (bug thật đã gặp & fix): đặt trong `@layer components` như các class
+  khác ở trên khiến hiệu ứng KHÔNG chạy ở phần lớn nơi áp dụng — Tailwind v4
+  xếp cascade layer theo thứ tự `theme, base, components, utilities`, và
+  layer đứng sau luôn thắng layer đứng trước bất kể độ đặc hiệu selector hay
+  có pseudo-class (`:hover`) hay không. Các phần tử này gần như luôn có kèm
+  1 utility màu chữ khác ngay trên cùng thẻ (VD `text-text-muted`) — utility
+  đó nằm ở layer `utilities` (sau `components`) nên đè mất `.text-hover:hover`
+  dù đã hover đúng. Chỉ nơi KHÔNG có utility màu nào khác cạnh tranh (span tên
+  cô dâu/chú rể) mới vô tình chạy đúng, dễ gây nhầm là bug ở chỗ khác. Fix
+  bằng cách đưa hẳn 2 class này ra NGOÀI `@layer` (giống `.reveal-init`/
+  `.reveal-visible` bên dưới) — CSS không gắn layer luôn được ưu tiên hơn
+  MỌI CSS có gắn layer, bất kể layer nào, theo đúng đặc tả CSS Cascade
+  Layers.
+*/
+.text-hover {
+  transition: color 200ms;
+}
+.text-hover:hover {
+  color: var(--color-primary);
+}
+.text-hover-dark {
+  transition: color 200ms;
+}
+.text-hover-dark:hover {
+  color: #fff;
+}
+
 /* Scroll-reveal (v-reveal directive) — spec.md mục 8 */
 .reveal-init {
   opacity: 0;

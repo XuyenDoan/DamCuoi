@@ -129,7 +129,7 @@ const wordmark = computed(() => {
 
     <footer class="relative overflow-hidden border-t border-secondary-light/30 bg-surface px-6 py-12 text-center">
       <LotusWatermark position="center" tone="secondary" size="w-64" />
-      <p class="relative font-accent text-lg italic text-text-muted">
+      <p class="text-hover relative font-accent text-lg italic text-text-muted">
         {{ settings?.footerText }}
       </p>
       <NuxtLink

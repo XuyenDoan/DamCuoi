@@ -49,14 +49,14 @@ function prevPhoto() {
         class="flex gap-5"
       >
         <div class="flex flex-col items-center">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-sm text-primary">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-sm text-primary transition-colors duration-200 hover:bg-primary/20">
             {{ milestone.year }}
           </span>
           <LotusMotif v-if="i < loveStory.length - 1" class="my-2 h-6 w-6 shrink-0 text-secondary-light" />
         </div>
         <div class="pb-8">
-          <h3 class="font-heading text-xl text-text">{{ milestone.title }}</h3>
-          <p class="mt-1 text-text-muted">{{ milestone.content }}</p>
+          <h3 class="text-hover font-heading text-xl text-text">{{ milestone.title }}</h3>
+          <p class="text-hover mt-1 text-text-muted">{{ milestone.content }}</p>
 
           <div v-if="milestone.photos?.length" class="mt-3 flex gap-2 overflow-x-auto pb-1">
             <button

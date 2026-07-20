@@ -119,7 +119,7 @@ function onTouchEnd(e: TouchEvent) {
         </button>
       </div>
 
-      <p v-if="currentPhoto.caption" class="px-6 pb-6 text-center text-sm text-white/80">
+      <p v-if="currentPhoto.caption" class="text-hover-dark px-6 pb-6 text-center text-sm text-white/80">
         {{ currentPhoto.caption }}
       </p>
     </div>

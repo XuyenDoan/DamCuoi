@@ -34,7 +34,7 @@ const mapsSearchUrl = computed(() => {
         </svg>
         <div>
           <p class="text-sm font-medium text-text-muted">Thời gian</p>
-          <p class="text-lg text-text">{{ formattedTime || 'Đang cập nhật' }}</p>
+          <p class="text-hover text-lg text-text">{{ formattedTime || 'Đang cập nhật' }}</p>
         </div>
       </div>
 
@@ -45,8 +45,8 @@ const mapsSearchUrl = computed(() => {
         </svg>
         <div>
           <p class="text-sm font-medium text-text-muted">Địa điểm</p>
-          <p class="text-lg text-text">{{ info?.venueName || 'Đang cập nhật' }}</p>
-          <p v-if="info?.venueAddress" class="text-text-muted">
+          <p class="text-hover text-lg text-text">{{ info?.venueName || 'Đang cập nhật' }}</p>
+          <p v-if="info?.venueAddress" class="text-hover text-text-muted">
             {{ info.venueAddress }}
           </p>
           <a
