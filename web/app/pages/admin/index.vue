@@ -13,7 +13,7 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
       <div class="grid gap-4 sm:grid-cols-3">
         <NuxtLink
           to="/admin/noi-dung"
-          class="rounded-xl border border-secondary-light/40 p-6 transition-colors hover:bg-surface"
+          class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
         >
           <h3 class="font-heading text-lg text-text">Nội Dung Trang</h3>
           <p class="mt-1 text-sm text-text-muted">
@@ -23,7 +23,7 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
 
         <NuxtLink
           to="/admin/anh"
-          class="rounded-xl border border-secondary-light/40 p-6 transition-colors hover:bg-surface"
+          class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
         >
           <h3 class="font-heading text-lg text-text">Quản Lý Ảnh</h3>
           <p class="mt-1 text-sm text-text-muted">
@@ -33,7 +33,7 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
 
         <NuxtLink
           to="/admin/loi-chuc"
-          class="rounded-xl border border-secondary-light/40 p-6 transition-colors hover:bg-surface"
+          class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
         >
           <h3 class="font-heading text-lg text-text">Lời Chúc</h3>
           <p class="mt-1 text-sm text-text-muted">Ẩn hoặc xoá lời chúc không phù hợp</p>

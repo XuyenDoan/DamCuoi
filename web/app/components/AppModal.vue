@@ -72,7 +72,7 @@ function onOverlayClick() {
             <button
               ref="closeButtonRef"
               type="button"
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface hover:text-text"
+              class="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-surface hover:text-text"
               aria-label="Đóng"
               @click="emit('close')"
             >

@@ -140,7 +140,7 @@ async function submitUpload() {
           v-model="name"
           type="text"
           placeholder="VD: Gia đình cô Lan"
-          class="mb-6 w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          class="mb-6 w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           style="min-height: 44px"
         />
 
@@ -194,7 +194,7 @@ async function submitUpload() {
             <button
               v-if="item.status === 'ready' || item.status === 'error'"
               type="button"
-              class="flex h-11 w-11 shrink-0 items-center justify-center text-text-muted hover:text-error"
+              class="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-error/10 hover:text-error"
               aria-label="Bỏ ảnh này"
               @click="removeFile(i)"
             >

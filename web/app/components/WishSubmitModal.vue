@@ -91,7 +91,7 @@ function handleClose() {
           type="text"
           required
           placeholder="VD: Minh & Lan"
-          class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           style="min-height: 44px"
         />
       </div>
@@ -105,7 +105,7 @@ function handleClose() {
           rows="4"
           maxlength="1000"
           placeholder="Gửi lời chúc phúc đến cô dâu chú rể..."
-          class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
@@ -128,7 +128,7 @@ function handleClose() {
           <p class="truncate text-sm text-text">{{ photoFile.name }}</p>
           <button
             type="button"
-            class="flex h-11 w-11 shrink-0 items-center justify-center text-text-muted hover:text-error"
+            class="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-error/10 hover:text-error"
             aria-label="Bỏ ảnh đính kèm"
             @click="removePhoto"
           >

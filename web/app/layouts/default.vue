@@ -54,7 +54,10 @@ const wordmark = computed(() => {
         class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"
         aria-label="Điều hướng chính"
       >
-        <NuxtLink to="/" class="font-heading text-lg text-text">
+        <NuxtLink
+          to="/"
+          class="focus-ring rounded-sm font-heading text-lg text-text transition-colors duration-200 hover:text-primary"
+        >
           {{ wordmark }}
         </NuxtLink>
 
@@ -62,7 +65,7 @@ const wordmark = computed(() => {
           <li v-for="link in navLinks" :key="link.to">
             <NuxtLink
               :to="link.to"
-              class="text-sm font-medium text-text transition-colors hover:text-primary"
+              class="focus-ring rounded-sm text-sm font-medium text-text transition-colors duration-200 hover:text-primary"
               active-class="text-primary"
             >
               {{ link.label }}
@@ -72,7 +75,7 @@ const wordmark = computed(() => {
 
         <button
           type="button"
-          class="flex h-11 w-11 items-center justify-center text-text md:hidden"
+          class="focus-ring flex h-11 w-11 items-center justify-center rounded-full text-text transition-colors duration-200 hover:bg-surface hover:text-primary md:hidden"
           :aria-expanded="mobileOpen"
           aria-controls="mobile-menu"
           aria-label="Mở menu điều hướng"
@@ -111,7 +114,7 @@ const wordmark = computed(() => {
         <li v-for="link in navLinks" :key="link.to">
           <NuxtLink
             :to="link.to"
-            class="block min-h-11 py-3 text-base text-text"
+            class="focus-ring block min-h-11 rounded-sm py-3 text-base text-text transition-colors duration-200 hover:text-primary"
             active-class="text-primary"
           >
             {{ link.label }}
@@ -131,7 +134,7 @@ const wordmark = computed(() => {
       </p>
       <NuxtLink
         to="/admin"
-        class="relative mt-6 inline-block text-xs text-text-muted/60 transition-colors hover:text-text-muted"
+        class="focus-ring relative mt-6 inline-block rounded-sm text-xs text-text-muted/60 transition-colors duration-200 hover:text-text-muted"
       >
         Quản trị
       </NuxtLink>

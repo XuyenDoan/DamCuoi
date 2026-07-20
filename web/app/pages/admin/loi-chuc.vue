@@ -94,7 +94,7 @@ async function deleteWish(wish: Wish) {
           <div class="mt-4 flex gap-2">
             <button
               type="button"
-              class="rounded-lg border border-secondary-light/60 px-4 py-2 text-sm font-medium text-text disabled:opacity-50"
+              class="focus-ring rounded-lg border border-secondary-light/60 px-4 py-2 text-sm font-medium text-text transition-colors duration-200 hover:bg-surface disabled:pointer-events-none disabled:opacity-50"
               :disabled="pendingId === wish.id"
               @click="toggleVisible(wish)"
             >
@@ -102,7 +102,7 @@ async function deleteWish(wish: Wish) {
             </button>
             <button
               type="button"
-              class="rounded-lg border border-error px-4 py-2 text-sm font-medium text-error disabled:opacity-50"
+              class="focus-ring rounded-lg border border-error px-4 py-2 text-sm font-medium text-error transition-colors duration-200 hover:bg-error hover:text-white disabled:pointer-events-none disabled:opacity-50"
               :disabled="pendingId === wish.id"
               @click="deleteWish(wish)"
             >

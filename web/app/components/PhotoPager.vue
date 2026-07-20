@@ -16,7 +16,7 @@ function go(target: number) {
   >
     <button
       type="button"
-      class="flex h-11 w-11 items-center justify-center rounded-full border border-secondary-light text-text transition-colors hover:bg-surface disabled:pointer-events-none disabled:opacity-30"
+      class="focus-ring flex h-11 w-11 items-center justify-center rounded-full border border-secondary-light text-text transition-colors duration-200 hover:bg-surface disabled:pointer-events-none disabled:opacity-30"
       :disabled="page <= 1"
       aria-label="Trang trước"
       @click="go(page - 1)"
@@ -30,7 +30,7 @@ function go(target: number) {
 
     <button
       type="button"
-      class="flex h-11 w-11 items-center justify-center rounded-full border border-secondary-light text-text transition-colors hover:bg-surface disabled:pointer-events-none disabled:opacity-30"
+      class="focus-ring flex h-11 w-11 items-center justify-center rounded-full border border-secondary-light text-text transition-colors duration-200 hover:bg-surface disabled:pointer-events-none disabled:opacity-30"
       :disabled="page >= totalPages"
       aria-label="Trang sau"
       @click="go(page + 1)"

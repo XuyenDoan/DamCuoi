@@ -56,7 +56,7 @@ function onFileSelected(e: Event) {
       <button
         v-if="background"
         type="button"
-        class="rounded-full border border-error px-4 py-2 text-sm font-medium text-error disabled:opacity-50"
+        class="focus-ring rounded-full border border-error px-4 py-2 text-sm font-medium text-error transition-colors duration-200 hover:bg-error hover:text-white disabled:pointer-events-none disabled:opacity-50"
         :disabled="uploading"
         @click="emit('remove')"
       >
@@ -90,15 +90,15 @@ function onFileSelected(e: Event) {
         role="switch"
         :aria-checked="!hidden"
         :aria-label="hidden ? `Đang ẩn ${page.label} — bấm để hiện lại` : `Đang hiển thị ${page.label} — bấm để ẩn`"
-        class="flex h-11 w-14 shrink-0 items-center justify-center"
+        class="focus-ring group flex h-11 w-14 shrink-0 items-center justify-center rounded-full"
         @click="emit('update:hidden', !hidden)"
       >
         <span
-          class="relative h-7 w-12 rounded-full transition-colors"
+          class="relative h-7 w-12 rounded-full transition-colors duration-200 group-hover:brightness-95"
           :class="hidden ? 'bg-secondary-light/40' : 'bg-primary'"
         >
           <span
-            class="absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform"
+            class="absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200"
             :class="hidden ? 'translate-x-0.5' : 'translate-x-5'"
           />
         </span>

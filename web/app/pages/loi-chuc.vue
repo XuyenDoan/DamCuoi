@@ -54,7 +54,7 @@ const selectedWish = ref<Wish | null>(null)
           :key="wish.id"
           v-reveal="(i % 12) * 40"
           type="button"
-          class="wish-card group flex flex-col overflow-hidden rounded-xl border border-secondary-light/40 bg-bg text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+          class="focus-ring wish-card group flex flex-col overflow-hidden rounded-xl border border-secondary-light/40 bg-bg text-left transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg active:scale-[0.98]"
           @click="selectedWish = wish"
         >
           <div class="flex aspect-square items-center justify-center overflow-hidden bg-surface">
@@ -63,9 +63,9 @@ const selectedWish = ref<Wish | null>(null)
               :src="`/uploads/${wish.photo}`"
               alt="Ảnh đính kèm lời chúc"
               loading="lazy"
-              class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+              class="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
             />
-            <LotusMotif v-else class="wish-card-icon h-10 w-10 text-secondary-light transition-transform duration-500 group-hover:rotate-12 group-hover:text-primary" />
+            <LotusMotif v-else class="wish-card-icon h-10 w-10 text-secondary-light transition-colors duration-200 group-hover:text-primary" />
           </div>
           <div class="flex flex-1 flex-col gap-1 p-3">
             <p class="truncate font-heading text-sm text-text">{{ wish.name }}</p>

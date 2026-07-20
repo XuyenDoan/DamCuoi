@@ -66,19 +66,19 @@ async function removePhoto(photoId: string) {
         v-model="milestone.year"
         type="text"
         placeholder="Năm (VD: 2020)"
-        class="w-32 rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+        class="w-32 rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
       <input
         v-model="milestone.title"
         type="text"
         placeholder="Tiêu đề mốc"
-        class="w-full rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+        class="w-full rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
       <textarea
         v-model="milestone.content"
         rows="3"
         placeholder="Nội dung"
-        class="w-full resize-none rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+        class="w-full resize-none rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
 
       <div class="mt-2 border-t border-secondary-light/30 pt-4">
@@ -94,7 +94,7 @@ async function removePhoto(photoId: string) {
             <img :src="`/uploads/${photo.filename}`" alt="" class="h-full w-full object-cover" />
             <button
               type="button"
-              class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              class="focus-ring-dark absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-all duration-200 hover:bg-black/80 group-hover:opacity-100 focus-visible:opacity-100"
               aria-label="Xoá ảnh này"
               @click="removePhoto(photo.id)"
             >
@@ -106,7 +106,7 @@ async function removePhoto(photoId: string) {
 
           <button
             type="button"
-            class="flex aspect-square items-center justify-center rounded-md border border-dashed border-secondary-light/60 text-text-muted transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+            class="focus-ring flex aspect-square items-center justify-center rounded-md border border-dashed border-secondary-light/60 text-text-muted transition-colors duration-200 hover:border-primary hover:text-primary disabled:pointer-events-none disabled:opacity-50"
             :disabled="uploading"
             @click="triggerUpload"
           >

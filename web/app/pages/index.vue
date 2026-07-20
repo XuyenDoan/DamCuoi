@@ -86,7 +86,7 @@ const openFamilyLabel = computed(() => (openFamily.value === 'groom' ? 'Nhà Tra
           <button
             v-if="groomCountdown"
             type="button"
-            class="min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-colors hover:bg-secondary hover:text-white"
+            class="focus-ring min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-all duration-200 hover:bg-secondary hover:text-white active:scale-[0.98]"
             @click="openFamily = 'groom'"
           >
             <span class="font-medium">Nhà Trai:</span> {{ groomCountdown }}
@@ -94,7 +94,7 @@ const openFamilyLabel = computed(() => (openFamily.value === 'groom' ? 'Nhà Tra
           <button
             v-if="brideCountdown"
             type="button"
-            class="min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-colors hover:bg-secondary hover:text-white"
+            class="focus-ring min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-all duration-200 hover:bg-secondary hover:text-white active:scale-[0.98]"
             @click="openFamily = 'bride'"
           >
             <span class="font-medium">Nhà Gái:</span> {{ brideCountdown }}

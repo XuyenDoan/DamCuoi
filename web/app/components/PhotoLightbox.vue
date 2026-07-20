@@ -64,7 +64,7 @@ function onTouchEnd(e: TouchEvent) {
           <a
             v-if="showDownload"
             :href="`/api/photos/${currentPhoto.id}/download`"
-            class="flex h-11 w-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            class="focus-ring-dark flex h-11 w-11 items-center justify-center rounded-full text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white"
             aria-label="Tải ảnh này về máy"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
@@ -74,7 +74,7 @@ function onTouchEnd(e: TouchEvent) {
           <button
             ref="closeButtonRef"
             type="button"
-            class="flex h-11 w-11 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            class="focus-ring-dark flex h-11 w-11 items-center justify-center rounded-full text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white"
             aria-label="Đóng xem ảnh"
             @click="emit('close')"
           >
@@ -89,7 +89,7 @@ function onTouchEnd(e: TouchEvent) {
         <button
           v-if="photos.length > 1"
           type="button"
-          class="absolute left-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:flex"
+          class="focus-ring-dark absolute left-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex"
           aria-label="Ảnh trước"
           @click="emit('prev')"
         >
@@ -109,7 +109,7 @@ function onTouchEnd(e: TouchEvent) {
         <button
           v-if="photos.length > 1"
           type="button"
-          class="absolute right-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:flex"
+          class="focus-ring-dark absolute right-2 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-white/70 transition-colors duration-200 hover:bg-white/10 hover:text-white sm:flex"
           aria-label="Ảnh tiếp theo"
           @click="emit('next')"
         >

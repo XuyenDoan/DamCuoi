@@ -54,7 +54,7 @@ const mapsSearchUrl = computed(() => {
             :href="mapsSearchUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-1 inline-block text-sm text-secondary underline underline-offset-2 hover:text-secondary/80"
+            class="focus-ring mt-1 inline-block rounded-sm text-sm text-secondary underline underline-offset-2 transition-colors duration-200 hover:text-secondary/80"
           >
             Xem trên Google Maps
           </a>

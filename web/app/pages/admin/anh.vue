@@ -159,7 +159,7 @@ async function deletePhoto(photo: Photo) {
               <div class="flex gap-2">
                 <button
                   type="button"
-                  class="flex-1 rounded-lg bg-success px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  class="focus-ring flex-1 rounded-lg bg-success px-3 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-success/90 disabled:pointer-events-none disabled:opacity-50"
                   :disabled="processingId === photo.id"
                   @click="approvePhoto(photo)"
                 >
@@ -167,7 +167,7 @@ async function deletePhoto(photo: Photo) {
                 </button>
                 <button
                   type="button"
-                  class="flex-1 rounded-lg border border-error px-3 py-2 text-sm font-medium text-error disabled:opacity-50"
+                  class="focus-ring flex-1 rounded-lg border border-error px-3 py-2 text-sm font-medium text-error transition-colors duration-200 hover:bg-error hover:text-white disabled:pointer-events-none disabled:opacity-50"
                   :disabled="processingId === photo.id"
                   @click="rejectPhoto(photo)"
                 >
@@ -188,7 +188,7 @@ async function deletePhoto(photo: Photo) {
             <select
               id="upload-album"
               v-model="uploadAlbumId"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             >
               <option v-for="album in albums" :key="album.id" :value="album.id">
@@ -224,14 +224,18 @@ async function deletePhoto(photo: Photo) {
       <section>
         <p class="mb-3 text-sm text-text-muted">
           Muốn đổi ảnh bìa trang chủ? Vào
-          <NuxtLink to="/admin/noi-dung" class="text-secondary underline underline-offset-2">Nội dung trang</NuxtLink>
+          <NuxtLink
+            to="/admin/noi-dung"
+            class="focus-ring rounded-sm text-secondary underline underline-offset-2 transition-colors duration-200 hover:text-primary"
+            >Nội dung trang</NuxtLink
+          >
           → mục "Trang bìa".
         </p>
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 class="font-heading text-xl text-text">Tất Cả Ảnh ({{ publishedPhotos.length }})</h2>
           <select
             v-model="filterAlbum"
-            class="rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+            class="rounded-lg border border-secondary-light/60 px-3 py-2 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <option value="all">Tất cả album</option>
             <option v-for="album in albums" :key="album.id" :value="album.id">{{ album.name }}</option>
@@ -256,13 +260,13 @@ async function deletePhoto(photo: Photo) {
                 :value="captionFor(photo)"
                 type="text"
                 placeholder="Chú thích ảnh..."
-                class="w-full rounded-md border border-secondary-light/50 px-2 py-1.5 text-sm text-text focus:border-primary focus:outline-none"
+                class="w-full rounded-md border border-secondary-light/50 px-2 py-1.5 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 @input="captionDrafts[photo.id] = ($event.target as HTMLInputElement).value"
                 @blur="saveCaption(photo)"
               />
               <select
                 :value="photo.albumId"
-                class="w-full rounded-md border border-secondary-light/50 px-2 py-1.5 text-sm text-text focus:border-primary focus:outline-none"
+                class="w-full rounded-md border border-secondary-light/50 px-2 py-1.5 text-sm text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 @change="changeAlbum(photo, $event)"
               >
                 <option v-for="album in albums" :key="album.id" :value="album.id">{{ album.name }}</option>
@@ -271,7 +275,7 @@ async function deletePhoto(photo: Photo) {
                 <div class="flex gap-1">
                   <button
                     type="button"
-                    class="flex h-9 w-9 items-center justify-center rounded-md text-text-muted hover:bg-surface"
+                    class="focus-ring flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors duration-200 hover:bg-surface"
                     aria-label="Đưa ảnh lên trước"
                     @click="moveOrder(photo, -1)"
                   >
@@ -279,7 +283,7 @@ async function deletePhoto(photo: Photo) {
                   </button>
                   <button
                     type="button"
-                    class="flex h-9 w-9 items-center justify-center rounded-md text-text-muted hover:bg-surface"
+                    class="focus-ring flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors duration-200 hover:bg-surface"
                     aria-label="Đưa ảnh xuống sau"
                     @click="moveOrder(photo, 1)"
                   >
@@ -289,7 +293,7 @@ async function deletePhoto(photo: Photo) {
                 <div class="flex gap-1">
                   <button
                     type="button"
-                    class="flex h-9 w-9 items-center justify-center rounded-md text-text-muted hover:bg-error/10 hover:text-error"
+                    class="focus-ring flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors duration-200 hover:bg-error/10 hover:text-error"
                     aria-label="Xoá ảnh"
                     @click="deletePhoto(photo)"
                   >

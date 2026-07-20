@@ -63,14 +63,14 @@ function prevPhoto() {
               v-for="(photo, pi) in milestone.photos"
               :key="photo.id"
               type="button"
-              class="group h-16 w-16 shrink-0 overflow-hidden rounded-md transition-shadow duration-200 hover:shadow-md"
+              class="focus-ring group h-16 w-16 shrink-0 overflow-hidden rounded-md transition-shadow duration-200 hover:shadow-md"
               @click="openMilestonePhoto(milestone.photos, pi)"
             >
               <img
                 :src="`/uploads/${photo.filename}`"
                 :alt="photo.caption || milestone.title"
                 loading="lazy"
-                class="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-105"
+                class="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
               />
             </button>
           </div>

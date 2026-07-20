@@ -42,7 +42,7 @@ async function onSubmit() {
             type="password"
             required
             autocomplete="current-password"
-            class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-base text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             style="min-height: 44px"
           />
         </div>
@@ -53,7 +53,10 @@ async function onSubmit() {
           {{ isSubmitting ? 'Đang kiểm tra...' : 'Đăng nhập' }}
         </button>
 
-        <NuxtLink to="/" class="text-center text-sm text-text-muted hover:text-primary">
+        <NuxtLink
+          to="/"
+          class="focus-ring rounded-sm text-center text-sm text-text-muted transition-colors duration-200 hover:text-primary"
+        >
           ← Về trang chủ
         </NuxtLink>
       </form>

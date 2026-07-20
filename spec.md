@@ -738,4 +738,40 @@ Rà soát toàn site tìm thấy 2 nơi đã có hover cho ảnh: lưới Album 
 
 ---
 
+## 25. Chuẩn hoá hover/focus/active toàn site (đợt sau mục 24)
+
+### 25.1 Rà soát hiện trạng trước khi sửa
+
+Quét toàn bộ `app/pages`, `app/components`, `app/layouts` tìm 3 nhóm vấn đề:
+
+- **Hiệu ứng hover không nhất quán**: 2 công thức scale khác nhau cho ảnh (`group-hover:scale-110`/500ms ở Album + Lời chúc, `group-hover:scale-105`/200ms ở Câu chuyện tình yêu — mục 24); `.btn-primary`/`.btn-outline` dùng `duration-150` trong khi phần lớn nơi khác đã dùng `duration-200`; icon fallback ở card Lời chúc có `group-hover:rotate-12` (xoay — nằm trong danh sách hiệu ứng bị cấm).
+- **Thiếu hover/focus hoàn toàn**: nút "Đăng xuất" (AdminTopbar), nút Duyệt/Từ chối ảnh + input/select (`admin/anh.vue`), nút Ẩn/Xoá lời chúc (`admin/loi-chuc.vue` — 0 style tương tác), 3 card dashboard (`admin/index.vue`), toàn bộ input/textarea ở `admin/noi-dung.vue` (14 chỗ) thiếu `ring-2`/hover, nút xoá ảnh trong `LoveStoryEditModal.vue` chỉ hiện khi hover chuột (`opacity-0 group-hover:opacity-100`) — **không thể thao tác bằng bàn phím** (lỗi accessibility thật), các link nav/footer, nút đóng `AppModal.vue`, nút trong `PhotoLightbox.vue`/`PhotoPager.vue`, link "Xem trên Google Maps" (`EventInfoCard.vue`).
+- **Thiếu `focus-visible`**: gần như toàn bộ nút/link trước đợt này không có ring bàn phím riêng biệt — một số nơi có `focus:` (hiện cả khi click chuột, gây viền thừa không mong muốn), một số nơi không có gì.
+
+### 25.2 Hệ thống hover/focus/active thống nhất — đã chốt & áp dụng
+
+- **Thời lượng**: `duration-200` (200ms) cho mọi hover/transition mới; nâng `.btn-primary`/`.btn-outline` từ 150ms lên 200ms cho đồng bộ. Easing giữ mặc định Tailwind (`ease` chuẩn, đã "tự nhiên", không cần easing tuỳ biến).
+- **Scale ảnh khi hover**: thống nhất về **`scale-[1.03]`** (giảm từ 2 mức cũ 110/105 xuống 1 mức duy nhất) + tăng bù bằng shadow rõ hơn (`hover:shadow-lg`/`hover:shadow-md` tuỳ ngữ cảnh) để hiệu ứng vẫn "có cảm giác" dù scale nhỏ hơn — áp dụng lại cho cả Album, Lời chúc VÀ Câu chuyện tình yêu (ghi đè quyết định `scale-105` ở mục 24 để đồng nhất toàn site theo khung mới này).
+- **Nút bấm (`active` state)**: `active:scale-[0.98]` cho nút dạng button/card bấm được — cảm giác "nhấn xuống" nhẹ, không dùng cho link văn bản thuần.
+- **Focus-visible**: 2 utility class mới trong `main.css` — `.focus-ring` (viền `ring-primary/50` + `ring-offset`, dùng cho nền sáng) và `.focus-ring-dark` (viền trắng, dùng cho nút trên nền tối như `PhotoLightbox`/toggle switch) — cả 2 dùng `focus-visible:` (chỉ hiện khi điều hướng bàn phím, không hiện khi click chuột).
+- **Hiệu ứng bị loại bỏ vì vi phạm danh sách cấm**: `group-hover:rotate-12` (xoay) ở icon fallback Lời chúc — thay bằng đổi màu icon thuần (`group-hover:text-primary`).
+- **Input/textarea/select**: thêm `transition-colors duration-200 hover:border-secondary` trước class `focus` sẵn có (áp dụng đồng loạt ~18 input trên toàn site qua script thay thế có kiểm soát, không viết tay từng chỗ để tránh sai sót rải rác).
+- **Nút icon nhỏ (di chuyển thứ tự, xoá, đóng modal)**: `focus-ring` + `hover:bg-{màu}/10 hover:text-{màu}` (nền rất nhạt, không đổi kích thước) thay cho không có gì hoặc hiệu ứng rải rác trước đó.
+
+### 25.3 Các thành phần đã bổ sung hover/focus/active/disabled đầy đủ
+
+`main.css` (utility `.focus-ring`/`.focus-ring-dark`, nâng duration nút), `layouts/default.vue` (nav desktop/mobile, hamburger, footer), `pages/album.vue`, `pages/loi-chuc.vue`, `pages/index.vue` (nút đếm ngược), `pages/admin/index.vue` (3 card dashboard), `components/AdminTopbar.vue`, `pages/admin/noi-dung.vue` (danh sách trang bìa, nút sửa mốc, nút di chuyển/xoá, 14 input/textarea — kèm fix `min-width: 0` tràn ngang đã có từ mục 22.3), `pages/admin/anh.vue` (nút Duyệt/Từ chối trước đó KHÔNG có style tương tác nào, input/select), `pages/admin/loi-chuc.vue` (nút Ẩn/Xoá trước đó KHÔNG có style tương tác nào), `pages/admin/login.vue`, `components/admin/PageBackgroundEditModal.vue` (toggle switch), `components/admin/LoveStoryEditModal.vue` (nút xoá ảnh — sửa lỗi accessibility, thêm `focus-visible:opacity-100` để hiện được bằng bàn phím), `components/AppModal.vue` (nút đóng — lan toả tới ≥5 modal dùng chung), `components/PhotoLightbox.vue`, `components/PhotoPager.vue`, `components/EventInfoCard.vue`, `components/WishSubmitModal.vue`, `pages/gui-anh.vue`, `components/LoveStorySection.vue` (đồng bộ scale theo 25.2, bổ sung `focus-ring` còn thiếu ở nút thumbnail).
+
+### 25.4 Tự kiểm tra sau khi hoàn thành
+
+- `npx vue-tsc --noEmit` sạch, `npm run build` thành công.
+- Playwright đo `document.documentElement.scrollWidth > innerWidth` ở 3 kích thước (desktop 1440, tablet 768, mobile 375) × 5 trang công khai (`/`, `/album`, `/loi-chuc`, `/thong-tin`, `/gui-anh`) → **không tràn ngang ở bất kỳ tổ hợp nào**; đo thêm 3 trang Admin đã sửa nhiều nhất (`noi-dung`, `anh`, `loi-chuc`) ở mobile 375 → cũng không tràn, chụp ảnh xác nhận trực quan không vỡ giao diện.
+- Bàn phím: `Tab` 5 lần từ đầu trang chủ, phần tử nhận focus có `outline: none` (tắt outline mặc định trình duyệt) nhưng `box-shadow` hiện đúng vòng `focus-ring` (2 lớp: viền trắng trong + viền `primary/50` ngoài) — xác nhận `focus-visible` hoạt động đúng, không lộ ra khi click chuột.
+- Thiết bị chạm (Playwright `hasTouch: true, isMobile: true`): trang Album tải và tương tác bình thường, không lỗi JS, không tràn ngang — xác nhận hiệu ứng hover thuần CSS không gây trở ngại trên màn hình cảm ứng (vì không có nội dung nào bị ẩn phía sau trạng thái `:hover`, chỉ thay đổi trang trí).
+- `prefers-reduced-motion`: đo `transitionDuration` của 1 nút trên trang Album với context Playwright bật `reducedMotion: reduce` → ra ~0ms (quy tắc chặn cứng có sẵn trong `main.css` từ trước tự động áp dụng cho mọi transition mới, không cần code thêm).
+
+**Lưu ý môi trường (không phải lỗi code)**: trong lúc verify bằng Playwright ở môi trường sandbox này, điều hướng tới `http://localhost:3000` qua Chromium bị chậm bất thường (~13 giây/trang) dù `curl` cùng URL trả về tức thì — nguyên nhân do biến môi trường proxy (`HTTPS_PROXY`) của sandbox khiến Chromium cố định tuyến traffic localhost qua agent proxy. Khắc phục bằng cách khởi chạy Chromium với cờ `--no-proxy-server` (hoặc unset các biến `HTTP(S)_PROXY` trong shell chạy script) — không liên quan tới code của dự án, chỉ là đặc thù công cụ verify trong phiên làm việc này.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

@@ -64,15 +64,43 @@ body {
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-full bg-primary px-8 py-3.5
       font-body text-sm font-medium tracking-wide text-white shadow-sm transition-all
-      duration-150 ease-out hover:bg-primary/90 active:scale-95;
+      duration-200 ease-out hover:bg-primary/90 active:scale-95
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+      focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
     min-height: 44px;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center rounded-full border border-secondary
       px-8 py-3.5 font-body text-sm font-medium tracking-wide text-secondary transition-all
-      duration-150 ease-out hover:bg-secondary hover:text-white active:scale-95;
+      duration-200 ease-out hover:bg-secondary hover:text-white active:scale-95
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+      focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
     min-height: 44px;
+  }
+
+  /*
+    Hệ thống hover/focus thống nhất toàn site (rà soát + chuẩn hoá):
+    - `.focus-ring`: vòng focus chuẩn cho MỌI phần tử tương tác không phải
+      input/textarea/select (nút, link, thẻ bấm được, tab, switch...). Dùng
+      `:focus-visible` — CHỈ hiện khi điều hướng bằng bàn phím (Tab), không
+      hiện khi bấm chuột, tránh vòng focus thừa gây rối mắt với chuột nhưng
+      vẫn đảm bảo khả năng tiếp cận cho bàn phím. Trước đây KHÔNG có style
+      riêng ở bất kỳ đâu trong dự án — chỉ dựa vào outline mặc định của
+      trình duyệt (không đồng bộ màu sắc/độ dày giữa các trình duyệt).
+    - `.focus-ring-dark`: biến thể cho phần tử trên nền tối (VD PhotoLightbox
+      nền đen) — vòng trắng, không dùng ring-offset (offset trắng trên nền
+      đen sẽ tạo viền trắng lạc quẻ).
+    - Input/textarea/select KHÔNG dùng 2 class này — giữ nguyên `focus:`
+      (hiện ngay khi bấm chuột vào ô, đúng quy ước UX cho form field, cần
+      phân biệt "đang được nhập" chứ không chỉ "đang điều hướng bằng phím").
+  */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+      focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+  }
+  .focus-ring-dark {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70;
   }
 }
 

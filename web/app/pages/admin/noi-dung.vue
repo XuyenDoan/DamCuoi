@@ -166,7 +166,7 @@ async function save() {
                 v-model="form.coupleNames.groom"
                 type="text"
                 required
-                class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 style="min-height: 44px"
               />
             </div>
@@ -179,7 +179,7 @@ async function save() {
                 v-model="form.coupleNames.bride"
                 type="text"
                 required
-                class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 style="min-height: 44px"
               />
             </div>
@@ -191,7 +191,7 @@ async function save() {
               id="wedding-date"
               v-model="form.weddingDate"
               type="date"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-64"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-64"
               style="min-height: 44px"
             />
             <p class="mt-1 text-xs text-text-muted">Dùng để tính đếm ngược ở trang chủ.</p>
@@ -206,7 +206,7 @@ async function save() {
               v-model="form.heroTagline"
               type="text"
               placeholder="VD: Chúng tôi sắp kết hôn"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             />
           </div>
@@ -224,7 +224,7 @@ async function save() {
             v-for="page in managedPages"
             :key="page.key"
             type="button"
-            class="flex items-center gap-3 rounded-lg border border-secondary-light/30 bg-surface p-3 text-left transition-colors hover:bg-surface/70"
+            class="focus-ring flex items-center gap-3 rounded-lg border border-secondary-light/30 bg-surface p-3 text-left transition-all duration-200 hover:border-primary/30 hover:bg-surface/70 active:scale-[0.99]"
             @click="editingPageKey = page.key"
           >
             <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-secondary-light/40 bg-bg">
@@ -320,7 +320,7 @@ async function save() {
               id="welcome-message"
               v-model="form.welcomeMessage"
               rows="3"
-              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </fieldset>
@@ -336,7 +336,7 @@ async function save() {
           >
             <button
               type="button"
-              class="flex flex-1 items-center gap-3 text-left"
+              class="focus-ring flex flex-1 items-center gap-3 rounded-md text-left"
               @click="editingMilestoneId = milestone.id"
             >
               <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-secondary-light/40 bg-bg">
@@ -357,7 +357,7 @@ async function save() {
             <div class="flex shrink-0 items-center gap-1">
               <button
                 type="button"
-                class="flex h-9 w-9 items-center justify-center text-text-muted hover:text-primary disabled:opacity-30"
+                class="focus-ring flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-primary/10 hover:text-primary disabled:opacity-30 disabled:hover:bg-transparent"
                 :disabled="i === 0"
                 aria-label="Di chuyển lên"
                 @click="moveMilestone(i, -1)"
@@ -366,7 +366,7 @@ async function save() {
               </button>
               <button
                 type="button"
-                class="flex h-9 w-9 items-center justify-center text-text-muted hover:text-primary disabled:opacity-30"
+                class="focus-ring flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-primary/10 hover:text-primary disabled:opacity-30 disabled:hover:bg-transparent"
                 :disabled="i === form.loveStory.length - 1"
                 aria-label="Di chuyển xuống"
                 @click="moveMilestone(i, 1)"
@@ -375,7 +375,7 @@ async function save() {
               </button>
               <button
                 type="button"
-                class="flex h-9 w-9 items-center justify-center text-text-muted hover:text-error"
+                class="focus-ring flex h-9 w-9 items-center justify-center rounded-full text-text-muted transition-colors duration-200 hover:bg-error/10 hover:text-error"
                 aria-label="Xoá mốc này"
                 @click="removeMilestone(i)"
               >
@@ -407,7 +407,7 @@ async function save() {
               id="groom-ceremony-time"
               v-model="groomCeremonyLocal"
               type="datetime-local"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
               style="min-height: 44px"
             />
           </div>
@@ -418,7 +418,7 @@ async function save() {
               id="groom-venue-name"
               v-model="form.eventInfo.groom.venueName"
               type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             />
           </div>
@@ -429,7 +429,7 @@ async function save() {
               id="groom-venue-address"
               v-model="form.eventInfo.groom.venueAddress"
               type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             />
           </div>
@@ -443,7 +443,7 @@ async function save() {
               v-model="form.eventInfo.groom.mapEmbedUrl"
               rows="2"
               placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
-              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             <p class="mt-1 text-xs text-text-muted">
               Lấy từ Google Maps → Chia sẻ → Nhúng bản đồ. Dán nguyên cả đoạn mã (kể cả thẻ &lt;iframe&gt;) hoặc chỉ link trong thuộc tính src đều được — hệ thống tự nhận diện và trích đúng link khi lưu.
@@ -463,7 +463,7 @@ async function save() {
               id="bride-ceremony-time"
               v-model="brideCeremonyLocal"
               type="datetime-local"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
               style="min-height: 44px"
             />
           </div>
@@ -474,7 +474,7 @@ async function save() {
               id="bride-venue-name"
               v-model="form.eventInfo.bride.venueName"
               type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             />
           </div>
@@ -485,7 +485,7 @@ async function save() {
               id="bride-venue-address"
               v-model="form.eventInfo.bride.venueAddress"
               type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               style="min-height: 44px"
             />
           </div>
@@ -499,7 +499,7 @@ async function save() {
               v-model="form.eventInfo.bride.mapEmbedUrl"
               rows="2"
               placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
-              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             <p class="mt-1 text-xs text-text-muted">
               Lấy từ Google Maps → Chia sẻ → Nhúng bản đồ. Dán nguyên cả đoạn mã (kể cả thẻ &lt;iframe&gt;) hoặc chỉ link trong thuộc tính src đều được — hệ thống tự nhận diện và trích đúng link khi lưu.
@@ -518,7 +518,7 @@ async function save() {
               id="footer-text"
               v-model="form.footerText"
               rows="2"
-              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </fieldset>
@@ -559,7 +559,11 @@ async function save() {
         </div>
         <p class="mt-3 text-xs text-text-muted">
           Ảnh nền từng trang xem ở mục "Ảnh nền từng trang" bên dưới, hoặc xem trực tiếp trên
-          <NuxtLink to="/" target="_blank" class="text-secondary underline underline-offset-2">
+          <NuxtLink
+            to="/"
+            target="_blank"
+            class="focus-ring rounded-sm text-secondary underline underline-offset-2 transition-colors duration-200 hover:text-primary"
+          >
             trang chủ
           </NuxtLink>.
         </p>

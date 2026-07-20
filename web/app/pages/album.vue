@@ -75,10 +75,10 @@ const downloadAlbumUrl = computed(() => {
       <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2">
         <button
           type="button"
-          class="min-h-11 rounded-full border px-5 text-sm font-medium transition-colors"
+          class="focus-ring min-h-11 rounded-full border px-5 text-sm font-medium transition-all duration-200 active:scale-[0.98]"
           :class="
             activeAlbum === 'all'
-              ? 'border-primary bg-primary text-white'
+              ? 'border-primary bg-primary text-white hover:bg-primary/90'
               : 'border-secondary-light text-text hover:bg-surface'
           "
           @click="activeAlbum = 'all'"
@@ -89,10 +89,10 @@ const downloadAlbumUrl = computed(() => {
           v-for="album in albumsWithPhotos"
           :key="album.id"
           type="button"
-          class="min-h-11 rounded-full border px-5 text-sm font-medium transition-colors"
+          class="focus-ring min-h-11 rounded-full border px-5 text-sm font-medium transition-all duration-200 active:scale-[0.98]"
           :class="
             activeAlbum === album.id
-              ? 'border-primary bg-primary text-white'
+              ? 'border-primary bg-primary text-white hover:bg-primary/90'
               : 'border-secondary-light text-text hover:bg-surface'
           "
           @click="activeAlbum = album.id"
@@ -122,7 +122,7 @@ const downloadAlbumUrl = computed(() => {
               :key="photo.id"
               v-reveal="(pagedPhotos.indexOf(photo) % 12) * 40"
               type="button"
-              class="group block w-full overflow-hidden rounded-lg transition-shadow duration-300 hover:shadow-xl"
+              class="focus-ring group block w-full overflow-hidden rounded-lg transition-shadow duration-200 hover:shadow-lg"
               @click="openLightbox(pagedPhotos.indexOf(photo))"
             >
               <img
@@ -131,7 +131,7 @@ const downloadAlbumUrl = computed(() => {
                 :height="photo.height"
                 :alt="photo.caption || 'Ảnh cưới'"
                 loading="lazy"
-                class="h-auto w-full rounded-lg object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                class="h-auto w-full rounded-lg object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
               />
             </button>
           </div>
