@@ -23,6 +23,26 @@ const visiblePublished = computed(() => {
   return publishedPhotos.value.filter((p) => p.albumId === filterAlbum.value)
 })
 
+// Phân trang (yêu cầu chủ dự án: mục "Tất Cả Ảnh" nhiều ảnh nhưng chưa có
+// phân trang) — tái dùng `PhotoPager.vue` dùng chung với Album công khai,
+// tự cuộn lên đầu trang + hiện nút số trang khi >3 trang, đồng nhất hành vi
+// khắp site. PAGE_SIZE khớp Album công khai (12) cho nhất quán.
+const PAGE_SIZE = 12
+const page = ref(1)
+const totalPages = computed(() => Math.max(1, Math.ceil(visiblePublished.value.length / PAGE_SIZE)))
+const pagedPublished = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE
+  return visiblePublished.value.slice(start, start + PAGE_SIZE)
+})
+watch(filterAlbum, () => {
+  page.value = 1
+})
+// Phòng trường hợp trang hiện tại vượt quá tổng số trang sau khi xoá ảnh
+// (VD đang ở trang cuối, xoá hết ảnh trang đó)
+watch(totalPages, (tp) => {
+  if (page.value > tp) page.value = tp
+})
+
 function albumName(id: string) {
   return albums.value?.find((a) => a.id === id)?.name ?? id
 }
@@ -248,7 +268,7 @@ async function deletePhoto(photo: Photo) {
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div
-            v-for="photo in visiblePublished"
+            v-for="photo in pagedPublished"
             :key="photo.id"
             class="overflow-hidden rounded-lg border border-secondary-light/40"
           >
@@ -304,6 +324,8 @@ async function deletePhoto(photo: Photo) {
             </div>
           </div>
         </div>
+
+        <PhotoPager v-model:page="page" :total-pages="totalPages" aria-label="Phân trang quản lý ảnh" />
       </section>
     </div>
   </div>

@@ -16,7 +16,13 @@ const filteredPhotos = computed(() => {
 // Phân trang phía client — toàn bộ ảnh đã published fetch 1 lần qua
 // usePublishedPhotos() (metadata nhẹ, không phải file ảnh), quy mô ảnh cưới
 // cá nhân không cần round-trip server mỗi lần đổi trang.
-const PAGE_SIZE = 24
+// PAGE_SIZE giảm từ 24 xuống 12 (phản hồi thật: "số lượng ảnh/trang nhiều
+// quá, giảm cho giống chuẩn web AAA") — các trang giao ảnh cưới cao cấp
+// (Pixieset, ShootProof...) thường hiện 1 lượng ảnh vừa đủ để xem kỹ từng
+// tấm mỗi trang thay vì dồn quá nhiều gây rối mắt/cuộn dài. 12 cũng chia
+// hết cho cả 3 mức cột (2/3/4 ở mobile/tablet/desktop — `useColumnCount`)
+// nên hàng cuối luôn đều, không lệch cột.
+const PAGE_SIZE = 12
 const page = ref(1)
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredPhotos.value.length / PAGE_SIZE)))
 const pagedPhotos = computed(() => {
@@ -131,14 +137,14 @@ const downloadAlbumUrl = computed(() => {
                 :height="photo.height"
                 :alt="photo.caption || 'Ảnh cưới'"
                 loading="lazy"
-                class="h-auto w-full rounded-lg object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+                class="h-auto w-full rounded-lg transition-transform duration-200 ease-out group-hover:scale-[1.03]"
               />
             </button>
           </div>
         </div>
       </Transition>
 
-      <PhotoPager v-model:page="page" :total-pages="totalPages" />
+      <PhotoPager v-model:page="page" :total-pages="totalPages" aria-label="Phân trang album ảnh" />
     </section>
 
     <PhotoLightbox

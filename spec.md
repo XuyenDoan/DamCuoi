@@ -10,6 +10,19 @@
 - Khi sửa code, nếu có gì chưa rõ thì hỏi lại trước khi làm.
 - Sau khi sửa xong 1 phần việc, cập nhật lại file `spec.md` này cho khớp thực tế.
 - Không tự ý `git commit`/`push` — chỉ làm khi chủ dự án yêu cầu rõ ràng bằng từ "deploy" (hoặc tương đương).
+- **Luôn `git pull origin main` TRƯỚC khi bắt đầu chỉnh sửa bất kỳ yêu cầu nào** (kể cả khi mở đầu phiên làm việc mới) — chủ dự án có 1 phiên Claude Code khác (dùng app điện thoại) cũng đang chỉnh sửa trực tiếp dự án này song song, nên source code cục bộ có thể đã đổi khác so với lần đọc trước đó. Đọc lại các file liên quan SAU khi pull (đừng giả định code vẫn giống như đã nhớ trong hội thoại) rồi mới bắt đầu sửa.
+
+### Tiêu chuẩn chất lượng khi code (bắt buộc, mọi lần sửa/thêm tính năng)
+
+Mục tiêu: mọi phần code viết ra phải đạt cảm giác **website hạng sang (AAA)** — không chỉ "chạy được đúng chức năng" mà còn tinh tế, nhất quán, đáng tin cậy như sản phẩm chuyên nghiệp. Cụ thể:
+
+- **Nhất quán tuyệt đối**: mọi trang/thẻ/popup/nút dùng LẠI đúng 1 bộ component & class dùng chung đã có (`AppModal`, `.focus-ring`, `.text-hover`, `.btn-primary`/`.btn-outline`, `PhotoPager`, `useMasonryColumns`...) — không viết lại logic tương tự ở nơi khác theo kiểu riêng. Trước khi tạo mới, luôn kiểm tra xem đã có sẵn thứ tương đương chưa.
+- **Không ép khuôn nội dung do con người tạo ra**: ảnh, lời chúc, tên... có độ dài/tỉ lệ tự nhiên khác nhau — UI phải THÍCH NGHI (masonry, giữ tỉ lệ gốc, chiều cao tự động) chứ không ép vào khung cố định cắt xén nội dung thật của người dùng.
+- **Chuyển động có chủ đích, không lạm dụng**: mọi hiệu ứng phải phục vụ cảm giác thanh lịch/ấm áp của 1 trang lưu giữ kỷ niệm — không thêm hiệu ứng "cho có". Luôn tôn trọng `prefers-reduced-motion`.
+- **Chống chịu dữ liệu biên**: nội dung do khách mời tự nhập (lời chúc, tên) không kiểm soát được — code hiển thị PHẢI an toàn với chuỗi rất dài, chuỗi không khoảng trắng, ký tự đặc biệt/emoji, HTML/script injection (đã tự escape qua Vue mặc định, nhưng riêng CSS wrap/truncate phải test tay với dữ liệu biên, không chỉ dữ liệu mẫu đẹp — bài học thật: thiếu `break-words` + thiếu `min-width:0` ở flex item từng làm vỡ layout thật với đúng loại input này).
+- **Verify thật trước khi báo hoàn thành**: luôn `npx vue-tsc --noEmit` sạch + mở trình duyệt thật kiểm tra hành vi (không chỉ đọc code suy luận) trước khi báo "đã xong". Nếu công cụ test tự động của phiên có giới hạn (đã gặp: screenshot treo, `behavior:'smooth'` không chạy được trong môi trường tự động), phải nói rõ giới hạn đó thay vì báo "đã verify" mập mờ.
+- **Không đánh đổi ổn định lấy hiệu ứng mới**: tính năng mới KHÔNG được làm hỏng luồng đang chạy tốt. Nếu phát hiện rủi ro thật (bài học thật: `pageTransition` làm treo điều hướng SPA) thì ưu tiên gỡ bỏ, ghi lại nguyên nhân, không cố giữ bằng mọi giá.
+- **Trung thực khi có sự cố**: nếu vô tình gây lỗi/mất dữ liệu trong lúc sửa (kể cả dữ liệu test), phải báo ngay và rõ ràng với chủ dự án, ghi lại vào spec.md — không im lặng bỏ qua.
 
 ---
 
@@ -544,6 +557,44 @@ Vì tài khoản Always Free có rủi ro bị thu hồi (mục 16.2), backup **
 - [ ] Giới hạn dung lượng upload mỗi ảnh, có cảnh báo khi ổ đĩa gần đầy.
 - [ ] Backup tự động đã chạy thử ít nhất 1 lần thành công **và đã xác minh đẩy được ra ngoài VM** (Google Drive/email) trước khi công bố site cho khách mời — không lưu backup trên cùng VM vì tài khoản Always Free có rủi ro bị thu hồi (mục 16.2).
 
+### 17.8 Checklist Website AAA — Web LƯU GIỮ KỶ NIỆM CƯỚI (không phải web kinh doanh)
+
+> Đây là bộ tiêu chí "hạng sang" riêng cho ĐÚNG BẢN CHẤT của site: nơi lưu giữ & chia sẻ khoảnh khắc cưới giữa 2 gia đình và khách mời — KHÔNG phải trang bán hàng/landing page marketing. Nhiều tiêu chí "web AAA" phổ biến trên mạng (tối ưu chuyển đổi, CTA mua hàng, tracking quảng cáo, upsell...) **CỐ Ý KHÔNG áp dụng** vì đi ngược bản chất này. Rà theo bộ này khi đánh giá "site đã đủ cao cấp chưa", không dùng tiêu chí thương mại thông thường.
+
+**A. Cảm xúc & kể chuyện, không phải catalogue sản phẩm**
+- [ ] Trình bày như 1 cuốn album/kỷ yếu kỷ niệm — có dòng thời gian (Câu chuyện tình yêu), không như lưới sản phẩm trong shop online.
+- [ ] Ngôn ngữ toàn site ấm áp, trang trọng, đúng văn hoá cưới hỏi Việt Nam — không dùng giọng văn quảng cáo/thúc giục ("mua ngay", "ưu đãi", "giới hạn").
+- [ ] Thẩm mỹ nhất quán, timeless (đã chọn tông màu nước + hoạ tiết hoa sen) — tránh xu hướng thiết kế "mì ăn liền" dễ lỗi thời (particle hiệu ứng quá đà, gradient sặc sỡ kiểu app di động).
+
+**B. Ảnh là trung tâm, không bao giờ làm hỏng ảnh thật của người dùng**
+- [ ] KHÔNG cắt/méo tỉ lệ ảnh cá nhân (ảnh cưới, ảnh khách gửi, ảnh lời chúc) trừ khi chủ động chọn (thumbnail cố định có lý do rõ — hiện tại đã bỏ ép khung, giữ tỉ lệ gốc toàn site).
+- [ ] Ảnh đủ nét khi xem phóng to (Lightbox) nhưng vẫn nén hợp lý để tải nhanh (WebP, resize theo chiều rộng tối đa hợp lý — đã áp dụng qua `sharp`).
+- [ ] Khách xem được toàn bộ album offline được (nút tải cả album theo mục 15.3) — vì đây là kỷ niệm muốn giữ lâu dài, không chỉ xem 1 lần trên web.
+
+**C. Tương tác khách mời nhẹ nhàng, không rào cản**
+- [ ] Gửi lời chúc / gửi ảnh KHÔNG bắt đăng ký tài khoản, không yêu cầu thông tin cá nhân ngoài tên hiển thị (không bắt buộc email/SĐT).
+- [ ] Nội dung khách gửi được admin duyệt trước khi hiển thị công khai (chống nội dung không phù hợp) — đã có ở mục 15.4.
+- [ ] Thao tác đơn giản tối đa (không quá 2-3 bước để gửi 1 lời chúc/1 ảnh).
+
+**D. TUYỆT ĐỐI không có yếu tố thương mại**
+- [ ] Không quảng cáo bên thứ 3, không banner khuyến mãi, không nút "nâng cấp gói"/"mua thêm dung lượng".
+- [ ] Không gắn tracking quảng cáo (Google Ads Pixel, Facebook Pixel...) — nếu có đo lượt xem thì chỉ để chủ nhà biết, không phục vụ mục đích thương mại/nhắm quảng cáo lại.
+- [ ] Không có bất kỳ luồng thanh toán/giỏ hàng nào trên site.
+
+**E. Tôn trọng MỌI lứa tuổi khách mời (không chỉ người dùng công nghệ thành thạo)**
+- [ ] Cỡ chữ đủ lớn, vùng chạm tối thiểu 44×44px (đã áp dụng toàn site) — khách mời có cả người lớn tuổi, không rành thao tác nhỏ/phức tạp.
+- [ ] Mọi thao tác kéo-thả (upload ảnh) đều có lối thay thế bằng bấm chọn file thông thường.
+- [ ] Hoạt động tốt trên điện thoại đời cũ + mạng 4G tại chỗ tổ chức tiệc (nhiều khách xem/gửi ảnh ngay trong lúc dự tiệc, không phải ở nhà với wifi mạnh).
+
+**F. Riêng tư & an toàn — đây là ảnh/kỷ niệm CÁ NHÂN, không phải nội dung công khai đại chúng**
+- [ ] Mật khẩu admin lưu dạng hash, có giới hạn số lần đăng nhập sai (đã có ở mục 15.1).
+- [ ] `/data` và `/uploads` không commit lên git công khai (đã có, mục 17.5).
+- [ ] Không thu thập/lưu trữ dữ liệu khách mời ngoài phạm vi cần thiết cho chính chức năng (tên hiển thị, nội dung lời chúc, ảnh gửi) — không thêm form thu thập thông tin không cần thiết.
+
+**G. Bền vững & dễ lưu giữ lâu dài (khác hẳn mục tiêu "vòng đời ngắn" của trang bán hàng theo mùa)**
+- [ ] Có cơ chế backup dữ liệu thật ra ngoài server (mục 16.5/17.7) — kỷ niệm cưới không được phép mất vĩnh viễn vì lỗi hạ tầng.
+- [ ] Không phụ thuộc dịch vụ bên thứ 3 dễ ngừng hoạt động cho phần lưu trữ cốt lõi (ảnh lưu trực tiếp trên server qua `/uploads`, không gửi hẳn qua 1 nền tảng ảnh miễn phí bên ngoài có thể đóng cửa bất kỳ lúc nào).
+
 ---
 
 ## 18. Nâng cấp lớn đợt 2 — Responsive, Album, Lời chúc, Câu chuyện tình yêu, Ẩn/hiện trang
@@ -857,6 +908,60 @@ Chụp ảnh Lightbox bằng Playwright/Chromium headless (`--no-sandbox`) thấ
 
 **Thành phần sửa/thêm**: `app.vue`, `assets/css/main.css`, `components/PhotoLightbox.vue`, `layouts/default.vue`, `pages/gui-anh.vue`, `pages/index.vue`, `pages/thong-tin.vue`, `error.vue` (mới), `utils/eventInfo.ts` (mới).
 
----
+## 29. Thẻ Lời chúc co giãn theo nội dung + bỏ ảnh mặc định (đợt sau mục 28)
+
+Yêu cầu chủ dự án: lời chúc KHÔNG có ảnh đính kèm thì không hiện ảnh mặc định (hoa sen) nữa — chỉ hiện nội dung; khung thẻ co/giãn theo độ dài lời chúc thay vì cỡ cố định; lời chúc quá dài thì cắt bớt kèm "…", bấm vào xem đầy đủ qua popup (hành vi mở `WishModal` giữ nguyên); lời chúc có ảnh thì ảnh đang to quá, cần cân đối lại với nội dung; vì khung không còn cố định, cần sắp xếp sao cho tổng thể lưới vẫn cân đối (không lệch cột).
+
+**Đánh giá chuẩn AAA & phương án chọn**: đúng pattern "testimonial wall" của các trang cao cấp (thẻ cao thấp tự nhiên theo nội dung, không ép cùng 1 khuôn) — nhưng vì mỗi thẻ cao thấp khác nhau, dùng CSS `grid` thường (như trước) sẽ ép TOÀN BỘ thẻ trong cùng 1 hàng giãn theo thẻ cao nhất hàng đó → tạo khoảng trống lệch, đúng vấn đề "không cân đối" chủ dự án lo ngại. Giải pháp: chuyển sang **masonry theo cột độc lập** (tái dùng `useMasonryColumns`/`useColumnCount` đã có ở `album.vue`, không viết thuật toán mới) — mỗi cột tự xếp chồng theo chiều cao thực của các thẻ đã vào cột đó, không bị hàng khác chi phối.
+
+**Thành phần mới**: `components/WishCard.vue` — tách logic hiển thị 1 thẻ lời chúc ra khỏi `loi-chuc.vue`:
+- Không ảnh: KHÔNG render khối ảnh nào (trước đây luôn hiện `LotusMotif` trong khối vuông) — chỉ tên + nội dung. Bổ sung 1 dấu ngoặc kép lớn mờ (`text-primary/10`, font-heading) ở góc thẻ làm điểm nhấn thị giác thay thế (gợi ý riêng, đã thêm — đúng phong cách "testimonial card" của web cao cấp, tránh thẻ trống trải khi bỏ hẳn ảnh).
+- Có ảnh: đổi từ khối `aspect-square` (chiếm phần lớn thẻ) sang dải ảnh cao cố định `h-36`/`h-40` (144–160px) — nhỏ gọn, cân đối với phần chữ bên dưới, không còn "to quá".
+  - **Chỉnh lại lần 2** (phản hồi thật: "không cố định chiều cao/ngang ảnh, giữ tỉ lệ gốc, chỉ thu nhỏ"): bỏ hẳn khung cao cố định + `object-cover` (luôn CẮT ảnh để lấp khung) — đúng chuẩn các trang testimonial/photo-wall cao cấp (Pinterest, Senja Wall of Love) vì đây là ảnh cá nhân của khách mời, cắt mất góc ảnh (mặt người...) là trải nghiệm tệ. Đổi `<img>` sang `w-full h-auto` (không `object-fit`), giữ đúng tỉ lệ gốc.
+  - Để làm được cần biết trước tỉ lệ ảnh (tránh giật layout + tính đúng chiều cao cho masonry): thêm `width`/`height` (px gốc SAU resize) vào type `Wish`, lấy qua `sharp(...).toBuffer({resolveWithObject: true})` ở `server/api/wishes.post.ts` (đúng kỹ thuật `Photo` trong Album đã dùng, không phải cách mới). Dữ liệu lời chúc CŨ (trước khi thêm field) không có 2 field này — nơi đọc fallback `LEGACY_PHOTO_HEIGHT_FALLBACK` (ước lượng cố định) cho tính masonry, còn hiển thị thì `<img>` không set `width`/`height` attr, trình duyệt tự đo sau khi tải (chấp nhận được vì chỉ ảnh hưởng vài bản ghi cũ, không phải lỗi).
+  - **Bug thật đã gặp & fix ngay sau đó**: `loi-chuc.vue` tính chiều cao ước lượng cho masonry bằng cách spread `{...wish, width: 1, height: estimateWishHeight(wish)}` — khi `Wish` CHƯA có field `width`/`height` thật thì an toàn, nhưng sau khi thêm field đó vào `Wish` (bước trên), cách spread này TRÙNG TÊN và GHI ĐÈ MẤT kích thước ảnh thật bằng số ước lượng chiều cao thẻ, khiến `<img>` nhận `width=1 height=<số ước lượng cả trăm>` thay vì kích thước ảnh thật — ảnh vỡ tỉ lệ nghiêm trọng (đo thực tế 1 ảnh cao hàng chục nghìn px). Khắc phục: không spread lên `Wish` nữa, bọc riêng `interface WishMasonryItem { wish: Wish; width: number; height: number }` — `width`/`height` ở đây CHỈ dùng nội bộ cho thuật toán cân bằng cột, tách biệt hoàn toàn khỏi `wish.width`/`wish.height` thật.
+  - Verify thật bằng ảnh test tạo qua `<canvas>` (400×900 dọc, 900×400 ngang, gửi thật qua API): sau khi sửa, tỉ lệ hiển thị đúng 0.44 (400/900) và 2.25 (900/400) — khớp chính xác ảnh gốc.
+- Nội dung dài quá 6 dòng tự cắt bằng `line-clamp-6` (trình duyệt tự thêm "…", không cần xử lý chuỗi tay) — bấm vào thẻ mở `WishModal` xem đầy đủ (hành vi cũ, không đổi).
+
+**Bug thật đã gặp & fix (phản hồi thật: "lời chúc quá dài vẫn hiển thị toàn bộ, sai yêu cầu")**: `line-clamp` chỉ cắt được SAU KHI nội dung đã xuống dòng. Với chuỗi không có khoảng trắng (VD gõ lặp ký tự liền không dấu cách, link dài), trình duyệt mặc định không tự ngắt giữa từ — 2 lớp lỗi cộng dồn:
+1. `<p>` chứa nội dung thiếu `overflow-wrap: break-word` (Tailwind `break-words`) nên không có điểm ngắt nào để trình duyệt bẻ dòng.
+2. Sâu hơn: cột masonry (`<div class="flex flex-1 flex-col">` ở `loi-chuc.vue`) là flex item nhưng KHÔNG có `min-width: 0` — mặc định flex item có `min-width: auto`, dùng kích thước "min-content" của nội dung con làm sàn tối thiểu; với 1 chuỗi dài không ngắt được, min-content đó rất lớn, ép cả CỘT rộng ra ngoài viewport thật (chỉ bị `overflow-x: hidden` ở `<html>` che mất phần tràn, `document.scrollWidth` vẫn báo đúng/không tràn nên dễ tưởng nhầm là không có vấn đề gì). Kết quả: card không co lại theo viewport thật, chữ không xuống dòng đúng width thật, `line-clamp` do đó "không có gì để cắt".
+
+Khắc phục cả 2: thêm `break-words` vào `<p>` nội dung (`WishCard.vue`) + thêm `min-w-0` vào div cột masonry (`loi-chuc.vue`). Đã verify thật bằng đúng lời chúc gây lỗi (chuỗi lặp ký tự không dấu cách) ở viewport 375px: trước khi sửa card rộng bất thường (2212px, vượt xa viewport, chỉ bị host `overflow-hidden` che), sau khi sửa card đúng 164px (đúng độ rộng cột thật), nội dung xuống dòng và cắt đúng 6 dòng (`scrollHeight` 410px > `clientHeight` 137px).
+
+**`loi-chuc.vue`**: thay `grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4` bằng masonry (`useColumnCount()` + `useMasonryColumns()`). Vì không có kích thước ảnh cố định để tính tỉ lệ cột như `album.vue`, viết hàm `estimateWishHeight()` ước lượng chiều cao mỗi thẻ dựa trên độ dài `message` (số ký tự / ~26 ký tự mỗi dòng, tối đa 6 dòng khớp `line-clamp-6`) + có/không có ảnh (144px) + phần đế cố định (tên + padding) — ước lượng gần đúng, chỉ nhằm CÂN BẰNG cột, không cần khớp pixel thật (đúng tinh thần ước lượng theo tỉ lệ `width/height` gốc mà `useMasonryColumns` đã dùng cho ảnh).
+
+**Verify thật bằng dữ liệu test** (tạo lời chúc test qua API dev, xoá lại sau khi xong, không đụng dữ liệu thật): thẻ lời chúc ngắn "Chúc mừng!" cao 82px; thẻ dài vừa cao 196px; thẻ có ảnh cao 238px (tăng/giảm đúng theo nội dung); thẻ vượt quá 6 dòng bị cắt đúng (`line-clamp: 6`, `scrollHeight` 705px > `clientHeight` 137px hiển thị) và bấm vào mở đúng popup xem đầy đủ.
+
+**Quy tắc mới bổ sung** (yêu cầu chủ dự án, áp dụng từ đợt này): trước khi bắt đầu chỉnh sửa BẤT KỲ yêu cầu nào, luôn `git pull origin main` trước — xem mục "Quy tắc làm việc với AI Code" đầu file.
+
+### 29.1 Đợt sửa tiếp theo: Album giữ tỉ lệ, popup lời chúc dài, phân biệt thẻ
+
+- **Album ảnh** — kiểm tra thật bằng đo DOM (nhiều ảnh khác tỉ lệ, so `getBoundingClientRect()` với `width`/`height` gốc đã lưu): Album **đã** giữ đúng tỉ lệ ảnh gốc từ trước (nhờ `:width`/`:height` thật + `h-auto` đã có sẵn), `object-cover` trên `<img>` thực chất KHÔNG cắt gì (khung đã tự khớp đúng tỉ lệ ảnh nên object-fit không có tác dụng khác biệt) — chỉ là class dư thừa gây hiểu nhầm, đã bỏ cho rõ ràng. Không có thay đổi hiển thị thực tế.
+- **Popup xem lời chúc dài không xuống dòng** — cùng nguyên nhân gốc đã gặp ở mục 29 (thiếu `break-words` cho nội dung có thể là chuỗi không khoảng trắng): `WishModal.vue` thiếu `break-words` ở `<p>` nội dung. Đã thêm. Đồng thời phòng ngừa cho MỌI popup dùng chung `AppModal.vue` (component gốc cho tất cả popup dạng thẻ trong dự án): thêm `min-w-0` vào panel — panel là flex item của overlay (`flex items-center justify-center`) nên cũng có nguy cơ y hệt lỗi `min-width: auto` đã gặp ở cột masonry lời chúc (mục 29) nếu nội dung bên trong có chuỗi không ngắt được, dù `max-w-md` đã khai báo vẫn có thể bị phá vỡ.
+- **Phân biệt các thẻ lời chúc cạnh nhau** — chủ dự án đề xuất viền dày/đổi màu; đánh giá: dễ gây rối mắt khi nhiều thẻ xếp cạnh nhau ở quy mô lớn, không phải hướng UI cao cấp hay chọn. Đã áp dụng giải pháp thay thế theo chuẩn UI cao cấp phổ biến hơn (Stripe, Notion, Material Design): thêm bóng đổ nhẹ **thường trực** (`shadow-sm`, trước đây chỉ có lúc hover) cho `WishCard.vue` — tạo cảm giác từng thẻ "nổi" tách khỏi nền và tách khỏi thẻ liền kề bằng ĐỘ SÂU thay vì đường viền, tinh tế hơn.
+
+**Sự cố đã xảy ra khi dọn dữ liệu test (thành thật ghi lại)**: trong lúc dọn ảnh test do chính AI tạo ra để verify, đã LỠ XOÁ NHẦM 2 file ảnh (`wish_g7rkpj1kyv.webp`, `wish_a7nausvsld.webp`) thuộc 2 lời chúc chủ dự án tự tạo để tái hiện lỗi ("fsdf"/"fdsfdsg" trong `data/wishes.json`) — không phải dữ liệu do AI tạo. Không thể khôi phục lại đúng nội dung ảnh gốc. 2 bản ghi lời chúc đó hiện còn tồn tại trong `wishes.json` nhưng ảnh đính kèm sẽ hiển thị lỗi (link ảnh chết). Đã báo trực tiếp với chủ dự án ngay khi phát hiện.
+
+### 29.2 Đợt sửa tiếp theo: Giảm số ảnh/trang Album + Favicon hoạ tiết hoa sen
+
+- **Album ảnh — giảm số ảnh/trang** (phản hồi thật: "số lượng ảnh/trang nhiều quá, giảm cho giống chuẩn web AAA"): `PAGE_SIZE` ở `album.vue` giảm từ 24 xuống **12** — các nền tảng giao ảnh cưới chuyên nghiệp (Pixieset, ShootProof...) thường hiện 1 lượng vừa đủ mỗi trang để xem kỹ từng tấm, không dồn quá nhiều gây rối mắt/cuộn dài. Chọn 12 vì chia hết cho cả 3 mức cột masonry (2/3/4 theo `useColumnCount`) nên hàng cuối luôn đều, không lệch cột.
+- **Favicon hoạ tiết hoa sen** (phản hồi thật: "đổi hình của title sao cho nhìn vô biết đây là web lưu giữ kỷ niệm cưới") — trước dùng icon mặc định của Nuxt (`public/favicon.ico`, không đổi được vì Nitro tự phục vụ file này, không liên quan nội dung site). Thêm favicon riêng dùng ĐÚNG hình hoạ tiết cánh hoa sen (`LotusMotif.vue`, path `M100,100 C82,78 80,35 100,12 C120,35 118,78 100,100 Z` lặp 8 lần xoay quanh tâm) — khớp đúng biểu tượng đã dùng xuyên suốt site (header, footer, empty state, admin login...), không phải icon rời rạc mới. Vẽ dạng TÔ ĐẶC (không phải line-art mảnh như bản gốc) trên nền tròn màu `primary` (#db2777), tâm nhuỵ màu `gold` (#c9a227) — line-art mảnh sẽ mờ/khó nhận ra ở kích thước favicon rất nhỏ (16-32px), cần hình khối rõ ràng.
+  - `public/favicon.svg` (nguồn chính, mọi trình duyệt hiện đại đọc trực tiếp, sắc nét mọi độ phân giải).
+  - `public/favicon-32x32.png` + `public/apple-touch-icon.png` (180×180) — dự phòng cho trình duyệt cũ + icon "Thêm vào màn hình chính" trên iOS (không đọc được SVG cho mục đích này) — tạo bằng `sharp` rasterize từ chính file SVG trên (không vẽ tay riêng, đảm bảo khớp 100% hình dạng/màu).
+  - Khai báo cả 3 qua `app.head.link` trong `nuxt.config.ts` (`rel: icon` SVG ưu tiên trước, PNG 32x32 dự phòng, `apple-touch-icon` riêng).
+
+### 29.3 Chuẩn hoá phân trang toàn site — cuộn lên đầu + nút số trang
+
+Yêu cầu chủ dự án: (1) đổi trang tự cuộn lên đầu trang; (2) khi >3 trang thì hiện nút SỐ TRANG cụ thể (không chỉ nút trước/sau) để bấm thẳng tới trang muốn xem, bấm số trang cũng phải cuộn lên đầu; (3) áp dụng đồng nhất mọi nơi có phân trang; (4) mục "Tất Cả Ảnh" trong Admin nhiều ảnh nhưng chưa có phân trang — bổ sung, kèm đủ 3 tính năng trên.
+
+- **`components/PhotoPager.vue`** (component dùng chung, viết lại toàn bộ) — mọi thay đổi tập trung ở 1 nơi để chuẩn hoá cho MỌI nơi dùng, không sửa lặp lại từng trang:
+  - `go(target)` gọi `window.scrollTo({top:0, behavior:'smooth'})` ngay sau khi phát `update:page` — áp dụng cho cả bấm nút trước/sau LẪN bấm số trang cụ thể (dùng chung 1 hàm `go`, không phải viết 2 chỗ). Cùng kỹ thuật `behavior:'smooth'` dựa vào quy tắc `scroll-behavior: auto !important` sẵn có trong `main.css` để tự tắt khi `prefers-reduced-motion` (đã dùng ở nút "Cuộn xuống" Hero, `index.vue`).
+  - Khi `totalPages > 3`: hiện nút số trang cụ thể (thêm prop `ariaLabel` để mỗi nơi dùng tự đặt nhãn `aria-label` phù hợp ngữ cảnh, mặc định "Phân trang"). Trang hiện tại tô `border-primary bg-primary text-white` (khớp kiểu nút tab album đang dùng), có `aria-current="page"`. Nhiều hơn 7 trang thì rút gọn bằng dấu "…" (giữ trang đầu/cuối + quanh trang hiện tại) tránh 1 hàng dài vỡ layout mobile.
+  - Khi `totalPages ≤ 3`: giữ nguyên kiểu cũ ("Trang X / Y" + nút trước/sau) — đủ dùng, không cần số trang chi tiết.
+- **`album.vue`**: không đổi logic, chỉ truyền thêm `aria-label="Phân trang album ảnh"` (trước đây hardcode trong component, giờ component dùng chung nên phải truyền từ nơi gọi).
+- **`admin/anh.vue`** (mới bổ sung phân trang cho mục "Tất Cả Ảnh"): thêm `PAGE_SIZE = 12` (khớp Album công khai cho nhất quán), `page`/`totalPages`/`pagedPublished` (cùng pattern `album.vue`), `watch(filterAlbum)` reset về trang 1 khi đổi bộ lọc album (giống `watch(activeAlbum)` ở `album.vue`), thêm `watch(totalPages)` clamp `page` nếu vượt quá tổng số trang sau khi xoá ảnh (trường hợp admin xoá hết ảnh ở trang cuối). Gắn `<PhotoPager aria-label="Phân trang quản lý ảnh">` sau lưới ảnh.
+
+**Verify**: đo trực tiếp — bấm nút số trang cụ thể đổi đúng trang (`aria-current="page"` khớp), tổng 5 trang hiện đủ nút 1-5 (chưa cần rút gọn "…" vì ≤7). Riêng hành vi cuộn mượt (`behavior:'smooth'`) không kiểm chứng được bằng công cụ test tự động của phiên này (môi trường test không thực thi `smooth`, đã xác nhận bằng gọi thẳng `window.scrollTo({behavior:'smooth'})` độc lập ngoài code cũng không cuộn — trong khi `behavior:'instant'` chạy đúng ngay) — đây là giới hạn của công cụ, không phải lỗi code (cùng dạng hạn chế đã gặp với công cụ chụp màn hình trong phiên này), nhưng NÊN kiểm tra lại bằng mắt thật trên trình duyệt thật.
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

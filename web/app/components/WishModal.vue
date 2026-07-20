@@ -23,6 +23,6 @@ const emit = defineEmits<{ close: [] }>()
       class="mb-4 max-h-72 w-full rounded-lg object-cover"
     />
 
-    <p class="whitespace-pre-line text-text-muted">{{ wish?.message }}</p>
+    <p class="whitespace-pre-line break-words text-text-muted">{{ wish?.message }}</p>
   </AppModal>
 </template>

@@ -31,7 +31,17 @@ export default defineNuxtConfig({
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap&subset=vietnamese'
-        }
+        },
+        // Favicon hoạ tiết hoa sen (khớp biểu tượng riêng dùng xuyên suốt
+        // site — LotusMotif) thay cho icon mặc định của Nuxt, để nhìn tab
+        // trình duyệt là nhận ra ngay đây là web lưu giữ kỷ niệm cưới. SVG
+        // làm nguồn chính (mọi trình duyệt hiện đại hỗ trợ, sắc nét mọi độ
+        // phân giải/theme), PNG 32x32 làm dự phòng cho trình duyệt cũ,
+        // apple-touch-icon riêng vì iOS không đọc được SVG cho icon màn
+        // hình chính (Add to Home Screen).
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
       ]
     }
   },

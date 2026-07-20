@@ -87,6 +87,12 @@ export interface Wish {
   name: string
   message: string
   photo: string | null
+  /** Kích thước gốc (px) của ảnh đính kèm — dùng để giữ đúng tỉ lệ khi hiển
+   *  thị (không cắt vuông) + ước lượng chiều cao thẻ cho lưới masonry. Chỉ
+   *  có giá trị khi `photo` khác null; dữ liệu lời chúc CŨ (trước khi thêm
+   *  field này) có thể thiếu 2 field này dù có ảnh — nơi đọc phải fallback. */
+  width: number | null
+  height: number | null
   visible: boolean
   createdAt: string
 }

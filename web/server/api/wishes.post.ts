@@ -32,6 +32,8 @@ export default defineEventHandler(async (event) => {
   }
 
   let photoPath: string | null = null
+  let photoWidth: number | null = null
+  let photoHeight: number | null = null
   if (photoField) {
     if (!photoField.type || !ALLOWED_TYPES.has(photoField.type)) {
       throw createError({
@@ -44,16 +46,21 @@ export default defineEventHandler(async (event) => {
     }
 
     const photoId = `wish_${genId()}`
-    const webpBuffer = await sharp(photoField.data)
+    // Lấy luôn kích thước THẬT SAU KHI resize (không phải kích thước gốc
+    // trước resize) qua {resolveWithObject: true} — đúng kích thước sẽ hiển
+    // thị, dùng để giữ tỉ lệ ảnh khi render + ước lượng chiều cao thẻ masonry.
+    const { data: webpBuffer, info } = await sharp(photoField.data)
       .rotate()
       .resize({ width: 1600, withoutEnlargement: true })
       .webp({ quality: 85 })
-      .toBuffer()
+      .toBuffer({ resolveWithObject: true })
 
     const originalsDir = uploadsSubdir('originals')
     await fs.mkdir(originalsDir, { recursive: true })
     await fs.writeFile(path.join(originalsDir, `${photoId}.webp`), webpBuffer)
     photoPath = `originals/${photoId}.webp`
+    photoWidth = info.width
+    photoHeight = info.height
   }
 
   const wish = {
@@ -61,6 +68,8 @@ export default defineEventHandler(async (event) => {
     name,
     message,
     photo: photoPath,
+    width: photoWidth,
+    height: photoHeight,
     visible: true,
     createdAt: new Date().toISOString()
   }

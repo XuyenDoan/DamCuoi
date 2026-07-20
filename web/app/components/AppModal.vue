@@ -62,7 +62,7 @@ function onOverlayClick() {
           role="dialog"
           aria-modal="true"
           :aria-label="ariaLabel"
-          class="app-modal-panel w-full rounded-xl border border-secondary-light/40 bg-bg p-6 shadow-lg"
+          class="app-modal-panel min-w-0 w-full rounded-xl border border-secondary-light/40 bg-bg p-6 shadow-lg"
           :class="[maxWidthClass, scrollable ? 'max-h-[85vh] overflow-y-auto' : '']"
         >
           <div class="mb-4 flex items-start justify-between gap-4">
