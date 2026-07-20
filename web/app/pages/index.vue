@@ -43,6 +43,17 @@ function countdownFor(iso: string | undefined): string {
 
 const groomCountdown = computed(() => countdownFor(settings.value?.eventInfo.groom.ceremonyTime))
 const brideCountdown = computed(() => countdownFor(settings.value?.eventInfo.bride.ceremonyTime))
+
+/**
+ * Bấm vào khu vực đếm ngược mở popup xem đầy đủ thông tin lễ (giờ/địa điểm/
+ * bản đồ) của đúng nhà đó — tái sử dụng `EventInfoCard`/`EventInfoModal`
+ * (cùng nội dung/logic với trang "Thông tin lễ cưới", không lặp lại).
+ */
+const openFamily = ref<'groom' | 'bride' | null>(null)
+const openFamilyInfo = computed(() =>
+  openFamily.value ? settings.value?.eventInfo[openFamily.value] : undefined
+)
+const openFamilyLabel = computed(() => (openFamily.value === 'groom' ? 'Nhà Trai' : 'Nhà Gái'))
 </script>
 
 <template>
@@ -72,18 +83,22 @@ const brideCountdown = computed(() => countdownFor(settings.value?.eventInfo.bri
           v-reveal="260"
           class="flex flex-wrap items-center justify-center gap-3"
         >
-          <p
+          <button
             v-if="groomCountdown"
-            class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+            type="button"
+            class="min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-colors hover:bg-secondary hover:text-white"
+            @click="openFamily = 'groom'"
           >
             <span class="font-medium">Nhà Trai:</span> {{ groomCountdown }}
-          </p>
-          <p
+          </button>
+          <button
             v-if="brideCountdown"
-            class="rounded-full border border-secondary px-5 py-2 text-sm text-secondary"
+            type="button"
+            class="min-h-11 rounded-full border border-secondary px-5 py-2 text-sm text-secondary transition-colors hover:bg-secondary hover:text-white"
+            @click="openFamily = 'bride'"
           >
             <span class="font-medium">Nhà Gái:</span> {{ brideCountdown }}
-          </p>
+          </button>
         </div>
 
         <p
@@ -99,5 +114,12 @@ const brideCountdown = computed(() => countdownFor(settings.value?.eventInfo.bri
     </section>
 
     <LoveStorySection />
+
+    <EventInfoModal
+      :open="openFamily !== null"
+      :label="openFamilyLabel"
+      :info="openFamilyInfo"
+      @close="openFamily = null"
+    />
   </div>
 </template>

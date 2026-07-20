@@ -130,7 +130,7 @@ function onTouchEnd(e: TouchEvent) {
 <style scoped>
 .lightbox-fade-enter-active,
 .lightbox-fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.22s ease;
 }
 .lightbox-fade-enter-from,
 .lightbox-fade-leave-to {

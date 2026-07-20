@@ -657,6 +657,48 @@ Theo yêu cầu chủ dự án ("đánh giá tổng thể giao diện trang chí
 
 **Component thay đổi**: `LotusScene.vue` (thêm khung viền mép + 2 class animation + hàm `driftStyle`/field `vwCap`), `PageBackdrop.vue` (giảm opacity nền).
 
+## 22. Chuẩn hoá popup toàn dự án + badge trạng thái trang + popup thông tin lễ từ đếm ngược + rà soát responsive Admin (đợt sau mục 21)
+
+Theo yêu cầu chủ dự án, đã phân tích code trước, trình bày phương án cho phần thay đổi kiến trúc lớn (chuẩn hoá popup) và chờ xác nhận trước khi sửa. Tóm tắt kết quả:
+
+### 22.1 Badge trạng thái hiển thị trang (Admin — "Ảnh nền & hiển thị từng trang")
+Trước đây chỉ có chữ nhỏ "· Đang ẩn" khi trang bị ẩn, KHÔNG hiện gì khi trang đang hiển thị — khó nhận biết trạng thái ngay. Đã thêm badge rõ ràng cho mỗi dòng trang trong `noi-dung.vue` (hàm `isPageHidden(key)` mới), dùng lại đúng mẫu màu đã có sẵn ở `admin/loi-chuc.vue` để nhất quán toàn admin: `bg-success/10 text-success` + icon mắt "Đang hiển thị" / `bg-error/10 text-error` + icon mắt gạch chéo "Đã ẩn". Trang chủ (không có công tắc ẩn/hiện) có badge trung tính riêng "Luôn hiển thị" (`bg-secondary-light/20 text-secondary`) thay vì không hiện gì, để nhất quán cả 5 dòng.
+
+### 22.2 Sửa lỗi responsive popup "Ảnh nền & hiển thị từng trang" (`admin/PageBackgroundEditModal.vue`)
+Phát hiện thật (đo `getBoundingClientRect()` trực tiếp, không phải đoán): hàng bật/tắt hiển thị dùng `flex items-center justify-between` KHÔNG có `gap` tường minh và KHÔNG có `min-w-0` ở khối chữ, khiến nút gạt luôn nằm sát mép popup chỉ ~1px ở MỌI kích thước màn hình (375–1024px đều đo ra cùng kết quả) — đúng ngay góc bo tròn của thẻ nên trông như tràn ra ngoài, khó bấm chính xác. Đồng thời vùng chạm của nút gạt chỉ cao 28px (`h-7`), dưới chuẩn tối thiểu 44px của dự án (checklist 17.3). Khắc phục:
+- Đổi hàng này sang `flex items-start justify-between gap-4`, khối chữ thêm `min-w-0` để tự co đúng cách.
+- Bọc nút gạt trong 1 vùng chạm `h-11 w-14` (44px+) chứa pill hiển thị `h-7 w-12` bên trong — giữ nguyên kích thước hình ảnh, chỉ tăng vùng bấm thực tế.
+- Đã verify: khoảng cách nút gạt tới mép popup tăng từ ~1px lên **25px** ở mọi kích thước 375/768/1440px, vùng chạm đo được đúng 44×56px.
+
+### 22.3 Rà soát responsive toàn bộ Admin — phát hiện thêm lỗi tràn ngang thật (`admin/noi-dung.vue`)
+Ngoài lỗi popup ở trên, rà soát 4 trang admin (Bảng điều khiển, Nội dung trang, Quản lý ảnh, Lời chúc) ở 375/768/1440px phát hiện trang "Nội dung trang" bị **tràn ngang thật** ở màn hình ≤~360px (đã đo `document.documentElement.scrollWidth` thực tế bằng Playwright: tràn ~49px ở viewport 320px, không phải cảm giác). Nguyên nhân: input `datetime-local`/`date` lồng trong nhiều tầng flex (`form` → `fieldset` → hàng label/input → nút trong hàng "Câu chuyện tình yêu") không tự co xuống dưới kích thước nội dung tối thiểu — lỗi CSS kinh điển "flex/grid item mặc định `min-width: auto`". Đã xác định CHÍNH XÁC các tầng cần sửa bằng cách đo/bisect từng tầng (ẩn từng fieldset để đo `scrollWidth` còn lại, thay vì áp `min-width: 0` tràn lan), thêm 1 khối `<style scoped>` trong `noi-dung.vue`:
+```css
+form, form > fieldset, form > fieldset > div, form > fieldset > div > button, aside {
+  min-width: 0;
+}
+```
+Đã verify hết tràn ngang ở 320/340/375/768/1440px, không ảnh hưởng bố cục các kích thước lớn hơn (giá trị `min-width: 0` chỉ có tác dụng khi phần tử THỰC SỰ cần co, không đổi gì khi đã đủ chỗ).
+
+### 22.4 Popup thông tin lễ khi bấm khu vực đếm ngược ở trang chủ
+- Trích xuất khối hiển thị (giờ + địa điểm + link Google Maps tìm kiếm + bản đồ nhúng) từ `thong-tin.vue` thành component dùng chung **`EventInfoCard.vue`** (props `label`, `info: EventInfoBlock | undefined`) — `thong-tin.vue` giờ chỉ còn gọi lại component này trong khung thẻ của nó, KHÔNG còn lặp code.
+- Component mới **`EventInfoModal.vue`** bọc `EventInfoCard` trong khung popup chuẩn (`AppModal`, xem mục 22.5) — cùng 1 nguồn nội dung/logic với trang "Thông tin lễ cưới" (single source of truth), sửa 1 nơi là đồng bộ cả 2 chỗ hiển thị.
+- `index.vue`: 2 badge đếm ngược "Nhà Trai"/"Nhà Gái" đổi từ `<p>` tĩnh sang `<button>` (`min-h-11` đúng chuẩn chạm tối thiểu, thêm `hover:bg-secondary hover:text-white` làm rõ có thể bấm), bấm vào mở `EventInfoModal` cho đúng nhà tương ứng (state `openFamily: 'groom' | 'bride' | null`).
+
+### 22.5 Chuẩn hoá popup toàn dự án — component gốc `AppModal.vue`
+Rà soát trước khi sửa: dự án có **5 popup** — `WishModal`, `WishSubmitModal`, `PhotoLightbox` đã có sẵn animation fade+scale+slide (0.22s ease, tôn trọng `prefers-reduced-motion`) khá chuẩn; nhưng **2 popup Admin (`PageBackgroundEditModal`, `LoveStoryEditModal`) hoàn toàn KHÔNG có animation** — mở/đóng tức thì. Nguyên nhân gốc: trang cha (`noi-dung.vue`) dùng `v-if="editingPage"`/`v-if="editingMilestone"` bọc NGOÀI component, nên khi đóng thì Vue gỡ hẳn component khỏi DOM ngay lập tức — dù có thêm `<Transition>` bên trong cũng không kịp chạy lúc đóng (không còn DOM để animate).
+
+Đã trình bày phương án chuẩn hoá và được chủ dự án xác nhận chọn: tạo 1 component gốc dùng chung **`AppModal.vue`** (`app/components/AppModal.vue`) chứa sẵn Teleport + overlay (`bg-black/50 backdrop-blur-sm`) + `<Transition>` chuẩn (fade toàn overlay + fade/scale(0.98)/translateY(12px) cho khung thẻ, 0.22s ease, tự tôn trọng `prefers-reduced-motion` qua quy tắc chung đã có ở `main.css`) + khung thẻ chuẩn (`rounded-xl border-secondary-light/40 bg-bg shadow-lg p-6`, `max-w-md`/`max-w-lg` qua prop `max-width`) + nút đóng (X, `aria-label="Đóng"`) + focus-trap (dùng lại `useFocusTrap` đã có) + đóng bằng Esc/bấm ra ngoài/nút X. Props: `open`, `ariaLabel`, `maxWidth?`, `scrollable?`, `closeOnOverlayClick?`. Slot `header` (tiêu đề tuỳ biến) + slot mặc định (nội dung).
+
+**Đã refactor 4 popup hiện có + 2 popup mới đều dùng chung `AppModal`** (chỉ `PhotoLightbox` giữ riêng — bản chất khác hẳn: toàn màn hình, nền tối, không phải thẻ card, nhưng đã đồng bộ thời lượng animation 0.2s → 0.22s cho nhất quán cảm giác):
+- `WishModal.vue`, `WishSubmitModal.vue`: bỏ hẳn phần Teleport/Transition/focus-trap/CSS lặp lại (trước đây 2 file có CHUNG 1 khối CSS transition copy-paste y hệt nhau), chỉ còn khai báo nội dung qua slot.
+- `admin/PageBackgroundEditModal.vue`, `admin/LoveStoryEditModal.vue`: chuyển từ prop bắt buộc (`page`/`milestone` non-null) sang prop CÓ THỂ null + thêm prop `open` — nội dung phụ thuộc dữ liệu được bọc `v-if="page"`/`v-if="milestone"` ở bên trong.
+- `noi-dung.vue`: bỏ `v-if="editingPage"`/`v-if="editingMilestone"` ở nơi gọi — LUÔN render 2 modal này, chỉ đổi prop `:open`. Đây là điều kiện BẮT BUỘC để animation đóng chạy được (Vue cần DOM còn tồn tại trong lúc `<Transition>` chạy) — quy tắc đã ghi rõ trong comment đầu `AppModal.vue` cho người sau. Xác nhận bằng thực nghiệm: không cần thêm biến "lưu dữ liệu cuối cùng" khi đóng — cơ chế `<Transition>` của Vue tự giữ nguyên nội dung ĐÃ RENDER trước đó trong lúc leave-animation chạy (không re-render nhánh `v-if` đã tắt), đúng như `WishModal` vốn đã hoạt động chính xác từ trước theo cách này.
+
+**Đã verify sau khi sửa**: `npx vue-tsc --noEmit` sạch; `npm run build` production thành công; đo bằng Playwright — popup admin đóng có transition thật (opacity đo giữa chừng ra giá trị trung gian như 0.81/0.94, không phải 0/1 tức thì), sau khi đóng xong `role="dialog"` biến mất hoàn toàn khỏi DOM (không rò rỉ); popup thông tin lễ ở trang chủ mở đúng nội dung nhà tương ứng, đóng được bằng Esc; test `reducedMotion: 'reduce'` cho `transition-duration` đúng `0.01ms` (animation bị đóng băng) trên cả `AppModal` mới lẫn các popup cũ.
+
+**Component mới**: `AppModal.vue`, `EventInfoCard.vue`, `EventInfoModal.vue`.
+**Component sửa**: `WishModal.vue`, `WishSubmitModal.vue`, `PhotoLightbox.vue`, `admin/PageBackgroundEditModal.vue`, `admin/LoveStoryEditModal.vue`, `admin/noi-dung.vue`, `index.vue`, `thong-tin.vue`.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

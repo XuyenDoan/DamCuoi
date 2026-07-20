@@ -104,6 +104,10 @@ async function removePageBg(key: string) {
   }
 }
 
+function isPageHidden(key: string): boolean {
+  return key !== 'home' && form.value.hiddenPages.includes(key)
+}
+
 function toggleHiddenPage(key: string, hidden: boolean) {
   const hiddenPages = form.value.hiddenPages
   const idx = hiddenPages.indexOf(key)
@@ -236,9 +240,56 @@ async function save() {
               <p class="text-sm font-medium text-text">{{ page.label }}</p>
               <p class="text-xs text-text-muted">
                 {{ form.pageBackgrounds[page.key] ? 'Ảnh riêng' : 'Hoạ tiết hoa sen' }}
-                <span v-if="page.key !== 'home' && form.hiddenPages.includes(page.key)" class="text-error"> · Đang ẩn</span>
               </p>
             </div>
+
+            <!-- Badge trạng thái hiển thị — trước đây chỉ có chữ nhỏ "· Đang ẩn"
+                 khi trang bị ẩn, KHÔNG hiện gì khi trang đang hiển thị, nên khó
+                 nhận biết ngay trạng thái từng trang (phát hiện khi rà soát UI
+                 admin). Dùng lại đúng mẫu màu badge đã có ở trang "Lời chúc"
+                 (bg-success/10 + text-success / bg-error/10 + text-error) để
+                 nhất quán trong toàn bộ admin, kèm icon mắt cho trực quan hơn. -->
+            <span
+              v-if="page.key === 'home'"
+              class="inline-flex shrink-0 items-center gap-1 rounded-full bg-secondary-light/20 px-2.5 py-1 text-xs font-medium text-secondary"
+            >
+              Luôn hiển thị
+            </span>
+            <span
+              v-else
+              class="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="isPageHidden(page.key) ? 'bg-error/10 text-error' : 'bg-success/10 text-success'"
+            >
+              <svg
+                v-if="isPageHidden(page.key)"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-3 w-3 shrink-0"
+                aria-hidden="true"
+              >
+                <path d="M3 3l18 18M10.58 10.58a2 2 0 102.83 2.83M9.88 4.24A9.77 9.77 0 0112 4c5 0 9 4 10 8a17.6 17.6 0 01-1.67 2.68M6.1 6.1C3.87 7.65 2.29 9.86 2 12c.42 1.64 1.35 3.16 2.62 4.42" />
+              </svg>
+              <svg
+                v-else
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-3 w-3 shrink-0"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {{ isPageHidden(page.key) ? 'Đã ẩn' : 'Đang hiển thị' }}
+            </span>
+
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="h-4 w-4 shrink-0 text-text-muted">
               <path d="M9 6l6 6-6 6" />
             </svg>
@@ -246,15 +297,15 @@ async function save() {
         </fieldset>
 
         <AdminPageBackgroundEditModal
-          v-if="editingPage"
+          :open="editingPageKey !== null"
           :page="editingPage"
-          :background="form.pageBackgrounds[editingPage.key] ?? null"
-          :uploading="pageBgUploading[editingPage.key] ?? false"
-          :error="pageBgError[editingPage.key] ?? ''"
-          :hidden="form.hiddenPages.includes(editingPage.key)"
-          @upload="(file) => uploadPageBg(editingPage!.key, file)"
-          @remove="removePageBg(editingPage!.key)"
-          @update:hidden="(value) => toggleHiddenPage(editingPage!.key, value)"
+          :background="editingPage ? (form.pageBackgrounds[editingPage.key] ?? null) : null"
+          :uploading="editingPage ? (pageBgUploading[editingPage.key] ?? false) : false"
+          :error="editingPage ? (pageBgError[editingPage.key] ?? '') : ''"
+          :hidden="editingPage ? form.hiddenPages.includes(editingPage.key) : false"
+          @upload="(file) => editingPage && uploadPageBg(editingPage.key, file)"
+          @remove="editingPage && removePageBg(editingPage.key)"
+          @update:hidden="(value) => editingPage && toggleHiddenPage(editingPage.key, value)"
           @close="editingPageKey = null"
         />
 
@@ -339,7 +390,7 @@ async function save() {
         </fieldset>
 
         <AdminLoveStoryEditModal
-          v-if="editingMilestone"
+          :open="editingMilestoneId !== null"
           :milestone="editingMilestone"
           @close="editingMilestoneId = null"
         />
@@ -516,3 +567,27 @@ async function save() {
     </div>
   </div>
 </template>
+
+<style scoped>
+/*
+  Chống lỗi CSS Grid/Flex mặc định: item con không tự co xuống dưới
+  "min-content" (min-width: auto mặc định của flex/grid item) — phát hiện
+  thật khi rà soát responsive admin: input `datetime-local`/`date` lồng
+  trong nhiều tầng flex (form -> fieldset -> hàng label/input -> nút trong
+  hàng) khiến CẢ TRANG bị tràn ngang thật ở màn hình hẹp (đã đo scrollWidth
+  thực tế bằng Playwright: tràn ~49px ở viewport 320px — không phải cảm
+  giác, đã xác nhận bằng getBoundingClientRect). Chỉ cần đặt lại
+  `min-width: 0` đúng các tầng flex/grid lồng nhau này (đã xác định chính
+  xác bằng cách đo/bisect từng tầng — form, fieldset, hàng label/input, nút
+  trong hàng "Câu chuyện tình yêu") để mọi phần tử tự co đúng theo container
+  thay vì giữ nguyên kích thước nội dung tối thiểu. Đã verify hết tràn ở
+  320/340/375px sau khi thêm.
+*/
+form,
+form > fieldset,
+form > fieldset > div,
+form > fieldset > div > button,
+aside {
+  min-width: 0;
+}
+</style>
