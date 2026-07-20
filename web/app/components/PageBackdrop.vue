@@ -60,7 +60,7 @@ watch(pageKey, () => {
       alt=""
       class="h-full w-full object-cover opacity-[0.14]"
     />
-    <div v-else class="h-full w-full opacity-60">
+    <div v-else class="h-full w-full opacity-45">
       <LotusScene :progress="bloomProgress" />
     </div>
   </div>

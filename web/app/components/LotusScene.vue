@@ -43,6 +43,16 @@ interface SideFlower {
   bloomStart: number
   bloomEnd: number
   leaf: LeafSpec
+  /**
+   * Ghi đè hệ số `vw` dùng để tính bề rộng/cao (mặc định 10, xem `clampSize`)
+   * — CHỈ cần khi bông có nguy cơ đè lên nội dung ở màn hình hẹp. Bông đầu
+   * tiên (mép trái, gần khối đếm ngược ở trang chủ) dùng giá trị nhỏ hơn để
+   * tránh chạm badge "Nhà Trai/Nhà Gái" trên mobile (lỗi thật đã phát hiện
+   * khi rà soát giao diện: ở 375px, đủ dữ liệu 2 badge thì bông sen mép trái
+   * đè lên viền badge "Nhà Gái"). Chỉ ảnh hưởng màn hình hẹp/vừa — trên màn
+   * rộng công thức `rem` vẫn thắng nên không đổi gì so với trước.
+   */
+  vwCap?: number
 }
 interface TopFlower {
   kind: 'top'
@@ -68,7 +78,8 @@ const flowers: Flower[] = [
     appearAt: 0,
     bloomStart: -0.7,
     bloomEnd: 0.2,
-    leaf: { size: 3.0, tone: 'text-secondary', offsetX: -12, rotate: -6 }
+    leaf: { size: 3.0, tone: 'text-secondary', offsetX: -12, rotate: -6 },
+    vwCap: 6.5
   },
   {
     kind: 'top',
@@ -191,6 +202,24 @@ function topLeafSize(f: TopFlower): number {
   return f.size * 0.9
 }
 
+/**
+ * Nhịp "trôi" rất nhẹ (nổi nhẹ cho bông trực diện / đung đưa nhẹ cho bông
+ * nghiêng, xem class `lotus-drift-float`/`lotus-drift-sway` trong <style>) —
+ * mỗi bông có thời lượng + độ trễ riêng để không bao giờ đồng bộ, trông tự
+ * nhiên hơn là cả ao sen "nhấp nháy" cùng lúc. CHỈ dùng phép toán số nguyên/
+ * thực cơ bản (*, %, /) — KHÔNG dùng Math.sin/cos hay Math.random để tạo lệch
+ * nhịp, vì các hàm đó không đảm bảo cho kết quả giống hệt giữa Node.js (SSR)
+ * và trình duyệt (client), từng gây lỗi hydration mismatch thật khi tạo lệch
+ * ngẫu nhiên cho nhị hoa (xem spec.md mục 5, lỗi #4) — phép toán cơ bản trên
+ * số thực được đặc tả chính xác tuyệt đối (IEEE 754) nên luôn ra cùng 1 kết
+ * quả trên mọi engine, an toàn cho SSR.
+ */
+function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
+  const duration = baseSec + (((seed * 37) % 100) / 100) * spreadSec
+  const delay = -(((seed * 53) % 130) / 10)
+  return { animationDuration: `${duration.toFixed(1)}s`, animationDelay: `${delay.toFixed(1)}s` }
+}
+
 </script>
 
 <template>
@@ -202,15 +231,15 @@ function topLeafSize(f: TopFlower): number {
            cuống sen mọc xuyên/cạnh 1 tán lá nổi ngay chỗ nó chạm nước. -->
       <div
         v-if="f.kind === 'side'"
-        class="lotus-scene-item absolute flex flex-col items-center"
-        :style="{ left: f.left, bottom: f.bottom, opacity: fadeOpacity(f.appearAt) }"
+        class="lotus-scene-item lotus-drift-sway absolute flex flex-col items-center"
+        :style="{ left: f.left, bottom: f.bottom, opacity: fadeOpacity(f.appearAt), ...driftStyle(i) }"
       >
         <LotusFlower
           :bloom-progress="bloomOf(f)"
           class="-mb-2"
           :style="{
-            width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * 10 * FLOWER_SCALE),
-            height: clampSize(f.size * 4.9 * FLOWER_SCALE, f.size * 8.17 * FLOWER_SCALE)
+            width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * (f.vwCap ?? 10) * FLOWER_SCALE),
+            height: clampSize(f.size * 4.9 * FLOWER_SCALE, f.size * (f.vwCap ?? 10) * 0.817 * FLOWER_SCALE)
           }"
         />
         <svg
@@ -248,8 +277,8 @@ function topLeafSize(f: TopFlower): number {
            quanh mép cánh — đúng hình ảnh hoa sen nổi trên lá nhìn từ trên. -->
       <div
         v-else
-        class="lotus-scene-item absolute"
-        :style="{ left: f.left, top: f.top, opacity: fadeOpacity(f.appearAt) }"
+        class="lotus-scene-item lotus-drift-float absolute"
+        :style="{ left: f.left, top: f.top, opacity: fadeOpacity(f.appearAt), ...driftStyle(i) }"
       >
         <div
           class="absolute left-1/2 top-1/2"
@@ -273,6 +302,51 @@ function topLeafSize(f: TopFlower): number {
       </div>
     </template>
 
+    <!-- Khung viền hoa sen 2 mép màn hình (yêu cầu bổ sung: "nửa bông hoa sen
+         nhìn từ trên xuống, mỗi bên mép chỉ hiện 1 nửa"). Khác vai trò của 8
+         bông "ao sen" phía trên (rải rác, nở theo cuộn, kể chuyện) — đây là 1
+         khung trang trí TĨNH, nhất quán ở mọi trang, mờ hơn hẳn (opacity thấp
+         hơn) để không cạnh tranh với nội dung. Không nở theo cuộn (bloom cố
+         định ~0.82 — hé mở tự nhiên, không cứng nhắc như nở trọn 100%), không
+         có lá đi kèm (giữ đơn giản, tránh trông như "thêm 1 cây sen" trong ao).
+         Cắt đúng 1 nửa bằng `translate(-50%|50%, -50%)` (kỹ thuật đã dùng ở lá
+         sen phía trên) trên lớp NGOÀI chỉ để định vị tĩnh; lớp TRONG mới nhận
+         animation nổi nhẹ — tách 2 lớp để tránh xung đột CSS transform tĩnh
+         (translate định vị) với CSS animation (translateY nổi nhẹ) trên CÙNG
+         1 thẻ, đúng bài học đã rút ra ở lỗi thật #6b (spec.md mục 5). Kích
+         thước dùng hệ số `vw` nhỏ để phần "ló" ra mép vẫn rất nhẹ nhàng trên
+         màn hình hẹp, không lấn vào cột nội dung ở giữa. -->
+    <div
+      class="pointer-events-none absolute"
+      style="left: 0; top: 46%; transform: translate(-50%, -50%)"
+      aria-hidden="true"
+    >
+      <div class="lotus-drift-float" :style="{ opacity: 0.45, ...driftStyle(20) }">
+        <LotusFlowerTop
+          :bloom-progress="0.82"
+          :style="{
+            width: clampSize(2.9 * 6 * FLOWER_SCALE, 2.9 * 4.5 * FLOWER_SCALE),
+            height: clampSize(2.9 * 6 * FLOWER_SCALE, 2.9 * 4.5 * FLOWER_SCALE)
+          }"
+        />
+      </div>
+    </div>
+    <div
+      class="pointer-events-none absolute"
+      style="right: 0; top: 54%; transform: translate(50%, -50%)"
+      aria-hidden="true"
+    >
+      <div class="lotus-drift-float" :style="{ opacity: 0.45, ...driftStyle(33) }">
+        <LotusFlowerTop
+          :bloom-progress="0.82"
+          :style="{
+            width: clampSize(2.6 * 6 * FLOWER_SCALE, 2.6 * 4.5 * FLOWER_SCALE),
+            height: clampSize(2.6 * 6 * FLOWER_SCALE, 2.6 * 4.5 * FLOWER_SCALE)
+          }"
+        />
+      </div>
+    </div>
+
     <!-- Mặt nước — dải gợn sóng trôi ngang rất chậm ở phần dưới màn hình -->
     <WaterRipple />
   </div>
@@ -286,6 +360,50 @@ function topLeafSize(f: TopFlower): number {
   .lotus-scene-item {
     transition: none;
     opacity: 1 !important;
+  }
+}
+
+/*
+  Hoạt ảnh "trôi" rất nhẹ (yêu cầu bổ sung — gió nhẹ / nổi chậm cho hoa lá):
+  - `lotus-drift-float`: bông nhìn từ trên xuống trôi nổi trên mặt nước —
+    chỉ nhích lên/xuống vài px, KHÔNG rotate (nổi thẳng, không nghiêng ngả).
+  - `lotus-drift-sway`: bông nghiêng có cuống — xoay rất nhẹ quanh GỐC cuống
+    (transform-origin ở đáy khối), mô phỏng cuống đung đưa theo gió.
+  Chỉ dùng `transform` (không đụng layout/paint) — êm cho hiệu năng. Thời
+  lượng/độ trễ lệch nhau theo từng bông (`driftStyle` trong script) nên không
+  bao giờ đồng bộ. Biên độ cố ý rất nhỏ để không gây rối mắt/mất tập trung khi
+  nhìn lâu. Tôn trọng `prefers-reduced-motion` qua quy tắc chung đã có ở
+  main.css (`animation-duration: 0.01ms !important` cho mọi phần tử) — không
+  cần lặp lại riêng ở đây.
+*/
+.lotus-drift-float {
+  animation-name: lotus-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.lotus-drift-sway {
+  transform-origin: 50% 100%;
+  animation-name: lotus-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes lotus-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(5px);
+  }
+}
+@keyframes lotus-sway {
+  from {
+    transform: rotate(-0.8deg);
+  }
+  to {
+    transform: rotate(0.8deg);
   }
 }
 </style>
