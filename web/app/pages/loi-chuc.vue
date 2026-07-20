@@ -68,7 +68,7 @@ const selectedWish = ref<Wish | null>(null)
             <LotusMotif v-else class="wish-card-icon h-10 w-10 text-secondary-light transition-colors duration-200 group-hover:text-primary" />
           </div>
           <div class="flex flex-1 flex-col gap-1 p-3">
-            <p class="truncate font-heading text-sm text-text">{{ wish.name }}</p>
+            <p class="truncate font-heading text-sm text-text transition-colors duration-200 group-hover:text-primary">{{ wish.name }}</p>
             <p class="line-clamp-3 text-xs text-text-muted">{{ wish.message }}</p>
           </div>
         </button>

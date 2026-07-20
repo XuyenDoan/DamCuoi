@@ -56,7 +56,7 @@ const wordmark = computed(() => {
       >
         <NuxtLink
           to="/"
-          class="focus-ring rounded-sm font-heading text-lg text-text transition-colors duration-200 hover:text-primary"
+          class="focus-ring rounded-sm font-heading text-lg text-text underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
         >
           {{ wordmark }}
         </NuxtLink>
@@ -65,7 +65,7 @@ const wordmark = computed(() => {
           <li v-for="link in navLinks" :key="link.to">
             <NuxtLink
               :to="link.to"
-              class="focus-ring rounded-sm text-sm font-medium text-text transition-colors duration-200 hover:text-primary"
+              class="focus-ring rounded-sm text-sm font-medium text-text underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
               active-class="text-primary"
             >
               {{ link.label }}
@@ -114,7 +114,7 @@ const wordmark = computed(() => {
         <li v-for="link in navLinks" :key="link.to">
           <NuxtLink
             :to="link.to"
-            class="focus-ring block min-h-11 rounded-sm py-3 text-base text-text transition-colors duration-200 hover:text-primary"
+            class="focus-ring block min-h-11 rounded-sm py-3 text-base text-text underline-offset-4 transition-colors duration-200 hover:text-primary hover:underline"
             active-class="text-primary"
           >
             {{ link.label }}
@@ -134,7 +134,7 @@ const wordmark = computed(() => {
       </p>
       <NuxtLink
         to="/admin"
-        class="focus-ring relative mt-6 inline-block rounded-sm text-xs text-text-muted/60 transition-colors duration-200 hover:text-text-muted"
+        class="focus-ring relative mt-6 inline-block rounded-sm text-xs text-text-muted/60 underline-offset-4 transition-colors duration-200 hover:text-text-muted hover:underline"
       >
         Quản trị
       </NuxtLink>
