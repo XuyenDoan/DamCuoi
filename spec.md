@@ -1049,6 +1049,14 @@ Bản đầu làm hover theo cách "chuẩn" (CSS `:hover` + `pointer-events: au
 
 **Thành phần sửa/thêm**: `components/LotusFlower.vue`, `components/LotusFlowerTop.vue`, `components/LotusLeaf.vue`, `components/LotusScene.vue`, `components/LotusPetalDrop.vue` (mới).
 
+### 33.4 Bổ sung hover cho 2 bông khung viền tĩnh 2 mép màn hình (phản hồi thật)
+
+Mục 33.1 CHỦ ĐÍCH bỏ qua 2 bông khung viền tĩnh (hiện nửa bông ở mép trái/phải màn hình, xem mục 21) — lý do lúc đó: "không cạnh tranh với nội dung". Chủ dự án phản hồi vẫn muốn có hover ở đây cho đồng bộ với 8 bông chính. Đã bổ sung, tái dùng ĐÚNG cơ chế theo dõi chuột đã có (không tạo cơ chế mới) — 2 bông này không nằm trong mảng `flowers` (không có lá, không nở theo cuộn) nên thêm 2 biến `ref`/`boolean` riêng (`edgeFlowerLeftEl`/`edgeFlowerRightEl`, `edgeFlowerLeftHovering`/`edgeFlowerRightHovering`) thay vì gộp vào mảng chỉ số của 8 bông chính, tránh nhầm lẫn 2 nhóm hoa khác vai trò. `refreshRects()` và handler `mousemove` mở rộng thêm 2 nhánh kiểm tra này.
+
+**Lưu ý khi verify (không phải bug)**: 2 bông này chỉ hiện ĐÚNG MỘT NỬA trong viewport (nửa kia bị `overflow-hidden` cắt do cố ý đặt `right:0`/`left:0` kèm `translate(50%|−50%, −50%)` — xem mục 21). Test lần đầu lấy điểm giữa hình học của `getBoundingClientRect()` (không bị ảnh hưởng bởi `overflow-hidden` khi đo) làm toạ độ di chuột — điểm đó rơi đúng ranh giới mép màn hình (`x=0` hoặc `x=1280`), nơi con trỏ chuột thật không thể tới chính giữa được (nửa kia đã ở ngoài viewport). Sửa test bằng cách lùi điểm nhắm vào trong viewport 1 khoảng (~40px) — đúng vùng khách thật có thể rê chuột tới — thì cả 2 bông đều đổi `scale(1.04)` khi hover đúng như 8 bông chính.
+
+**Thành phần sửa**: `components/LotusScene.vue`.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

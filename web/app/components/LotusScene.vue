@@ -18,8 +18,11 @@
 const props = defineProps<{ progress: number }>()
 
 /**
- * Theo dõi hover cho 8 bông "ao sen kể chuyện" + 8 lá đi kèm (hiệu ứng hover
- * hoa sen — rà soát UI). KHÔNG dùng CSS `:hover`/sự kiện `mouseenter` trực
+ * Theo dõi hover cho 8 bông "ao sen kể chuyện" + 8 lá đi kèm, VÀ 2 bông
+ * khung viền tĩnh 2 mép màn hình (bổ sung theo phản hồi thật — ban đầu cố ý
+ * bỏ qua 2 bông này vì nghĩ "khung viền tĩnh, không cạnh tranh với nội
+ * dung" không cần hover, nhưng chủ dự án muốn có luôn cho đồng bộ). KHÔNG
+ * dùng CSS `:hover`/sự kiện `mouseenter` trực
  * tiếp trên từng hoa/lá — vì nền hoa sen nằm trong lớp `fixed` phía SAU toàn
  * bộ nội dung trang, và MỌI khối nội dung thật (`<section>`, các `<div>` bọc
  * layout) tuy trong suốt về màu sắc nhưng vẫn chiếm trọn vùng nhận sự kiện
@@ -44,6 +47,19 @@ let leafRects: (DOMRect | null)[] = []
 const hoveredFlowerIndex = ref<number | null>(null)
 const hoveredLeafIndex = ref<number | null>(null)
 
+/**
+ * 2 bông khung viền tĩnh 2 mép màn hình (hiện nửa bông, xem khối template ở
+ * cuối file) — KHÔNG nằm trong mảng `flowers` (không có lá, không nở theo
+ * cuộn) nên theo dõi riêng bằng 2 biến đơn thay vì gộp vào mảng chỉ số phía
+ * trên, tránh nhầm lẫn chỉ số giữa 2 nhóm hoa có vai trò khác nhau.
+ */
+const edgeFlowerLeftEl = ref<HTMLElement | SVGElement | null>(null)
+const edgeFlowerRightEl = ref<HTMLElement | SVGElement | null>(null)
+let edgeFlowerLeftRect: DOMRect | null = null
+let edgeFlowerRightRect: DOMRect | null = null
+const edgeFlowerLeftHovering = ref(false)
+const edgeFlowerRightHovering = ref(false)
+
 function resolveEl(el: unknown): HTMLElement | SVGElement | null {
   if (!el) return null
   if (el instanceof Element) return el as HTMLElement | SVGElement
@@ -60,6 +76,8 @@ function setLeafRef(i: number, el: unknown) {
 function refreshRects() {
   flowerRects = flowerEls.value.map((el) => el?.getBoundingClientRect() ?? null)
   leafRects = leafEls.value.map((el) => el?.getBoundingClientRect() ?? null)
+  edgeFlowerLeftRect = edgeFlowerLeftEl.value?.getBoundingClientRect() ?? null
+  edgeFlowerRightRect = edgeFlowerRightEl.value?.getBoundingClientRect() ?? null
 }
 
 let rectRefreshQueued = false
@@ -102,6 +120,9 @@ function onWindowMouseMove(e: MouseEvent) {
       }
     }
     hoveredLeafIndex.value = lIdx
+
+    edgeFlowerLeftHovering.value = pointInRect(lastX, lastY, edgeFlowerLeftRect)
+    edgeFlowerRightHovering.value = pointInRect(lastX, lastY, edgeFlowerRightRect)
     moveQueued = false
   })
 }
@@ -430,7 +451,9 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
     >
       <div class="lotus-drift-float" :style="{ opacity: 0.45, ...driftStyle(20) }">
         <LotusFlowerTop
+          :ref="(el) => (edgeFlowerLeftEl = resolveEl(el))"
           :bloom-progress="0.82"
+          :is-hovering="edgeFlowerLeftHovering"
           :style="{
             width: clampSize(2.9 * 6 * FLOWER_SCALE, 2.9 * 4.5 * FLOWER_SCALE),
             height: clampSize(2.9 * 6 * FLOWER_SCALE, 2.9 * 4.5 * FLOWER_SCALE)
@@ -445,7 +468,9 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
     >
       <div class="lotus-drift-float" :style="{ opacity: 0.45, ...driftStyle(33) }">
         <LotusFlowerTop
+          :ref="(el) => (edgeFlowerRightEl = resolveEl(el))"
           :bloom-progress="0.82"
+          :is-hovering="edgeFlowerRightHovering"
           :style="{
             width: clampSize(2.6 * 6 * FLOWER_SCALE, 2.6 * 4.5 * FLOWER_SCALE),
             height: clampSize(2.6 * 6 * FLOWER_SCALE, 2.6 * 4.5 * FLOWER_SCALE)
