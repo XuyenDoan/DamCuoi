@@ -1006,4 +1006,22 @@ Phản hồi: hiệu ứng cánh hoa/lá rơi (`FallingPetal.vue`, dùng trong `
 
 ---
 
+## 32. Rà soát hover trang chủ + toàn bộ trang công khai (đợt sau mục 31)
+
+Phản hồi: khối "Giờ Lễ & Địa Điểm" ở trang chủ (thêm ở mục 28, chuyển vị trí ở mục 30) hover vào không có hiệu ứng gì. Đối chiếu `EventInfoCard.vue` (dùng ở `/thong-tin`, cùng loại dữ liệu giờ lễ/tên địa điểm) thì text đã có `.text-hover` — phát hiện đây là chỗ SÓT thật: khi viết bản tóm tắt riêng cho trang chủ (không tái dùng `EventInfoCard.vue` để tránh lặp nội dung đầy đủ), quên áp `.text-hover` cho 2 dòng giờ lễ/tên địa điểm dù nội dung hoàn toàn tương tự. Đã thêm `.text-hover` cho cả 2 (Nhà Trai/Nhà Gái) — dùng đúng hệ thống có sẵn (mục 27), không tạo hiệu ứng mới. Không thêm hover cấp-thẻ (border/shadow) cho khung bao quanh vì thẻ không phải phần tử bấm được — khớp đúng cách `/thong-tin.vue` đang làm (khung bao ngoài `EventInfoCard` cũng không có hover, chỉ text bên trong có).
+
+**Rà soát tổng thể** (theo yêu cầu "rà soát luôn tổng thể trang web chính"): đối chiếu từng phần tử tương tác (`<button>`/`<NuxtLink>`/`<a>`) trên toàn bộ trang công khai (`index.vue`, `album.vue`, `loi-chuc.vue`, `thong-tin.vue`, `gui-anh.vue`, `layouts/default.vue`) và các component dùng chung (kể cả `WishCard.vue`/`PhotoPager.vue` — 2 file đổi nhiều đêm trước, chưa được rà lại) — không phát hiện thêm chỗ nào thiếu hover ngoài mục trên; toàn bộ đã được chuẩn hoá đầy đủ qua các đợt trước (mục 25-27).
+
+**Đề xuất bổ sung (chưa triển khai, để chủ dự án cân nhắc)** — đúng tinh thần "gợi ý chỗ có thể có hiệu ứng hay":
+- Nút "Cuộn xuống" ở Hero: icon mũi tên nhích nhẹ xuống thêm vài px khi hover (ngoài đổi màu đã có) — gợi ý "mời bấm" rõ hơn.
+- Nút "Xem Album Ảnh" (CTA chính): thêm icon mũi tên nhỏ xuất hiện/dịch nhẹ sang phải khi hover — mẫu phổ biến ở CTA cao cấp, vẫn tinh tế nếu làm nhẹ tay.
+- Ảnh trong Album/Lightbox khi hover: lớp phủ gradient tối rất nhẹ ở đáy ảnh (đã gợi ý ở báo cáo rà soát mục 28, vẫn còn giá trị, chưa làm).
+- Menu điều hướng: gạch chân trang đang active có thể chuyển thành 1 thanh nhỏ trượt mượt giữa các mục khi đổi trang (thay vì chỉ đổi màu tức thì) — chi tiết cao cấp nhưng cần thêm state theo dõi vị trí, độ phức tạp cao hơn hẳn các mục còn lại nên chỉ nêu để cân nhắc, không tự ý làm.
+
+**Verify**: `npx vue-tsc --noEmit` sạch, `npm run build` thành công. Playwright đo `getComputedStyle().color` trước/sau hover trên dòng giờ lễ xác nhận đổi đúng màu (`rgb(63,42,51)` → `rgb(219,39,119)`), không tràn ngang.
+
+**Thành phần sửa**: `pages/index.vue`.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

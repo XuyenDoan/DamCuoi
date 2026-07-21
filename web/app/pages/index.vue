@@ -113,10 +113,10 @@ function scrollPastHero() {
           class="flex-1 rounded-xl border border-secondary-light/40 bg-surface p-5 text-left"
         >
           <p class="font-accent text-base italic text-primary">Nhà Trai</p>
-          <p class="mt-2 text-sm text-text">
+          <p class="text-hover mt-2 text-sm text-text">
             {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
           </p>
-          <p v-if="settings?.eventInfo.groom.venueName" class="text-sm text-text-muted">
+          <p v-if="settings?.eventInfo.groom.venueName" class="text-hover text-sm text-text-muted">
             {{ settings.eventInfo.groom.venueName }}
           </p>
         </div>
@@ -126,10 +126,10 @@ function scrollPastHero() {
           class="flex-1 rounded-xl border border-secondary-light/40 bg-surface p-5 text-left"
         >
           <p class="font-accent text-base italic text-primary">Nhà Gái</p>
-          <p class="mt-2 text-sm text-text">
+          <p class="text-hover mt-2 text-sm text-text">
             {{ settings?.eventInfo.bride.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.bride.ceremonyTime) : 'Đang cập nhật' }}
           </p>
-          <p v-if="settings?.eventInfo.bride.venueName" class="text-sm text-text-muted">
+          <p v-if="settings?.eventInfo.bride.venueName" class="text-hover text-sm text-text-muted">
             {{ settings.eventInfo.bride.venueName }}
           </p>
         </div>
