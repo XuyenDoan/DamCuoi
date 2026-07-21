@@ -14,7 +14,6 @@ const form = ref<Settings>(
     ? structuredClone(initialSettings.value)
     : {
         coupleNames: { bride: '', groom: '' },
-        weddingDate: '',
         heroTagline: '',
         welcomeMessage: '',
         loveStory: [],
@@ -186,18 +185,6 @@ async function save() {
           </div>
 
           <div>
-            <label for="wedding-date" class="mb-2 block text-sm font-medium text-text">Ngày cưới</label>
-            <input
-              id="wedding-date"
-              v-model="form.weddingDate"
-              type="date"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-64"
-              style="min-height: 44px"
-            />
-            <p class="mt-1 text-xs text-text-muted">Dùng để tính đếm ngược ở trang chủ.</p>
-          </div>
-
-          <div>
             <label for="hero-tagline" class="mb-2 block text-sm font-medium text-text">
               Câu tagline hero
             </label>
@@ -210,7 +197,6 @@ async function save() {
               style="min-height: 44px"
             />
           </div>
-
         </fieldset>
 
         <!-- Ảnh nền từng trang + hiển thị/ẩn trang -->
@@ -550,9 +536,6 @@ async function save() {
             <span class="text-primary">&amp;</span>
             {{ form.coupleNames.bride || 'Cô Dâu' }}
           </h2>
-          <p v-if="form.weddingDate" class="mt-2 text-xs uppercase tracking-widest text-text-muted">
-            {{ formatVietnameseDate(form.weddingDate) }}
-          </p>
           <p v-if="form.welcomeMessage" class="mt-3 text-sm text-text-muted">
             {{ form.welcomeMessage }}
           </p>

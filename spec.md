@@ -964,4 +964,31 @@ Yêu cầu chủ dự án: (1) đổi trang tự cuộn lên đầu trang; (2) k
 
 **Verify**: đo trực tiếp — bấm nút số trang cụ thể đổi đúng trang (`aria-current="page"` khớp), tổng 5 trang hiện đủ nút 1-5 (chưa cần rút gọn "…" vì ≤7). Riêng hành vi cuộn mượt (`behavior:'smooth'`) không kiểm chứng được bằng công cụ test tự động của phiên này (môi trường test không thực thi `smooth`, đã xác nhận bằng gọi thẳng `window.scrollTo({behavior:'smooth'})` độc lập ngoài code cũng không cuộn — trong khi `behavior:'instant'` chạy đúng ngay) — đây là giới hạn của công cụ, không phải lỗi code (cùng dạng hạn chế đã gặp với công cụ chụp màn hình trong phiên này), nhưng NÊN kiểm tra lại bằng mắt thật trên trình duyệt thật.
 
+---
+
+## 30. Xoá đếm ngược/ngày cưới ở trang chủ, chuyển "Giờ Lễ & Địa Điểm" lên ngay dưới tên cô dâu chú rể (đợt sau mục 29)
+
+### 30.1 Yêu cầu & lý do
+
+Chủ dự án phản hồi: dòng "ngày cưới" + đếm ngược riêng "Nhà Trai"/"Nhà Gái" dưới tên cô dâu chú rể ở trang chủ bị **dư thừa/trùng lặp** với khối "Giờ Lễ & Địa Điểm" (thêm ở mục 28) và với "Thông tin lễ cưới — Nhà trai/Nhà gái" quản lý riêng ở Admin — cùng biểu diễn 1 loại thông tin (giờ/ngày lễ từng nhà) ở 2-3 nơi khác nhau trên cùng 1 trang. Quyết định: xoá hẳn khối ngày cưới + đếm ngược, **chuyển vị trí** (không nhân đôi) khối "Giờ Lễ & Địa Điểm" từ cuối trang chủ lên ngay sau Hero — đã hỏi lại chủ dự án để chốt rõ "chuyển hẳn lên trên, không giữ bản ở cuối" trước khi sửa (tránh làm sai theo hướng nhân đôi nội dung).
+
+### 30.2 Đã sửa — `pages/index.vue`
+
+- Xoá: `formattedDate` (dòng ngày cưới), `ceremonyYmd`/`countdownFor`/`groomCountdown`/`brideCountdown` (đếm ngược riêng từng nhà), `openFamily`/`openFamilyInfo`/`openFamilyLabel` (state mở popup từ đếm ngược), toàn bộ 2 nút "Nhà Trai:.../Nhà Gái:..." trong template, và thẻ `<EventInfoModal>` ở cuối trang (không còn nơi nào gọi mở popup này nữa).
+- Di chuyển nguyên khối `<section>` "Giờ Lễ & Địa Điểm" (thêm ở mục 28) từ SAU `<LoveStorySection />` lên TRƯỚC nó, đặt ngay sau `</section>` đóng Hero — **không** nhét vào bên trong Hero (`min-h-screen flex items-center justify-center`) để giữ nguyên thiết kế full-viewport có chủ đích của Hero (nhét thêm 2 card + link vào đó sẽ làm Hero cao hơn 1 màn hình, phá vỡ hiệu ứng căn giữa toàn màn hình đã đánh giá tốt ở mục 28).
+- `v-reveal` (thứ tự trễ dựa vào IntersectionObserver riêng từng phần tử, không phải timer toàn trang) không cần chỉnh lại khi đổi vị trí section — chỉ dồn lại số trễ trong Hero (welcomeMessage 340→260, CTA 420→340) cho khớp sau khi bớt 1 lớp reveal (dòng ngày + đếm ngược).
+
+### 30.3 Đã sửa — dọn dẹp "dư thừa" tận gốc (không chỉ ẩn UI)
+
+Yêu cầu chủ dự án chỉ nói "xoá phần dư thừa ở Admin" (field "Ngày cưới"), nhưng rà lại thấy sau khi mục 30.2 xoá luôn dòng hiển thị `formattedDate` ở trang chủ thì `weddingDate` **không còn nơi nào dùng nữa trên toàn site** — quyết định dọn dẹp triệt để tận gốc (đúng nguyên tắc đã áp dụng nhất quán trong dự án: không giữ lại field/token chết, x. mục 1 dọn token màu `gold` không dùng) thay vì chỉ ẩn field khỏi giao diện Admin:
+
+- `admin/noi-dung.vue`: xoá field "Ngày cưới" (label + input + dòng ghi chú "Dùng để tính đếm ngược ở trang chủ" — vốn đã SAI từ trước vì đếm ngược đã đổi sang dùng thẳng `eventInfo.groom/bride.ceremonyTime` từ đợt trước, không còn dùng `weddingDate` nữa), xoá khỏi object mặc định của `form`, xoá dòng hiển thị ngày trong khung "Xem trước trang bìa" (khớp đúng những gì trang chủ thật sự còn hiển thị).
+- `server/utils/types.ts` (`Settings`), `server/utils/store.ts` (`DEFAULT_SETTINGS`), `server/api/settings.put.ts` (sanitize khi lưu), `scripts/dev-seed.mjs` (dữ liệu mẫu dev): xoá field `weddingDate` khỏi toàn bộ.
+- `app/utils/date.ts`: `formatVietnameseDate`/`daysBetweenYmd`/`todayYmdInVietnam` (+ helper riêng `parseYmd`) chỉ được dùng cho `weddingDate`/đếm ngược kiểu cũ, sau khi xoá không còn lời gọi nào — xoá cả 4 hàm khỏi file thay vì để lại code chết.
+- `components/EventInfoModal.vue`: chỉ được `index.vue` gọi (mở popup khi bấm nút đếm ngược) — sau khi xoá nút đếm ngược, không còn nơi nào import component này — xoá hẳn file.
+
+**Verify**: `npx vue-tsc --noEmit` sạch, `npm run build` production thành công. Grep toàn repo xác nhận `weddingDate` không còn xuất hiện ở bất kỳ file `.ts`/`.vue` nào. Playwright xác nhận: nút đếm ngược "Nhà Trai:"/"Nhà Gái:" không còn trên trang chủ; khối "Giờ Lễ & Địa Điểm" xuất hiện đúng 1 lần duy nhất, nằm trước "Câu Chuyện Của Chúng Tôi" trong thứ tự DOM; field "Ngày cưới" không còn ở Admin; không tràn ngang. Chụp ảnh trực quan (cuộn tăng dần để kích hoạt đủ `v-reveal` trước khi chụp full-page — chụp thẳng không cuộn sẽ cho ảnh trống do các phần tử chưa vào viewport lần nào) xác nhận bố cục mới đúng ý: Hero → Giờ Lễ & Địa Điểm → Câu Chuyện Của Chúng Tôi → Footer.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

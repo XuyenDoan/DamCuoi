@@ -39,7 +39,6 @@ export default defineEventHandler(async (event) => {
       bride: body.coupleNames.bride.trim(),
       groom: body.coupleNames.groom.trim()
     },
-    weddingDate: body.weddingDate?.trim() ?? '',
     heroTagline: body.heroTagline?.trim() ?? '',
     welcomeMessage: body.welcomeMessage?.trim() ?? '',
     loveStory: (body.loveStory ?? []).map((m, i) => ({

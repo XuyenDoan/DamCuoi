@@ -13,7 +13,6 @@ const EMPTY_EVENT_INFO: EventInfoBlock = { ceremonyTime: '', venueName: '', venu
 
 const DEFAULT_SETTINGS: Settings = {
   coupleNames: { groom: 'Chú Rể', bride: 'Cô Dâu' },
-  weddingDate: '',
   heroTagline: '',
   welcomeMessage: '',
   loveStory: [],

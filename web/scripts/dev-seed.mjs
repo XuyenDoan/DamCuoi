@@ -24,7 +24,6 @@ const DEV_PASSWORD = 'dev12345'
 
 const settings = {
   coupleNames: { groom: 'Minh Khôi', bride: 'Thanh Trúc' },
-  weddingDate: '2026-12-20',
   heroTagline: 'Chúng tôi sắp về chung một nhà',
   welcomeMessage:
     'Xin chân thành cảm ơn vì đã dành thời gian ghé thăm trang lưu giữ những khoảnh khắc đẹp nhất trong ngày trọng đại của chúng tôi.',

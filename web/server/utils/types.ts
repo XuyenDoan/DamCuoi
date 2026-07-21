@@ -27,7 +27,6 @@ export interface EventInfoBlock {
 
 export interface Settings {
   coupleNames: { groom: string; bride: string }
-  weddingDate: string
   heroTagline: string
   welcomeMessage: string
   loveStory: LoveStoryMilestone[]
