@@ -1091,4 +1091,20 @@ Phản hồi thật: chủ dự án thấy tính năng tải cả album dưới 
 
 ---
 
+## 35. Đường kẻ nối các mốc trong "Câu Chuyện Của Chúng Tôi" (đợt sau mục 34)
+
+Phản hồi thật: khi mốc thời gian có nội dung dài (nhiều dòng), ranh giới giữa nội dung mốc TRÊN và tiêu đề mốc DƯỚI khó phân biệt — trước đây chỉ dựa vào khoảng trắng `pb-8` (32px) + icon `LotusMotif` nhỏ rời rạc ở giữa, không có "điểm neo" liên tục nào giúp mắt bám theo để biết đang ở mốc nào.
+
+Đã áp dụng đúng mẫu timeline chuẩn — **đường kẻ dọc liên tục** nối các badge năm:
+- Cột trái (`div` bọc badge năm + icon `LotusMotif`) đổi thành `relative`, thêm 1 `span` decorative (`aria-hidden="true"`) tuyệt đối định vị `left-1/2 -translate-x-1/2`, rộng `w-px`, màu `bg-secondary-light/40`, kéo dài từ `top-11` (đúng bằng chiều cao badge `h-11`, tức bắt đầu ngay dưới badge) tới `bottom-0` (đáy toàn bộ ô `<li>`).
+- Vì `<li>` là flex row mặc định `align-items: stretch`, cột trái luôn cao bằng cột nội dung bên phải (kể cả khi nội dung dài hơn hẳn) — nên đường kẻ tự động kéo dài đúng hết chiều cao của mốc, chạy xuyên qua cả icon hoa sen (tạo cảm giác "thân cây/sợi dây" nối liền, hợp chủ đề hoa sen), và nối liền sang tới đúng đỉnh badge của mốc kế tiếp (do các `<li>` xếp sát nhau, không có margin dọc) — tạo thành 1 đường kẻ liên tục xuyên suốt timeline mà không cần định vị theo toạ độ tuyệt đối phức tạp.
+- Chỉ vẽ khi `i < loveStory.length - 1` (dùng lại đúng điều kiện đã có sẵn cho icon `LotusMotif`) — mốc cuối cùng không có đường kẻ thừa phía dưới.
+- Kết hợp tăng khoảng cách `pb-8` → `pb-10` giữa các mốc để có thêm khoảng thở, giảm cảm giác 2 mốc dính sát nhau.
+
+**Verify**: `npx vue-tsc --noEmit` sạch, `npm run build` thành công. Seed dữ liệu mẫu với 4 mốc độ dài nội dung khác nhau (có mốc 3 dòng), Playwright chụp ảnh khu vực section ở cả desktop (900px) và mobile (375px), phóng to kiểm tra: đường kẻ chạy liên tục xuyên suốt các mốc kể cả qua icon hoa sen, dừng đúng tại mốc cuối cùng (không kéo dài thừa), không lỗi console, không tràn ngang ở mobile.
+
+**Thành phần sửa**: `components/LoveStorySection.vue`.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

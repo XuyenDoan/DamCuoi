@@ -48,13 +48,18 @@ function prevPhoto() {
         v-reveal="i * 60"
         class="flex gap-5"
       >
-        <div class="flex flex-col items-center">
+        <div class="relative flex flex-col items-center">
+          <span
+            v-if="i < loveStory.length - 1"
+            aria-hidden="true"
+            class="absolute left-1/2 top-11 bottom-0 w-px -translate-x-1/2 bg-secondary-light/40"
+          />
           <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-sm text-primary shadow-none transition-all duration-200 hover:bg-primary/25 hover:shadow-[0_0_14px_rgba(219,39,119,0.35)]">
             {{ milestone.year }}
           </span>
           <LotusMotif v-if="i < loveStory.length - 1" class="my-2 h-6 w-6 shrink-0 text-secondary-light" />
         </div>
-        <div class="pb-8">
+        <div class="pb-10">
           <h3 class="text-hover font-heading text-xl text-text">{{ milestone.title }}</h3>
           <p class="text-hover mt-1 text-text-muted">{{ milestone.content }}</p>
 
