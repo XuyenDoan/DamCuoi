@@ -59,7 +59,42 @@ jobs:
           # được bash tự thay bằng home dir khi gõ trực tiếp ở đầu 1 từ, KHÔNG
           # được thay khi nằm bên trong giá trị 1 biến (đã gặp lỗi thật:
           # "Identity file ~/.ssh/... not accessible: No such file").
-          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          #
+          # LỖI THẬT ĐÃ GẶP & FIX (21/07): deploy fail với
+          # "kex_exchange_identification: Connection closed by remote host"
+          # — server đóng kết nối NGAY LÚC BẮT TAY, TRƯỚC CẢ bước xác thực
+          # khoá. Kiểm chứng: SSH thủ công từ máy khác (IP quen thuộc) bắt
+          # tay + xác thực bình thường (chỉ báo sai khoá vì không có key
+          # đúng) — chứng tỏ sshd server hoạt động tốt, không phải lỗi khoá/
+          # secret. Nghi vấn cao nhất: cPHulk (chống brute-force của cPanel)
+          # trên hosting chia sẻ chặn IP LẠ khi thấy NHIỀU kết nối SSH liên
+          # tiếp trong thời gian ngắn — bản trước mở tới 3 kết nối SSH RIÊNG
+          # BIỆT (rm/mkdir, tar pipe, restart) từ 1 IP hoàn toàn mới mỗi lần
+          # chạy (IP của GitHub Actions đổi mỗi lần), trông giống hành vi dò
+          # quét. Khắc phục: dùng SSH connection multiplexing
+          # (ControlMaster/ControlPersist) — CHỈ bắt tay + xác thực 1 LẦN
+          # DUY NHẤT, các lệnh sau tái dùng đúng kết nối đó qua socket cục
+          # bộ, không mở kết nối mới. Kèm retry cho lần kết nối đầu (nếu
+          # cPHulk chặn tạm thời/theo cửa sổ thời gian, thử lại sau vài giây
+          # nhiều khả năng qua được).
+          mkdir -p "$HOME/.ssh/cm"
+          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ControlPath=$HOME/.ssh/cm/%r@%h-%p"
+
+          connect_ok=0
+          for attempt in 1 2 3 4 5; do
+            if ssh $SSH_OPTS -o ConnectTimeout=15 "$SSH_USER@$SSH_HOST" "echo ok"; then
+              connect_ok=1
+              break
+            fi
+            echo "Kết nối SSH lần $attempt thất bại, thử lại sau 8 giây..."
+            sleep 8
+          done
+          if [ "$connect_ok" -ne 1 ]; then
+            echo "::error::Không kết nối SSH được tới server sau 5 lần thử — kiểm tra cPHulk/tường lửa trên cPanel."
+            exit 1
+          fi
+
           ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "rm -rf ~/repo/web/.output && mkdir -p ~/repo/web/.output"
           tar -czf - -C repo/web/.output . | ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "tar -xzf - -C ~/repo/web/.output"
           ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "/usr/sbin/cloudlinux-selector restart --json --interpreter nodejs --app-root repo/web"
+          ssh $SSH_OPTS -O exit "$SSH_USER@$SSH_HOST" 2>/dev/null || true
