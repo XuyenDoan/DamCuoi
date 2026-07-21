@@ -18,6 +18,107 @@
 const props = defineProps<{ progress: number }>()
 
 /**
+ * Theo dõi hover cho 8 bông "ao sen kể chuyện" + 8 lá đi kèm (hiệu ứng hover
+ * hoa sen — rà soát UI). KHÔNG dùng CSS `:hover`/sự kiện `mouseenter` trực
+ * tiếp trên từng hoa/lá — vì nền hoa sen nằm trong lớp `fixed` phía SAU toàn
+ * bộ nội dung trang, và MỌI khối nội dung thật (`<section>`, các `<div>` bọc
+ * layout) tuy trong suốt về màu sắc nhưng vẫn chiếm trọn vùng nhận sự kiện
+ * chuột theo mặc định của trình duyệt — nên sự kiện hover luôn bị chặn trước
+ * khi tới được nền, kể cả ở chỗ nhìn bằng mắt là "trống" (đã xác nhận bằng
+ * đo `document.elementFromPoint()` thực tế trong lúc verify). Sửa đúng gốc
+ * (nới `pointer-events` cho mọi khối nội dung thật) sẽ phải rà lại rất nhiều
+ * nơi trên toàn site — rủi ro làm hỏng khả năng bấm nút/link thật, không
+ * đáng đánh đổi cho 1 chi tiết trang trí.
+ *
+ * Giải pháp AN TOÀN: tự theo dõi toạ độ chuột bằng `mousemove` ở cấp
+ * `window` (luôn nhận được sự kiện bất kể phần tử nào đang "che" phía trên
+ * do đây là lắng nghe ở window, không phụ thuộc hit-test của từng phần tử),
+ * so với vị trí hình chữ nhật (`getBoundingClientRect`) của từng hoa/lá đã
+ * cache sẵn, rồi truyền kết quả xuống qua prop `is-hovering` — hoàn toàn
+ * không đụng tới `pointer-events` ở bất kỳ đâu khác trên site.
+ */
+const flowerEls = ref<(HTMLElement | SVGElement | null)[]>([])
+const leafEls = ref<(HTMLElement | SVGElement | null)[]>([])
+let flowerRects: (DOMRect | null)[] = []
+let leafRects: (DOMRect | null)[] = []
+const hoveredFlowerIndex = ref<number | null>(null)
+const hoveredLeafIndex = ref<number | null>(null)
+
+function resolveEl(el: unknown): HTMLElement | SVGElement | null {
+  if (!el) return null
+  if (el instanceof Element) return el as HTMLElement | SVGElement
+  const withRootEl = el as { $el?: unknown }
+  return withRootEl.$el instanceof Element ? (withRootEl.$el as HTMLElement | SVGElement) : null
+}
+function setFlowerRef(i: number, el: unknown) {
+  flowerEls.value[i] = resolveEl(el)
+}
+function setLeafRef(i: number, el: unknown) {
+  leafEls.value[i] = resolveEl(el)
+}
+
+function refreshRects() {
+  flowerRects = flowerEls.value.map((el) => el?.getBoundingClientRect() ?? null)
+  leafRects = leafEls.value.map((el) => el?.getBoundingClientRect() ?? null)
+}
+
+let rectRefreshQueued = false
+function scheduleRectRefresh() {
+  if (rectRefreshQueued) return
+  rectRefreshQueued = true
+  requestAnimationFrame(() => {
+    refreshRects()
+    rectRefreshQueued = false
+  })
+}
+
+function pointInRect(x: number, y: number, r: DOMRect | null): boolean {
+  return !!r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom
+}
+
+let lastX = 0
+let lastY = 0
+let moveQueued = false
+function onWindowMouseMove(e: MouseEvent) {
+  lastX = e.clientX
+  lastY = e.clientY
+  if (moveQueued) return
+  moveQueued = true
+  requestAnimationFrame(() => {
+    let fIdx: number | null = null
+    for (let i = 0; i < flowerRects.length; i++) {
+      if (pointInRect(lastX, lastY, flowerRects[i])) {
+        fIdx = i
+        break
+      }
+    }
+    hoveredFlowerIndex.value = fIdx
+
+    let lIdx: number | null = null
+    for (let i = 0; i < leafRects.length; i++) {
+      if (pointInRect(lastX, lastY, leafRects[i])) {
+        lIdx = i
+        break
+      }
+    }
+    hoveredLeafIndex.value = lIdx
+    moveQueued = false
+  })
+}
+
+onMounted(() => {
+  scheduleRectRefresh()
+  window.addEventListener('mousemove', onWindowMouseMove, { passive: true })
+  window.addEventListener('scroll', scheduleRectRefresh, { passive: true })
+  window.addEventListener('resize', scheduleRectRefresh, { passive: true })
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', onWindowMouseMove)
+  window.removeEventListener('scroll', scheduleRectRefresh)
+  window.removeEventListener('resize', scheduleRectRefresh)
+})
+
+/**
  * Lá sen — vị trí giờ tính TƯƠNG ĐỐI so với chính bông hoa (không còn toạ độ
  * left/top độc lập như trước) — xem giải thích chi tiết ở khối template.
  * - `offsetX`: lệch ngang so với tâm bông (%, âm = lệch trái) — tạo đa dạng
@@ -235,7 +336,9 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
         :style="{ left: f.left, bottom: f.bottom, opacity: fadeOpacity(f.appearAt), ...driftStyle(i) }"
       >
         <LotusFlower
+          :ref="(el) => setFlowerRef(i, el)"
           :bloom-progress="bloomOf(f)"
+          :is-hovering="hoveredFlowerIndex === i"
           class="-mb-2"
           :style="{
             width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * (f.vwCap ?? 10) * FLOWER_SCALE),
@@ -260,6 +363,7 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
           />
         </svg>
         <div
+          :ref="(el) => setLeafRef(i, el)"
           class="absolute bottom-0 left-1/2"
           :class="f.leaf.tone"
           :style="{
@@ -268,7 +372,7 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
             transform: `translate(calc(-50% + ${f.leaf.offsetX ?? 0}%), 60%) rotate(${f.leaf.rotate ?? 0}deg) scaleY(0.42)`
           }"
         >
-          <LotusLeaf />
+          <LotusLeaf :is-hovering="hoveredLeafIndex === i" />
         </div>
       </div>
 
@@ -281,6 +385,7 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
         :style="{ left: f.left, top: f.top, opacity: fadeOpacity(f.appearAt), ...driftStyle(i) }"
       >
         <div
+          :ref="(el) => setLeafRef(i, el)"
           class="absolute left-1/2 top-1/2"
           :class="f.leaf.tone"
           :style="{
@@ -289,10 +394,12 @@ function driftStyle(seed: number, baseSec = 9, spreadSec = 6) {
             transform: `translate(-50%, -50%) rotate(${f.leaf.rotate ?? 0}deg)`
           }"
         >
-          <LotusLeaf />
+          <LotusLeaf :is-hovering="hoveredLeafIndex === i" />
         </div>
         <LotusFlowerTop
+          :ref="(el) => setFlowerRef(i, el)"
           :bloom-progress="bloomOf(f)"
+          :is-hovering="hoveredFlowerIndex === i"
           class="relative"
           :style="{
             width: clampSize(f.size * 6 * FLOWER_SCALE, f.size * 10 * FLOWER_SCALE),

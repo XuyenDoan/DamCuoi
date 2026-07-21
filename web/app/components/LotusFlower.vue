@@ -7,8 +7,60 @@
  * bloomProgress: 0 = búp khép (cánh chụm thẳng đứng), 1 = nở hết cỡ.
  * Hiệu ứng "slow-motion": MỖI CÁNH có mốc bắt đầu (stagger) và thời lượng
  * transition riêng, nên khi cuộn trang các cánh lệch nhịp nhau như video nở chậm.
+ *
+ * `isHovering` (mặc định false, truyền TỪ NGOÀI vào — xem `LotusScene.vue`):
+ * bật hover cho hoa "ao sen kể chuyện" chính (2 bông khung viền tĩnh 2 mép
+ * màn hình KHÔNG nhận prop này — chủ đích không cạnh tranh với nội dung).
+ *
+ * QUAN TRỌNG (lý do KHÔNG dùng CSS `:hover`/sự kiện `mouseenter` thẳng trên
+ * SVG như cách làm ban đầu): nền hoa sen nằm trong lớp `fixed` phía SAU toàn
+ * bộ nội dung trang. Đo thực tế bằng Playwright phát hiện MỌI khối nội dung
+ * thật (`<section>`, các `<div>` bọc layout...) tuy trong suốt về màu sắc
+ * nhưng vẫn CHIẾM TRỌN vùng nhận sự kiện chuột theo mặc định của trình
+ * duyệt (không phải chỉ nơi có chữ/ảnh thật) — nên dù hoa nằm ở "chỗ trống"
+ * nhìn bằng mắt, sự kiện hover vẫn bị khối nội dung phía trước chặn mất
+ * trước khi tới được nền. Muốn sửa đúng gốc (nới `pointer-events` toàn site)
+ * sẽ phải rà lại pointer-events của rất nhiều khối trên toàn bộ trang — rủi
+ * ro làm hỏng khả năng bấm của nút/link thật ở nơi khác, không đáng đánh đổi
+ * cho 1 chi tiết trang trí. Giải pháp AN TOÀN hơn: `LotusScene.vue` tự theo
+ * dõi toạ độ chuột bằng JS (không đụng `pointer-events` của bất kỳ đâu khác)
+ * rồi truyền kết quả xuống qua prop này.
+ *
+ * Hover có 2 tầng, kích hoạt qua `watch` trên chính prop `isHovering`:
+ * - Phản ứng CHÍNH (luôn xảy ra khi `isHovering` bật): hoa xoè nhẹ + nhuỵ
+ *   sáng lên — gộp chung vì ăn khớp tự nhiên (hoa "sống động" hơn khi được
+ *   chú ý), điều khiển thẳng bằng class CSS theo prop, không cần JS riêng.
+ * - Phản ứng HIẾM (không phải lần nào cũng có, có hạn mức thời gian giữa 2
+ *   lần liên tiếp): rụng 1 cánh nhỏ (`LotusPetalDrop.vue`) — tránh hoa bị
+ *   "vặt trụi" nếu người dùng di chuột qua lại nhiều lần.
  */
-const props = withDefaults(defineProps<{ bloomProgress?: number }>(), { bloomProgress: 1 })
+const props = withDefaults(defineProps<{ bloomProgress?: number; isHovering?: boolean }>(), {
+  bloomProgress: 1,
+  isHovering: false
+})
+
+const showDroppedPetal = ref(false)
+const onCooldown = ref(false)
+const DROP_CHANCE = 0.35
+const COOLDOWN_MS = 25000
+let cooldownTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(
+  () => props.isHovering,
+  (hovering) => {
+    if (!hovering || onCooldown.value) return
+    if (Math.random() > DROP_CHANCE) return
+    showDroppedPetal.value = true
+    onCooldown.value = true
+    cooldownTimer = setTimeout(() => {
+      onCooldown.value = false
+    }, COOLDOWN_MS)
+  }
+)
+
+onBeforeUnmount(() => {
+  if (cooldownTimer) clearTimeout(cooldownTimer)
+})
 
 const uid = (useId() ?? 'lf').replace(/[^\w-]/g, '')
 
@@ -73,7 +125,13 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
 </script>
 
 <template>
-  <svg viewBox="0 0 200 165" class="lotus-flower" aria-hidden="true" focusable="false">
+  <svg
+    viewBox="0 0 200 165"
+    class="lotus-flower"
+    :class="{ 'lotus-flower--hover': isHovering }"
+    aria-hidden="true"
+    focusable="false"
+  >
     <defs>
       <linearGradient :id="`lf-back-${uid}`" gradientUnits="userSpaceOnUse" x1="100" y1="80" x2="100" y2="150">
         <stop offset="0" stop-color="#DB2777" stop-opacity="0.72" />
@@ -110,6 +168,17 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
     </g>
 
     <ellipse cx="100" cy="134" rx="8" ry="5" fill="#C9A227" class="lotus-pod" :style="{ opacity: podOpacity }" />
+
+    <LotusPetalDrop
+      v-if="showDroppedPetal"
+      :x="38"
+      :y="128"
+      :dx="-8"
+      :dy="40"
+      :rotate-end="150"
+      color="#EC4899"
+      @done="showDroppedPetal = false"
+    />
   </svg>
 </template>
 
@@ -119,12 +188,25 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
   transition-timing-function: cubic-bezier(0.22, 0.8, 0.3, 1);
 }
 .lotus-pod {
-  transition: opacity 700ms ease-out;
+  transition: opacity 700ms ease-out, filter 280ms ease-out;
+}
+.lotus-flower {
+  transition: transform 280ms cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+.lotus-flower--hover {
+  transform: scale(1.04);
+}
+.lotus-flower--hover .lotus-pod {
+  filter: drop-shadow(0 0 5px rgba(201, 162, 39, 0.9));
 }
 @media (prefers-reduced-motion: reduce) {
   .lotus-petal,
-  .lotus-pod {
+  .lotus-pod,
+  .lotus-flower {
     transition: none;
+  }
+  .lotus-flower--hover {
+    transform: none;
   }
 }
 </style>

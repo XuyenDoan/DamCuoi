@@ -29,8 +29,41 @@
  * scale với cánh (sàn 0.14) để không bao giờ to hơn cánh lúc còn là búp.
  *
  * bloomProgress: 0 = búp (mọi vòng co về tâm), 1 = nở xoè hết cỡ.
+ *
+ * `isHovering` — truyền TỪ NGOÀI vào (xem `LotusScene.vue`), cùng lý do/cơ
+ * chế đã giải thích đầy đủ ở `LotusFlower.vue` (nền hoa sen nằm sau nội
+ * dung thật, bị chặn hết sự kiện chuột nên không dùng CSS `:hover` trực tiếp
+ * được — `LotusScene.vue` tự theo dõi toạ độ chuột bằng JS rồi truyền
+ * xuống). Phản ứng chính = xoè nhẹ + gương sen sáng lên; phản ứng hiếm =
+ * rụng 1 cánh, có hạn mức thời gian.
  */
-const props = withDefaults(defineProps<{ bloomProgress?: number }>(), { bloomProgress: 1 })
+const props = withDefaults(defineProps<{ bloomProgress?: number; isHovering?: boolean }>(), {
+  bloomProgress: 1,
+  isHovering: false
+})
+
+const showDroppedPetal = ref(false)
+const onCooldown = ref(false)
+const DROP_CHANCE = 0.35
+const COOLDOWN_MS = 25000
+let cooldownTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(
+  () => props.isHovering,
+  (hovering) => {
+    if (!hovering || onCooldown.value) return
+    if (Math.random() > DROP_CHANCE) return
+    showDroppedPetal.value = true
+    onCooldown.value = true
+    cooldownTimer = setTimeout(() => {
+      onCooldown.value = false
+    }, COOLDOWN_MS)
+  }
+)
+
+onBeforeUnmount(() => {
+  if (cooldownTimer) clearTimeout(cooldownTimer)
+})
 
 const uid = (useId() ?? 'lt').replace(/[^\w-]/g, '')
 
@@ -195,7 +228,13 @@ const seedHoles: SeedHole[] = [
 </script>
 
 <template>
-  <svg viewBox="0 0 200 200" class="lotus-flower-top" aria-hidden="true" focusable="false">
+  <svg
+    viewBox="0 0 200 200"
+    class="lotus-flower-top"
+    :class="{ 'lotus-flower-top--hover': isHovering }"
+    aria-hidden="true"
+    focusable="false"
+  >
     <defs>
       <linearGradient
         v-for="(ring, ri) in rings"
@@ -266,6 +305,17 @@ const seedHoles: SeedHole[] = [
         />
       </g>
     </g>
+
+    <LotusPetalDrop
+      v-if="showDroppedPetal"
+      :x="100"
+      :y="20"
+      :dx="16"
+      :dy="20"
+      :rotate-end="90"
+      color="#DB2777"
+      @done="showDroppedPetal = false"
+    />
   </svg>
 </template>
 
@@ -275,14 +325,27 @@ const seedHoles: SeedHole[] = [
   transition-timing-function: cubic-bezier(0.22, 0.8, 0.3, 1);
 }
 .lotus-pod-top {
-  transition-property: transform;
-  transition-duration: 700ms;
+  transition-property: transform, filter;
+  transition-duration: 700ms, 280ms;
   transition-timing-function: ease-out;
+}
+.lotus-flower-top {
+  transition: transform 280ms cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+.lotus-flower-top--hover {
+  transform: scale(1.04);
+}
+.lotus-flower-top--hover .lotus-pod-top {
+  filter: drop-shadow(0 0 5px rgba(201, 162, 39, 0.9));
 }
 @media (prefers-reduced-motion: reduce) {
   .lotus-petal-top,
-  .lotus-pod-top {
+  .lotus-pod-top,
+  .lotus-flower-top {
     transition: none;
+  }
+  .lotus-flower-top--hover {
+    transform: none;
   }
 }
 </style>
