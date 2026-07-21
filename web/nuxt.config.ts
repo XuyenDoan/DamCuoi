@@ -26,12 +26,9 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'vi' },
       link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap&subset=vietnamese'
-        },
+        // Font tự lưu trữ qua `@fontsource/*` (import trong `assets/css/main.css`)
+        // — KHÔNG còn <link> tới fonts.googleapis.com/fonts.gstatic.com nữa,
+        // xem giải thích đầy đủ ở đầu `main.css`.
         // Favicon hoạ tiết hoa sen (khớp biểu tượng riêng dùng xuyên suốt
         // site — LotusMotif) thay cho icon mặc định của Nuxt, để nhìn tab
         // trình duyệt là nhận ra ngay đây là web lưu giữ kỷ niệm cưới. SVG

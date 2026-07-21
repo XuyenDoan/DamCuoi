@@ -1059,4 +1059,21 @@ Mục 33.1 CHỦ ĐÍCH bỏ qua 2 bông khung viền tĩnh (hiện nửa bông 
 
 ---
 
+## 34. Tự lưu trữ font, bỏ phụ thuộc Google Fonts CDN (đợt sau mục 33)
+
+Trước đây `nuxt.config.ts` nạp font qua 3 thẻ `<link>` trỏ tới `fonts.googleapis.com`/`fonts.gstatic.com` (preconnect x2 + 1 stylesheet gộp `Playfair Display:wght@500;600;700`, `Cormorant Garamond:ital,wght@1,500;1,600`, `Be Vietnam Pro:wght@400;500`). Đổi sang tự lưu trữ bằng package `@fontsource/*` (file `.woff2` đóng gói sẵn trong `node_modules`, Vite tự copy vào build khi CSS `@import`) — không còn phụ thuộc dịch vụ bên thứ 3, bớt 1 lượt kết nối DNS/TLS trước khi chữ hiện đúng font, tiện verify offline.
+
+**Đo thật trước khi chọn weight (không đoán)**: dùng Playwright quét `getComputedStyle` trên toàn bộ heading/text đang hiển thị thật ở 5 trang công khai, phát hiện site chỉ thực sự yêu cầu 2 weight: "normal" (400, mặc định/do Tailwind Preflight reset `font-weight: inherit` ở heading) và `font-medium` (500, 41 chỗ dùng). Riêng `Playfair Display`/`Cormorant Garamond` trước đây CHỈ tải weight 500/600/700 (không có 400) — nghĩa là mọi chỗ yêu cầu "normal" thực chất đang được trình duyệt tự khớp sang weight 500 gần nhất, và 600/700 chưa từng render ra ở đâu. Để giữ đúng nguyên diện mạo hiện tại, tự lưu trữ đúng 4 tổ hợp thực dùng thay vì cả 11 tổ hợp cũ: `be-vietnam-pro/400.css`, `be-vietnam-pro/500.css`, `playfair-display/500.css`, `cormorant-garamond/500-italic.css`.
+
+**Thay đổi**:
+- Cài 3 package: `@fontsource/be-vietnam-pro`, `@fontsource/playfair-display`, `@fontsource/cormorant-garamond`.
+- `assets/css/main.css`: thêm 4 dòng `@import` nêu trên ngay sau `@import "tailwindcss";` (trước `@theme`), kèm comment giải thích lý do chọn đúng 4 tổ hợp.
+- `nuxt.config.ts`: bỏ 3 thẻ `<link>` preconnect/stylesheet Google Fonts, thay bằng comment trỏ về `main.css`.
+
+**Verify**: `npx vue-tsc --noEmit` sạch, `npm run build` thành công — kiểm tra `.output/public/_nuxt` xác nhận đủ file `.woff2` (kể cả các subset Unicode `vietnamese`/`latin`/`latin-ext`/`cyrillic`/`cyrillic-ext` tự động theo `unicode-range` của `@fontsource`) đã được Vite copy vào build với tên đã hash. Chạy dev server thật + Playwright: theo dõi toàn bộ network request xác nhận **0** request tới `fonts.googleapis.com`/`fonts.gstatic.com`; `document.fonts` sau `document.fonts.ready` xác nhận đủ 4 `FontFace` (Be Vietnam Pro 400/500, Playfair Display 500, Cormorant Garamond 500 italic) ở trạng thái `loaded`; chụp ảnh khu vực Hero xác nhận chữ tiếng Việt có dấu hiển thị đúng, không vỡ font/tofu.
+
+**Thành phần sửa**: `assets/css/main.css`, `nuxt.config.ts`, `package.json`.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

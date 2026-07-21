@@ -1,6 +1,36 @@
 @import "tailwindcss";
 
 /*
+  Font tự lưu trữ (KHÔNG phụ thuộc Google Fonts CDN nữa — trước đây tải qua
+  <link> tới fonts.googleapis.com/fonts.gstatic.com trong nuxt.config.ts, đã
+  bỏ hẳn). Dùng package `@fontsource/*` (file .woff2 đóng gói sẵn trong
+  node_modules, Vite tự xử lý & sao chép vào build khi `@import` từ CSS) —
+  lợi ích: (1) không phụ thuộc dịch vụ bên thứ 3 có thể chặn/ngừng hoạt động
+  (đúng tinh thần "bền vững" đã thống nhất, checklist AAA mục G, spec.md mục
+  17.8); (2) bớt 1 lượt kết nối DNS/TLS ra ngoài trước khi chữ hiện đúng
+  font; (3) tiện verify offline.
+
+  QUAN TRỌNG (đo thật bằng Playwright trước khi chọn weight, không đoán):
+  trước đây tải THỪA rất nhiều weight không hề được dùng — CSS toàn site
+  không có bất kỳ chỗ nào yêu cầu tường minh `font-weight` khác `500`
+  (utility `font-medium`, 41 chỗ) ngoài mặc định "normal" (400, do Tailwind
+  Preflight reset heading về `font-weight: inherit`). Riêng 2 font
+  `Playfair Display`/`Cormorant Garamond` trước đây CHỈ tải các weight
+  500/600/700 (không có 400) — nghĩa là mọi chỗ yêu cầu "normal" (400) thực
+  chất đang được trình duyệt TỰ KHỚP sang weight 500 (gần nhất trong các
+  weight có sẵn), disable 600/700 hoàn toàn không ảnh hưởng gì vì chưa từng
+  có chỗ nào thực sự render ra weight đó. Để giữ ĐÚNG NGUYÊN diện mạo hiện
+  tại (không đổi độ đậm chữ ngoài ý muốn), chỉ tải đúng 500/500-italic cho 2
+  font này (khớp với weight đang thực sự hiển thị), thay vì đổi sang tải
+  400 "đúng lý thuyết" nhưng sẽ làm chữ mảnh hơn 1 chút so với hiện trạng.
+  Kết quả: 11 tổ hợp weight/style trước đây -> còn đúng 4 tổ hợp thực dùng.
+*/
+@import "@fontsource/be-vietnam-pro/400.css";
+@import "@fontsource/be-vietnam-pro/500.css";
+@import "@fontsource/playfair-display/500.css";
+@import "@fontsource/cormorant-garamond/500-italic.css";
+
+/*
   Design tokens theo D:\Dev\DamCuoi\spec.md mục 4 (Bảng màu) & mục 6 (Typography).
   Không thêm màu ngoài palette này (checklist 17.1).
 */
