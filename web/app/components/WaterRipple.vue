@@ -129,6 +129,33 @@
       delay="-2.2s"
       tone="text-secondary-light"
     />
+    <FallingPetal
+      left="17%"
+      land-top="38%"
+      :size="0.55"
+      fall-distance="-26vh"
+      duration="12s"
+      delay="-9s"
+      tone="text-secondary"
+    />
+    <FallingPetal
+      left="45%"
+      land-top="15%"
+      :size="0.7"
+      fall-distance="-22vh"
+      duration="10.5s"
+      delay="-5.5s"
+      tone="text-primary-light"
+    />
+    <FallingPetal
+      left="95%"
+      land-top="32%"
+      :size="0.6"
+      fall-distance="-30vh"
+      duration="13.5s"
+      delay="-1s"
+      tone="text-secondary-light"
+    />
   </div>
 </template>
 

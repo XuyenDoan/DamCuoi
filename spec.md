@@ -991,4 +991,19 @@ Yêu cầu chủ dự án chỉ nói "xoá phần dư thừa ở Admin" (field "
 
 ---
 
+## 31. Thêm cánh hoa/lá rơi cho nền hoa sen mờ (đợt sau mục 30)
+
+Phản hồi: hiệu ứng cánh hoa/lá rơi (`FallingPetal.vue`, dùng trong `WaterRipple.vue` — dải nước mờ ở đáy nền hoa sen `LotusScene.vue`) đang hơi ít, yêu cầu bổ sung nhưng "vừa phải, không quá rối mắt". Thêm 3 cánh (4 → **7**), không đổi component/logic — chỉ thêm instance mới với vị trí/thời lượng/độ trễ riêng để tránh rơi trùng nhịp:
+
+- Vị trí ngang (`left`) rải đều lấp vào khoảng trống giữa 4 cánh cũ (8/27/61/83%): thêm 17/45/95% — không có 2 cánh nào cách nhau dưới ~9%, tránh dồn cụm 1 chỗ.
+- Điểm rơi trúng (`land-top`) trải trên nhiều mức khác nhau (15/32/38%, cộng với 20/28/48/55% cũ) để không cùng "hàng" với cánh có sẵn.
+- Thời lượng rơi (`duration`) và độ trễ (`delay`) đều khác các cánh cũ và khác nhau giữa 3 cánh mới (12s/10.5s/13.5s, delay -9s/-5.5s/-1s) — tránh hiệu ứng "rơi đồng loạt" trông giả tạo.
+- Giữ nguyên kích thước nhỏ (`size` 0.55-0.7rem) và độ mờ (`fill-opacity 0.55` có sẵn trong component) — không phóng to/đậm hơn, đúng tinh thần "vừa phải, không rối mắt" đã yêu cầu.
+
+**Verify**: `npx vue-tsc --noEmit` sạch, `npm run build` thành công. Playwright xác nhận đủ 7 phần tử `.falling-petal-wrap` trong DOM; chụp nhiều khung hình cách nhau ở trang chủ xác nhận trực quan các cánh rơi lệch nhịp nhau, kích thước nhỏ/mờ, không gây rối mắt. `prefers-reduced-motion` không cần sửa gì thêm — quy tắc tắt animation đã có sẵn trong chính `FallingPetal.vue` áp dụng tự động cho mọi instance mới.
+
+**Thành phần sửa**: `components/WaterRipple.vue`.
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*
