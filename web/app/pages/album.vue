@@ -61,11 +61,6 @@ watch(activeAlbum, () => {
   lightboxIndex.value = null
   page.value = 1
 })
-
-const downloadAlbumUrl = computed(() => {
-  if (activeAlbum.value === 'all') return null
-  return `/api/albums/${activeAlbum.value}/download`
-})
 </script>
 
 <template>
@@ -105,10 +100,6 @@ const downloadAlbumUrl = computed(() => {
         >
           {{ album.name }}
         </button>
-      </div>
-
-      <div v-if="downloadAlbumUrl" class="mt-4 flex justify-center">
-        <a :href="downloadAlbumUrl" class="btn-outline">Tải toàn bộ Album</a>
       </div>
     </section>
 
