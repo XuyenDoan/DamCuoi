@@ -50,6 +50,29 @@
 @import "@fontsource/karla/600.css";
 
 /*
+  Font riêng cho 3 theme mới (spec.md mục 37 — "Kính Mờ Ánh Sáng" + "Lưới
+  Chuyển Động" + "Chữ Cuộn Kịch Tính"). Bricolage Grotesque dùng bản
+  VARIABLE (`wght.css`, 1 file phủ toàn dải weight 200–800) vì theme "Chữ
+  Cuộn Kịch Tính" cần biến hình weight MƯỢT theo cuộn thật (đổi
+  `font-variation-settings` liên tục) — dùng nhiều file weight rời rạc sẽ
+  không tạo được hiệu ứng "sống" như font variable thật.
+*/
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/sora/700.css";
+@import "@fontsource/sora/800.css";
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource-variable/bricolage-grotesque/wght.css";
+@import "@fontsource/archivo/400.css";
+@import "@fontsource/archivo/500.css";
+@import "@fontsource/archivo/600.css";
+
+/*
   Design tokens theo D:\Dev\DamCuoi\spec.md mục 4 (Bảng màu) & mục 6 (Typography).
   Không thêm màu ngoài palette này (checklist 17.1).
 */
@@ -126,6 +149,81 @@
   --color-gold: #d4a463;
   --color-success: #4ade80;
   --color-error: #f87171;
+}
+
+/*
+  3 theme mới (spec.md mục 37 — hiệu ứng nổi bật, vẫn đo tương phản thật để
+  đạt AAA như 2 theme trước). Mỗi theme thêm 1 biến "-vivid" cho ĐÚNG 1 màu
+  nhấn — dùng CHỈ cho mục đích trang trí thuần tuý (glow, nền khối lớn, chữ
+  cỡ lớn ≥24px đạt ngưỡng AA-large 3:1) — KHÔNG dùng cho text thường, để vẫn
+  giữ được sắc độ rực rỡ đúng như bản mockup mà không phá tương phản AAA của
+  `--color-primary` (dùng cho text/nút, luôn tối hơn 1 chút để đủ AAA).
+*/
+[data-theme="glass"] {
+  --font-heading: "Instrument Serif", Georgia, serif;
+  --font-accent: "Instrument Serif", Georgia, serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+
+  --color-primary: #7a3157;
+  --color-primary-vivid: #a8447a;
+  --color-primary-light: #c97ba6;
+  --color-secondary: #554b87;
+  --color-secondary-vivid: #7a6fbe;
+  --color-secondary-light: #b3abdd;
+  --color-bg: #faf7f5;
+  --color-surface: #ffffff;
+  --color-text: #2b2438;
+  --color-text-muted: #584d5c;
+  --color-gold: #8f6b39;
+  --color-success: #2f7a4f;
+  --color-error: #b23a3a;
+}
+
+[data-theme="bento"] {
+  --font-heading: "Sora", system-ui, sans-serif;
+  --font-accent: "Sora", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+
+  --color-primary: #973520;
+  --color-primary-vivid: #e0684a;
+  --color-primary-light: #ee9578;
+  --color-secondary: #33543f;
+  --color-secondary-vivid: #4f8368;
+  --color-secondary-light: #9cc2ac;
+  --color-bg: #faf6ef;
+  --color-surface: #ffffff;
+  --color-text: #262220;
+  --color-text-muted: #584f48;
+  --color-gold: #a3792e;
+  --color-success: #2f7a4f;
+  --color-error: #b23a3a;
+  /* 4 màu nền ô bento pastel xen kẽ (WishCard/ảnh Album) — thuần trang trí,
+     không dùng cho chữ nên không cần đạt AAA riêng, chữ trong ô vẫn dùng
+     --color-text (AAA đã đo ở trên) không đổi theo màu ô. */
+  --bento-cell-1: #f6d9e1;
+  --bento-cell-2: #dceee1;
+  --bento-cell-3: #fbebc7;
+  --bento-cell-4: #e6dff5;
+}
+
+[data-theme="kinetic"] {
+  --font-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-accent: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, sans-serif;
+
+  --color-primary: #8a2626;
+  --color-primary-vivid: #d64545;
+  --color-primary-light: #e67a7a;
+  --color-secondary: #4a3f3a;
+  --color-secondary-vivid: #6e655d;
+  --color-secondary-light: #a89c92;
+  --color-bg: #faf8f4;
+  --color-surface: #ffffff;
+  --color-text: #211c1a;
+  --color-text-muted: #4a3f3a;
+  --color-gold: #a3792e;
+  --color-success: #2f7a4f;
+  --color-error: #b23a3a;
 }
 
 html {
@@ -274,9 +372,102 @@ body {
   color: var(--color-primary);
 }
 
+/*
+  3 theme mới (spec.md mục 37). Glass: nút kính mờ thật (backdrop-blur +
+  nền bán trong suốt), glow theo màu chủ đạo khi hover. Bento: bo góc lớn,
+  đổ bóng rõ + nhích lên khi hover (đúng tinh thần "widget" có thể bấm).
+  Kinetic: dáng phẳng, đậm, góc nhọn — tương phản mạnh kiểu poster chữ.
+*/
+[data-theme="glass"] .btn-primary,
+[data-theme="glass"] .btn-outline {
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: none;
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  transition: box-shadow 250ms, transform 150ms, background-color 200ms;
+}
+[data-theme="glass"] .btn-primary {
+  background-color: color-mix(in srgb, var(--color-surface) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-surface) 70%, transparent);
+  color: var(--color-text);
+  /* Đổ bóng THƯỜNG TRỰC (không chỉ lúc hover) — nếu không, viền kính gần
+     như vô hình trên nền sáng (kính trong suốt + nền cũng sáng = viền
+     không đủ tương phản để nhận biết đây LÀ 1 nút bấm khi chưa hover, ảnh
+     hưởng khả năng nhận diện thành phần UI). */
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+[data-theme="glass"] .btn-primary:hover {
+  box-shadow: 0 0 28px color-mix(in srgb, var(--color-primary-vivid) 40%, transparent);
+  transform: translateY(-2px);
+}
+[data-theme="glass"] .btn-outline {
+  background-color: color-mix(in srgb, var(--color-surface) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  color: var(--color-text);
+}
+[data-theme="glass"] .btn-outline:hover {
+  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
+}
+
+[data-theme="bento"] .btn-primary,
+[data-theme="bento"] .btn-outline {
+  border-radius: 18px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--color-text) 18%, transparent);
+  transition: transform 150ms, box-shadow 150ms;
+}
+[data-theme="bento"] .btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+[data-theme="bento"] .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 18%, transparent);
+}
+[data-theme="bento"] .btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--color-text) 18%, transparent);
+}
+[data-theme="bento"] .btn-outline {
+  border: 2px solid var(--color-text);
+  color: var(--color-text);
+  box-shadow: none;
+}
+[data-theme="bento"] .btn-outline:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+[data-theme="kinetic"] .btn-primary,
+[data-theme="kinetic"] .btn-outline {
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: none;
+}
+[data-theme="kinetic"] .btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+[data-theme="kinetic"] .btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 82%, black);
+}
+[data-theme="kinetic"] .btn-outline {
+  border: 2px solid var(--color-text);
+  color: var(--color-text);
+}
+[data-theme="kinetic"] .btn-outline:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-theme="editorial"] .btn-primary:hover,
-  [data-theme="cinematic"] .btn-primary:hover {
+  [data-theme="cinematic"] .btn-primary:hover,
+  [data-theme="glass"] .btn-primary:hover,
+  [data-theme="bento"] .btn-primary:hover,
+  [data-theme="kinetic"] .btn-primary:hover {
     transition: none;
   }
 }
@@ -319,6 +510,40 @@ body {
 [data-theme="cinematic"] .wish-card:hover {
   box-shadow: 0 0 0 1px var(--color-primary), 0 0 20px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
+[data-theme="glass"] .wish-card {
+  border-radius: 18px;
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+[data-theme="glass"] .wish-card:hover {
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--color-primary-vivid) 22%, transparent);
+}
+[data-theme="bento"] .wish-card {
+  /* Màu nền xen kẽ gán qua `:style` ở loi-chuc.vue (tính theo index toàn
+     cục, không dùng :nth-child — xem comment ở đó lý do). */
+  border-radius: 20px;
+  border-color: transparent;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+[data-theme="bento"] .wish-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+[data-theme="kinetic"] .wish-card {
+  border-radius: 3px;
+  border-width: 0 0 0 3px;
+  border-color: var(--color-primary);
+  box-shadow: none;
+}
+[data-theme="kinetic"] .wish-card:hover {
+  box-shadow: none;
+  transform: none;
+  border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 5%, var(--color-bg));
+}
 
 /* Khung popup dùng chung (`AppModal.vue`, class `.app-modal-panel`) — cùng
    lý do WishCard ở trên: bo góc/đổ bóng gốc hợp Hoa Sen, không hợp 2 theme
@@ -330,6 +555,25 @@ body {
 [data-theme="cinematic"] .app-modal-panel {
   border-radius: 4px;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent), 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+[data-theme="glass"] .app-modal-panel {
+  border-radius: 24px;
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--color-text) 16%, transparent);
+}
+[data-theme="bento"] .app-modal-panel {
+  border-radius: 22px;
+  border-color: transparent;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 14%, transparent), 0 20px 40px color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+[data-theme="kinetic"] .app-modal-panel {
+  border-radius: 3px;
+  border-width: 2px;
+  border-color: var(--color-text);
+  box-shadow: none;
 }
 
 /* Thẻ thông tin lễ cưới (`thong-tin.vue`, class `.event-info-card`). */
@@ -343,6 +587,28 @@ body {
   border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
   background-color: var(--color-surface);
 }
+[data-theme="glass"] .event-info-card {
+  border-radius: 22px;
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+[data-theme="bento"] .event-info-card {
+  border-radius: 22px;
+  border-color: transparent;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+[data-theme="bento"] .event-info-card:nth-of-type(2) { background-color: var(--bento-cell-1); }
+[data-theme="bento"] .event-info-card:nth-of-type(1) { background-color: var(--bento-cell-3); }
+[data-theme="kinetic"] .event-info-card {
+  border-radius: 3px;
+  border-width: 2px;
+  border-color: var(--color-text);
+  background-color: var(--color-surface);
+  box-shadow: none;
+}
 
 /* Vùng kéo-thả + hàng danh sách ảnh chờ gửi (`gui-anh.vue`). */
 [data-theme="editorial"] .upload-dropzone,
@@ -352,6 +618,44 @@ body {
 [data-theme="cinematic"] .upload-dropzone,
 [data-theme="cinematic"] .upload-queue-item {
   border-radius: 2px;
+}
+[data-theme="glass"] .upload-dropzone {
+  border-radius: 24px;
+  background-color: color-mix(in srgb, var(--color-surface) 45%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+[data-theme="glass"] .upload-queue-item {
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
+}
+[data-theme="bento"] .upload-dropzone,
+[data-theme="bento"] .upload-queue-item {
+  border-radius: 20px;
+}
+[data-theme="bento"] .upload-dropzone {
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+[data-theme="kinetic"] .upload-dropzone,
+[data-theme="kinetic"] .upload-queue-item {
+  border-radius: 3px;
+}
+
+/* Tab lọc album + khung ảnh theme Kính Mờ Ánh Sáng (`album.vue`, spec.md
+   mục 37) — dùng đúng kỹ thuật kính mờ đã thiết lập ở các nơi khác. */
+.glass-tab {
+  background-color: color-mix(in srgb, var(--color-surface) 65%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+.glass-tile {
+  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.glass-tile:hover {
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--color-primary-vivid) 20%, transparent);
 }
 
 /* Ảnh nền riêng từng trang (PageBackgroundImage.vue) — độ mờ mặc định 0.14
@@ -417,6 +721,53 @@ body {
 .reveal-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* Nghiêng 3D theo chuột (v-tilt directive, spec.md mục 37 — "Lưới Chuyển
+   Động"). `.tilt-grid` đặt trên phần tử cha (thẻ chứa cả lưới) để có phối
+   cảnh 3D dùng chung; từng ô tự thêm `.tilt-card` khi directive mounted. */
+.tilt-grid {
+  perspective: 900px;
+}
+.tilt-card {
+  transition: transform 120ms ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Chữ cuộn kịch tính (v-kinetic directive, spec.md mục 37 — "Chữ Cuộn Kịch
+   Tính") — mờ/lệch khi ngoài dải giữa màn hình, đậm nét/đúng màu/đúng vị
+   trí khi cuộn tới đúng dải. Dùng `font-variation-settings` (Bricolage
+   Grotesque là font variable thật) để đậm dần MƯỢT, không nhảy khấc giữa
+   các weight rời rạc. */
+.kinetic-word {
+  opacity: 0.16;
+  transform: translateX(20px);
+  font-variation-settings: 'wght' 300;
+  color: var(--color-text);
+  transition: opacity 200ms linear, transform 200ms linear, font-variation-settings 200ms linear, color 200ms linear;
+}
+.kinetic-word.kinetic-active {
+  opacity: 1;
+  transform: translateX(0);
+  font-variation-settings: 'wght' 720;
+  color: var(--color-primary);
+}
+/* Nút "nam châm" (v-magnetic directive, spec.md mục 37). */
+.magnetic-btn {
+  transition: transform 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card {
+    transition: none;
+  }
+  .kinetic-word {
+    transition: none;
+  }
+  .magnetic-btn {
+    transition: none;
+  }
 }
 
 /* Scroll indicator ở đáy Hero (index.vue) — trôi lên xuống rất nhẹ, chậm,

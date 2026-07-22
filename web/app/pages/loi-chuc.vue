@@ -74,6 +74,24 @@ async function onWishSubmitted() {
 }
 
 const selectedWish = ref<Wish | null>(null)
+
+/**
+ * Màu nền xen kẽ cho theme Lưới Chuyển Động (spec.md mục 37) — PHẢI tính
+ * theo chỉ số toàn cục trong mảng `wishes` gốc, KHÔNG dùng CSS `:nth-child`
+ * trên `.wish-card` như thử ban đầu: mỗi thẻ nằm trong 1 CỘT masonry riêng
+ * (`wishColumns`), nên `:nth-child` chỉ đếm vị trí TRONG TỪNG CỘT — nếu số
+ * lời chúc ít hơn/bằng số cột, mọi thẻ đều là "con đầu tiên" của cột mình
+ * và nhận CÙNG 1 màu (bug thật đã gặp khi verify bằng ảnh chụp: cả 4 thẻ
+ * đều lên đúng 1 màu hồng). Khắc phục bằng cách tự tính index toàn cục rồi
+ * gán thẳng `background` qua `:style` — style trực tiếp luôn thắng CSS lớp.
+ */
+const bentoCellColors = ['var(--bento-cell-1)', 'var(--bento-cell-2)', 'var(--bento-cell-3)', 'var(--bento-cell-4)']
+function bentoCardStyle(wishId: string) {
+  if (theme.value !== 'bento') return undefined
+  const idx = (wishes.value ?? []).findIndex((w) => w.id === wishId)
+  if (idx === -1) return undefined
+  return { background: bentoCellColors[idx % bentoCellColors.length] }
+}
 </script>
 
 <template>
@@ -113,6 +131,7 @@ const selectedWish = ref<Wish | null>(null)
             :key="item.wish.id"
             v-reveal="(i % 8) * 50"
             :wish="item.wish"
+            :style="bentoCardStyle(item.wish.id)"
             @click="selectedWish = item.wish"
           />
         </div>

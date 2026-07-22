@@ -1164,6 +1164,56 @@ Nguyên tắc chủ đạo: **đa số khác biệt giữa 3 theme chỉ là CSS
 
 **Thành phần thêm/sửa**: `shared/themes.ts` (mới), `server/utils/types.ts`, `server/utils/store.ts`, `server/api/settings.put.ts`, `server/api/admin/theme.put.ts` (mới), `app/composables/useWebsiteTheme.ts` (mới), `app/app.vue`, `app/assets/css/main.css`, `app/layouts/editorial.vue` (mới), `app/layouts/cinematic.vue` (mới), `app/components/PageBackgroundImage.vue` (mới), `app/components/theme/*` (mới — `DefaultHomeView.vue`, `EditorialHomeView.vue`, `CinematicHomeView.vue`, `EditorialLoveStory.vue`, `CinematicLoveStory.vue`), `app/pages/index.vue`, `app/pages/album.vue`, `app/pages/loi-chuc.vue`, `app/pages/thong-tin.vue`, `app/pages/gui-anh.vue`, `app/pages/admin/giao-dien.vue` (mới), `app/pages/admin/index.vue`, `package.json` (4 package `@fontsource/*` mới).
 
+## 37. Thêm 3 phong cách giao diện hiệu ứng nổi bật — Glass/Bento/Kinetic (đợt sau mục 36)
+
+Yêu cầu: đề xuất 3 phong cách giao diện hoàn toàn khác 3 theme hiện có (Hoa Sen/Biên Tập Sang Trọng/Điện Ảnh Cuộn), nhiều hiệu ứng bắt mắt hơn nhưng vẫn giữ chuẩn AAA, tham khảo xu hướng thiết kế web thế giới. Chủ dự án chốt **cả 3**, yêu cầu tận dụng đúng cơ chế chọn theme sẵn có ở trang Admin (`/admin/giao-dien`) thay vì xây cơ chế mới.
+
+### 37.1 Đề xuất & chốt phương án
+
+Nghiên cứu xu hướng thiết kế 2026 (glassmorphism + aurora gradient, bento grid layout kiểu Apple/Notion, kinetic scroll typography dùng variable font) và trình bày qua artifact demo tương tác thật (không phải ảnh tĩnh) trước khi code:
+- **Kính Mờ Ánh Sáng (Glassmorphism Aurora)**: nền cực quang trôi chậm, nội dung trong khối kính mờ nổi bồng bềnh, ánh sáng theo dõi con trỏ chuột.
+- **Lưới Chuyển Động (Bento Motion Grid)**: trang chủ dạng lưới ô to/nhỏ xen kẽ, nghiêng nhẹ 3D theo chuột, bay vào theo nhịp khi tải trang.
+- **Chữ Cuộn Kịch Tính (Kinetic Scroll Typography)**: chữ cỡ lớn đậm dần/đổi màu/trượt vào đúng lúc cuộn tới, kể câu chuyện tình yêu như một bài thơ chuyển động.
+
+Chủ dự án chốt cả 3 — tổng cộng **6 phong cách** (Hoa Sen mặc định + 5 theme tuỳ chọn).
+
+### 37.2 Kiến trúc — mở rộng đúng cơ chế đã có, không xây mới
+
+Đúng yêu cầu "tham khảo setting chọn phong cách sẵn có": chỉ thêm 3 phần tử vào registry `WEBSITE_THEMES` (`shared/themes.ts`) — KHÔNG đổi schema `Settings`, KHÔNG đổi API `PUT /api/admin/theme`, KHÔNG đổi trang `admin/giao-dien.vue` (trang này đã lặp `v-for="t in WEBSITE_THEMES"` từ mục 36 nên tự động ra thêm 3 thẻ chọn với sample preview đúng font/màu, không cần sửa 1 dòng code Admin nào). Kiến trúc CSS-token + `[data-theme="..."]` override + component riêng chỉ khi cấu trúc thực sự khác (mục 36.3) được tái sử dụng y nguyên cho 3 theme mới:
+- `app/layouts/glass.vue`, `bento.vue`, `kinetic.vue` (mới) — nav/footer riêng cấu trúc (nav dạng viên thuốc nổi kính mờ / navbar đậm nét viền dày / navbar hiện khi cuộn với gạch chân active).
+- `app/components/theme/GlassHomeView.vue`, `BentoHomeView.vue`, `KineticHomeView.vue` + `GlassLoveStory.vue`, `BentoLoveStory.vue`, `KineticLoveStory.vue` (mới) — trang chủ và câu chuyện tình yêu là phần khác biệt cấu trúc lớn nhất (hero khối kính bồng bềnh / lưới bento + đếm ngày cưới / typography động), `index.vue` chỉ thêm 3 nhánh `v-else-if` vào dispatcher có sẵn.
+- 4 trang còn lại (Album/Lời chúc/Thông tin/Gửi ảnh) **giữ nguyên 1 file**, chỉ thêm nhánh `:class` theo theme cho khung/hình dạng — đúng nguyên tắc "tránh nhân bản component" đã lập từ mục 36.
+- Mọi component tương tác dùng chung (`PhotoLightbox`, `WishModal`/`WishSubmitModal`, `AppModal`, `PhotoPager`) **không sửa 1 dòng logic** — xác nhận lại bằng test thật ở mục 37.6.
+
+### 37.3 3 directive dùng chung mới — hiệu ứng thật, có gate khả năng truy cập
+
+Thêm 3 Vue custom directive qua Nuxt plugin (nối dài mẫu `v-reveal` đã có ở `plugins/reveal.ts`):
+- **`v-tilt`** (`app/plugins/tilt.ts`) — nghiêng 3D theo chuột (dùng cho lưới Bento), set `transform: rotateX/rotateY/scale` theo `mousemove`, reset khi `mouseleave`.
+- **`v-kinetic`** (`app/plugins/kinetic.ts`) — `IntersectionObserver` với `rootMargin: '-42% 0px -42% 0px'` tạo 1 dải mỏng ở giữa khung nhìn, bật/tắt class `.kinetic-active` LIÊN TỤC (không phải 1 lần như `v-reveal`) khi phần tử đi qua dải này khi cuộn — chữ đậm dần (variable font weight 300→720) + đổ màu + trượt vào đúng lúc cuộn tới.
+- **`v-magnetic`** (`app/plugins/magnetic.ts`) — nút CTA "hút" nhẹ theo con trỏ khi chuột ở gần (bán kính = nửa cạnh dài nhất + 60px).
+
+**Gate bắt buộc cho cả 3**: chỉ kích hoạt khi `window.matchMedia('(hover: hover) and (pointer: fine)')` (loại thiết bị cảm ứng — không có khái niệm "di chuột") VÀ không bật `prefers-reduced-motion: reduce`. Riêng `v-kinetic` khi `prefers-reduced-motion` bật: gắn thẳng class `.kinetic-active` tĩnh (chữ hiện đủ, đậm, không hiệu ứng) thay vì bỏ trắng nội dung.
+
+### 37.4 Bảng màu/font 3 theme mới + hiệu chỉnh đạt WCAG AAA
+
+- **Kính Mờ Ánh Sáng**: `Instrument Serif` (heading) + `Manrope` (body), tím than `#2B2438` – ngà `#FAF7F5` – rượu vang/tím lam.
+- **Lưới Chuyển Động**: `Sora` (heading) + `Plus Jakarta Sans` (body), nâu đen `#262220` – kem `#FAF6EF` – cam đất/xanh rêu.
+- **Chữ Cuộn Kịch Tính**: `Bricolage Grotesque` — font biến thiên (variable font, 1 file `wght.css` phủ dải weight 200–800, có sẵn subset tiếng Việt) + `Archivo` (body), nâu đen `#211C1A` – kem `#FAF8F4` – đỏ rượu.
+- Đo tương phản thật bằng công thức WCAG (Python), không đoán: màu nhấn ban đầu định dùng (tím rượu vang `#A8447A`, cam đất `#E0684A`) chỉ đạt AA, chưa đạt AAA ở cặp chữ/nền chính → hạ độ sáng giữ nguyên sắc: `#7A3157` (glass), `#973520` (bento), `#8A2626` (kinetic) — đạt AAA. **Giữ lại bản màu rực ban đầu** làm token trang trí riêng `--color-primary-vivid`/`--color-secondary-vivid` (không dùng cho chữ, chỉ dùng cho khối màu/nút lớn/gradient — không ràng buộc AAA vì không phải văn bản), tham chiếu qua cú pháp arbitrary-value Tailwind v4 `bg-[var(--color-primary-vivid)]` do 2 token này KHÔNG khai báo trong `@theme`.
+- Font tự lưu trữ qua `@fontsource/*`/`@fontsource-variable/*` (đúng nguyên tắc mục 34): `instrument-serif` (400 + 400-italic), `manrope` (400/600/700), `sora` (700/800), `plus-jakarta-sans` (400/500/600), `@fontsource-variable/bricolage-grotesque` (1 file `wght.css` duy nhất thay vì nhiều file static — cần thiết để `font-variation-settings` biến thiên mượt theo cuộn ở `v-kinetic`), `archivo` (400/500/600).
+
+### 37.5 Lỗi thật gặp phải & fix
+
+- **Thẻ Lời chúc theme Bento không đổi màu xen kẽ — cả 4 thẻ cùng 1 màu**: bản đầu dùng CSS `[data-theme="bento"] .wish-card:nth-child(4n+1..4)` để xen kẽ 4 màu pastel. Sai vì lưới Lời chúc là masonry chia CỘT (`wishColumns` ở `loi-chuc.vue`) — mỗi thẻ nằm trong 1 `<div>` cột riêng, nên `:nth-child` chỉ đếm vị trí TRONG TỪNG CỘT, không đếm toàn cục. Khi số lời chúc ≤ số cột, mọi thẻ đều là "con đầu tiên" của cột mình → cùng 1 màu (xác nhận bằng ảnh chụp thật: cả 4 thẻ test đều lên màu hồng). **Khắc phục**: xoá CSS `:nth-child`, tự tính chỉ số TOÀN CỤC của mỗi lời chúc trong mảng gốc (`wishes.value.findIndex(...)`) rồi gán màu qua `:style` trực tiếp trên `<WishCard>` (style trực tiếp luôn thắng CSS lớp, không cần đổi gì trong `WishCard.vue`) — re-test xác nhận 4 màu xen kẽ đúng (hồng phấn/bạc hà/bơ/oải hương).
+- **Nút chính (`.btn-primary`) theme Kính Mờ gần như vô hình lúc chưa hover**: bản đầu `box-shadow: none` mặc định, chỉ hiện bóng khi `:hover` — vì nút kính trong suốt đặt trên nền sáng gần giống màu, ranh giới nút gần như biến mất khi đứng yên (vấn đề khả năng nhận biết UI). **Khắc phục**: thêm `box-shadow` mờ thường trực (`color-mix(in srgb, var(--color-text) 12%, transparent)`), nhất quán với các khối kính khác (`.glass-hero-card`, `.glass-milestone`) vốn đã có bóng thường trực.
+- **Ký tự "&" ở tiêu đề trang chủ theme Chữ Cuộn Kịch Tính trông lệch dòng**: `leading-[0.92]` quá sát kết hợp glyph "&" cao/cách điệu của font Bricolage Grotesque gây cảm giác vỡ dòng khi xem ảnh thu nhỏ. **Khắc phục**: `leading-[1.05]` + bọc riêng `<span class="align-middle text-[0.5em] text-primary">&amp;</span>` (nhỏ hơn, tô màu nhấn, canh giữa) — rõ ràng, không mơ hồ.
+
+### 37.6 Tự kiểm tra sau khi hoàn thành
+
+`npx vue-tsc --noEmit` sạch. Playwright: ma trận đầy đủ **6 theme × 5 trang công khai + 5 trang admin** (40 tổ hợp, desktop 1280px) — 0 lỗi console, 0 tràn ngang; kiểm tra riêng mobile 375px cho 3 trang công khai × 3 theme mới (15 tổ hợp) — 0 tràn ngang. `prefers-reduced-motion: reduce`: xác nhận `v-tilt` không set `transform` dù có giả lập di chuột thật qua khối lưới Bento (`getComputedStyle(...).transform` giữ `none`), animation `aurora-blob` bị đóng băng (`animation-duration` ép ~0, nhờ rule chặn toàn cục có sẵn trong `main.css` từ trước, không cần CSS reduced-motion riêng cho từng hiệu ứng mới). Trang `/admin/giao-dien` hiện đúng **6 thẻ** chọn theme (`button.theme-pick-card`), thẻ Hoa Sen có badge "Đang dùng" đúng mặc định. Xác nhận `PhotoLightbox` (bấm ảnh ở `/album`) và `WishModal` (bấm thẻ ở `/loi-chuc`) vẫn mở đúng, không đổi hành vi khi đổi sang theme Kính Mờ Ánh Sáng.
+
+**Thành phần thêm/sửa**: `shared/themes.ts`, `app/assets/css/main.css`, `app/plugins/tilt.ts` (mới), `app/plugins/kinetic.ts` (mới), `app/plugins/magnetic.ts` (mới), `app/layouts/glass.vue`/`bento.vue`/`kinetic.vue` (mới), `app/components/theme/GlassHomeView.vue`/`GlassLoveStory.vue`/`BentoHomeView.vue`/`BentoLoveStory.vue`/`KineticHomeView.vue`/`KineticLoveStory.vue` (mới), `app/pages/index.vue`, `app/pages/album.vue`, `app/pages/loi-chuc.vue`, `package.json` (6 package `@fontsource/*`/`@fontsource-variable/*` mới). Không đổi: schema `Settings`, API theme, `app/pages/admin/giao-dien.vue`, `app/pages/admin/index.vue`, `app/pages/thong-tin.vue`, `app/pages/gui-anh.vue`.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

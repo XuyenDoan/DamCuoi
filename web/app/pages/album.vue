@@ -82,6 +82,21 @@ function tabClass(active: boolean): string {
       ? 'rounded-full border border-primary bg-primary/15 px-5 text-xs font-semibold uppercase tracking-[0.08em] text-primary'
       : 'rounded-full border border-text-muted/30 px-5 text-xs font-semibold uppercase tracking-[0.08em] text-text-muted hover:border-primary hover:text-primary'
   }
+  if (theme.value === 'glass') {
+    return active
+      ? 'glass-tab rounded-full px-5 text-sm font-semibold text-text shadow-sm'
+      : 'rounded-full px-5 text-sm font-semibold text-text-muted hover:text-text'
+  }
+  if (theme.value === 'bento') {
+    return active
+      ? 'rounded-full bg-text px-5 text-sm font-bold text-bg'
+      : 'rounded-full px-5 text-sm font-bold text-text hover:bg-[var(--bento-cell-1)]'
+  }
+  if (theme.value === 'kinetic') {
+    return active
+      ? 'border-b-4 border-primary px-1 pb-1 text-sm font-bold uppercase tracking-wide text-text'
+      : 'border-b-4 border-transparent px-1 pb-1 text-sm font-bold uppercase tracking-wide text-text-muted hover:text-text'
+  }
   return active
     ? 'rounded-full border border-primary bg-primary px-5 text-sm font-medium text-white hover:bg-primary/90'
     : 'rounded-full border border-secondary-light px-5 text-sm font-medium text-text hover:bg-surface'
@@ -90,12 +105,18 @@ function tabClass(active: boolean): string {
 function tileClass(): string {
   if (theme.value === 'editorial') return 'overflow-hidden'
   if (theme.value === 'cinematic') return 'overflow-hidden rounded-sm border border-text/10 transition-colors duration-200 hover:border-primary/70'
+  if (theme.value === 'glass') return 'glass-tile overflow-hidden rounded-3xl p-1.5 transition-shadow duration-300'
+  if (theme.value === 'bento') return 'overflow-hidden rounded-[22px] shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg'
+  if (theme.value === 'kinetic') return 'overflow-hidden border-2 border-text transition-colors duration-200 hover:border-primary'
   return 'overflow-hidden rounded-lg transition-shadow duration-200 hover:shadow-lg'
 }
 
 function imageClass(): string {
   if (theme.value === 'editorial') return 'h-auto w-full grayscale transition-all duration-300 ease-out group-hover:grayscale-0'
   if (theme.value === 'cinematic') return 'h-auto w-full transition-transform duration-300 ease-out group-hover:scale-[1.03]'
+  if (theme.value === 'glass') return 'h-auto w-full rounded-2xl transition-transform duration-300 ease-out group-hover:scale-[1.02]'
+  if (theme.value === 'bento') return 'h-auto w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]'
+  if (theme.value === 'kinetic') return 'h-auto w-full transition-transform duration-200 ease-out group-hover:scale-[1.03]'
   return 'h-auto w-full rounded-lg transition-transform duration-200 ease-out group-hover:scale-[1.03]'
 }
 </script>

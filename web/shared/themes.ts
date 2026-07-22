@@ -47,6 +47,33 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
       'Mỗi màn hình là 1 cảnh phim full-bleed, cuộn qua từng khoảnh khắc câu chuyện — chuyển động chậm, có kiểm soát.',
     palette: ['#16130F', '#F2EAD9', '#D4A463', '#AD7B72'],
     fonts: { heading: 'Fraunces', body: 'Karla' }
+  },
+  {
+    id: 'glass',
+    label: 'Kính Mờ Ánh Sáng',
+    subLabel: 'Glassmorphism Aurora',
+    description:
+      'Nền cực quang (aurora) trôi chậm, nội dung đặt trong khối kính mờ nổi bồng bềnh — ánh sáng theo dõi con trỏ chuột.',
+    palette: ['#2B2438', '#FAF7F5', '#7A3157', '#554B87'],
+    fonts: { heading: 'Instrument Serif', body: 'Manrope' }
+  },
+  {
+    id: 'bento',
+    label: 'Lưới Chuyển Động',
+    subLabel: 'Bento Motion Grid',
+    description:
+      'Trang chủ dạng lưới ô to/nhỏ xen kẽ kiểu Apple/Notion, nghiêng nhẹ theo chuột, bay vào theo nhịp khi tải trang.',
+    palette: ['#262220', '#FAF6EF', '#973520', '#33543F'],
+    fonts: { heading: 'Sora', body: 'Plus Jakarta Sans' }
+  },
+  {
+    id: 'kinetic',
+    label: 'Chữ Cuộn Kịch Tính',
+    subLabel: 'Kinetic Scroll Typography',
+    description:
+      'Chữ cỡ lớn đậm dần, đổi màu, trượt vào đúng lúc cuộn tới — kể câu chuyện tình yêu như một bài thơ chuyển động.',
+    palette: ['#211C1A', '#FAF8F4', '#8A2626', '#4A3F3A'],
+    fonts: { heading: 'Bricolage Grotesque', body: 'Archivo' }
   }
 ]
 

@@ -2,6 +2,9 @@
 import DefaultHomeView from '../components/theme/DefaultHomeView.vue'
 import EditorialHomeView from '../components/theme/EditorialHomeView.vue'
 import CinematicHomeView from '../components/theme/CinematicHomeView.vue'
+import GlassHomeView from '../components/theme/GlassHomeView.vue'
+import BentoHomeView from '../components/theme/BentoHomeView.vue'
+import KineticHomeView from '../components/theme/KineticHomeView.vue'
 
 useHead({
   title: 'Album Cưới',
@@ -19,5 +22,9 @@ const theme = useWebsiteTheme()
 <template>
   <DefaultHomeView v-if="theme === 'default'" />
   <EditorialHomeView v-else-if="theme === 'editorial'" />
-  <CinematicHomeView v-else />
+  <CinematicHomeView v-else-if="theme === 'cinematic'" />
+  <GlassHomeView v-else-if="theme === 'glass'" />
+  <BentoHomeView v-else-if="theme === 'bento'" />
+  <KineticHomeView v-else-if="theme === 'kinetic'" />
+  <DefaultHomeView v-else />
 </template>
