@@ -1,5 +1,6 @@
 import { dataFilePath } from './paths'
 import { readJsonFile, updateJsonFile, writeJsonFile } from './jsonStore'
+import { DEFAULT_WEBSITE_THEME, isValidThemeId } from '#shared/themes'
 import type {
   AdminAuth,
   AlbumsFile,
@@ -19,7 +20,8 @@ const DEFAULT_SETTINGS: Settings = {
   eventInfo: { groom: EMPTY_EVENT_INFO, bride: EMPTY_EVENT_INFO },
   footerText: '',
   pageBackgrounds: {},
-  hiddenPages: []
+  hiddenPages: [],
+  websiteTheme: DEFAULT_WEBSITE_THEME
 }
 
 function toEventInfoBlock(v: Partial<EventInfoBlock> | undefined): EventInfoBlock {
@@ -48,7 +50,9 @@ function migrateSettings(raw: unknown): Settings {
         }
       : { groom: toEventInfoBlock(rawEventInfo as Partial<EventInfoBlock>), bride: EMPTY_EVENT_INFO }
 
-  return { ...DEFAULT_SETTINGS, ...r, eventInfo }
+  const websiteTheme = isValidThemeId(r.websiteTheme) ? r.websiteTheme : DEFAULT_WEBSITE_THEME
+
+  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme }
 }
 
 const DEFAULT_ALBUMS: AlbumsFile = { albums: [] }

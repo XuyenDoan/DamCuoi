@@ -2,6 +2,8 @@
 definePageMeta({ middleware: 'page-visibility' })
 useHead({ title: 'Gửi Ảnh — Album Cưới' })
 
+const theme = useWebsiteTheme()
+
 const MAX_FILE_SIZE = 15 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_FILES = 20
@@ -147,13 +149,27 @@ async function submitUpload() {
         />
 
         <div
-          class="flex min-h-44 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors"
+          class="upload-dropzone flex min-h-44 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors"
           :class="isDragOver ? 'border-primary bg-surface' : 'border-secondary-light/60'"
           @dragover.prevent="isDragOver = true"
           @dragleave.prevent="isDragOver = false"
           @drop.prevent="onDrop"
         >
-          <LotusMotif class="h-10 w-10 text-secondary-light" />
+          <LotusMotif v-if="theme === 'default'" class="h-10 w-10 text-secondary-light" />
+          <svg
+            v-else
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-9 w-9 text-secondary-light"
+            aria-hidden="true"
+          >
+            <path d="M4 16.5V18a2 2 0 002 2h12a2 2 0 002-2v-1.5" />
+            <path d="M12 4v11.5M8 8l4-4 4 4" />
+          </svg>
           <p class="text-sm text-text-muted">Kéo-thả ảnh vào đây, hoặc</p>
           <button type="button" class="btn-outline" @click="fileInputRef?.click()">
             Chọn ảnh từ thiết bị
@@ -174,7 +190,7 @@ async function submitUpload() {
           <li
             v-for="(item, i) in queue"
             :key="`${item.file.name}-${i}`"
-            class="flex items-center justify-between gap-3 rounded-lg border border-secondary-light/40 px-4 py-3"
+            class="upload-queue-item flex items-center justify-between gap-3 rounded-lg border border-secondary-light/40 px-4 py-3"
           >
             <div class="min-w-0">
               <p class="truncate text-sm text-text">{{ item.file.name }}</p>

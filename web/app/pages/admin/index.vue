@@ -10,7 +10,7 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
     <div class="mx-auto max-w-5xl px-6 py-10">
       <h2 class="mb-6 font-heading text-2xl text-text">Chào mừng trở lại!</h2>
 
-      <div class="grid gap-4 sm:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <NuxtLink
           to="/admin/noi-dung"
           class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
@@ -37,6 +37,14 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
         >
           <h3 class="font-heading text-lg text-text">Lời Chúc</h3>
           <p class="mt-1 text-sm text-text-muted">Ẩn hoặc xoá lời chúc không phù hợp</p>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/admin/giao-dien"
+          class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
+        >
+          <h3 class="font-heading text-lg text-text">Giao Diện Website</h3>
+          <p class="mt-1 text-sm text-text-muted">Chọn phong cách hiển thị cho toàn bộ trang công khai</p>
         </NuxtLink>
       </div>
     </div>

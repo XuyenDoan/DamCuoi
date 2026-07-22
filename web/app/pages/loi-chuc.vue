@@ -4,6 +4,7 @@ import type { Wish } from '../../server/utils/types'
 definePageMeta({ middleware: 'page-visibility' })
 useHead({ title: 'Lời Chúc — Album Cưới' })
 
+const theme = useWebsiteTheme()
 const { data: wishes, refresh } = await useWishes()
 
 /**
@@ -99,7 +100,7 @@ const selectedWish = ref<Wish | null>(null)
 
     <section class="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
       <div v-if="!wishes || wishes.length === 0" class="py-16 text-center">
-        <LotusMotif class="mx-auto h-16 w-16 text-secondary-light" />
+        <LotusMotif v-if="theme === 'default'" class="mx-auto h-16 w-16 text-secondary-light" />
         <p class="mt-6 text-text-muted">
           Chưa có lời chúc nào — hãy là người đầu tiên gửi lời chúc phúc!
         </p>

@@ -26,6 +26,10 @@ function sanitizeEventInfoBlock(v: Partial<EventInfoBlock> | undefined): EventIn
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const body = await readBody<Partial<Settings>>(event)
+  // websiteTheme đổi qua PUT /api/admin/theme riêng (spec.md mục 36) — đọc
+  // lại giá trị đang lưu, KHÔNG lấy theo body ở đây, để form "Nội dung
+  // trang" không bao giờ vô tình ghi đè/reset theme khi lưu nội dung khác.
+  const current = await settingsStore.read()
 
   if (!body.coupleNames?.bride?.trim() || !body.coupleNames?.groom?.trim()) {
     throw createError({
@@ -60,7 +64,8 @@ export default defineEventHandler(async (event) => {
       MANAGED_PAGES.map((p) => [p.key, body.pageBackgrounds?.[p.key] ?? null])
     ),
     // Chỉ giữ lại key hợp lệ + có thể ẩn (loại 'home' phòng thủ — trang chủ luôn bắt buộc hiện)
-    hiddenPages: (body.hiddenPages ?? []).filter(isHideablePageKey)
+    hiddenPages: (body.hiddenPages ?? []).filter(isHideablePageKey),
+    websiteTheme: current.websiteTheme
   }
 
   await settingsStore.write(sanitized)

@@ -48,6 +48,15 @@ export interface Settings {
    * được phép có trong mảng này — luôn bắt buộc hiển thị.
    */
   hiddenPages: string[]
+  /**
+   * Phong cách giao diện đang áp dụng cho toàn bộ trang công khai (khớp id
+   * trong shared/themes.ts — spec.md mục 36). Chỉ đổi LAYOUT/COMPONENT/STYLE
+   * hiển thị, không đụng tới field nào khác của Settings — mọi theme đọc
+   * chung đúng dữ liệu này. Field TUỲ CHỌN để dữ liệu settings.json cũ (chưa
+   * có field này) vẫn đọc được bình thường — fallback về 'default' ở
+   * server/utils/store.ts, không cần migrate dữ liệu cũ.
+   */
+  websiteTheme?: string
 }
 
 export interface Album {

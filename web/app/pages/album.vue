@@ -2,6 +2,8 @@
 definePageMeta({ middleware: 'page-visibility' })
 useHead({ title: 'Album Ảnh — Album Cưới' })
 
+const theme = useWebsiteTheme()
+
 const { data: albums } = useAlbums()
 const { data: photos } = usePublishedPhotos()
 
@@ -61,6 +63,41 @@ watch(activeAlbum, () => {
   lightboxIndex.value = null
   page.value = 1
 })
+
+/**
+ * Hình dạng tab lọc album + khung ảnh đổi theo theme (spec.md mục 36) —
+ * DATA/logic lọc-phân trang-lightbox ở trên dùng CHUNG cho cả 3 theme,
+ * chỉ lớp trình bày này khác (tránh nhân bản cả trang chỉ vì khác giao
+ * diện). Editorial: gạch chân thay vì pill, không bo góc. Cinematic: pill
+ * viền hổ phách kiểu vé xem phim, khung ảnh viền mảnh phát sáng khi hover.
+ */
+function tabClass(active: boolean): string {
+  if (theme.value === 'editorial') {
+    return active
+      ? 'border-b-2 border-secondary px-1 pb-1 text-xs font-semibold uppercase tracking-[0.1em] text-secondary'
+      : 'border-b-2 border-transparent px-1 pb-1 text-xs font-semibold uppercase tracking-[0.1em] text-text-muted hover:text-secondary'
+  }
+  if (theme.value === 'cinematic') {
+    return active
+      ? 'rounded-full border border-primary bg-primary/15 px-5 text-xs font-semibold uppercase tracking-[0.08em] text-primary'
+      : 'rounded-full border border-text-muted/30 px-5 text-xs font-semibold uppercase tracking-[0.08em] text-text-muted hover:border-primary hover:text-primary'
+  }
+  return active
+    ? 'rounded-full border border-primary bg-primary px-5 text-sm font-medium text-white hover:bg-primary/90'
+    : 'rounded-full border border-secondary-light px-5 text-sm font-medium text-text hover:bg-surface'
+}
+
+function tileClass(): string {
+  if (theme.value === 'editorial') return 'overflow-hidden'
+  if (theme.value === 'cinematic') return 'overflow-hidden rounded-sm border border-text/10 transition-colors duration-200 hover:border-primary/70'
+  return 'overflow-hidden rounded-lg transition-shadow duration-200 hover:shadow-lg'
+}
+
+function imageClass(): string {
+  if (theme.value === 'editorial') return 'h-auto w-full grayscale transition-all duration-300 ease-out group-hover:grayscale-0'
+  if (theme.value === 'cinematic') return 'h-auto w-full transition-transform duration-300 ease-out group-hover:scale-[1.03]'
+  return 'h-auto w-full rounded-lg transition-transform duration-200 ease-out group-hover:scale-[1.03]'
+}
 </script>
 
 <template>
@@ -76,12 +113,8 @@ watch(activeAlbum, () => {
       <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-2">
         <button
           type="button"
-          class="focus-ring min-h-11 rounded-full border px-5 text-sm font-medium transition-all duration-200 active:scale-[0.98]"
-          :class="
-            activeAlbum === 'all'
-              ? 'border-primary bg-primary text-white hover:bg-primary/90'
-              : 'border-secondary-light text-text hover:bg-surface'
-          "
+          class="focus-ring min-h-11 transition-all duration-200 active:scale-[0.98]"
+          :class="tabClass(activeAlbum === 'all')"
           @click="activeAlbum = 'all'"
         >
           Tất cả
@@ -90,12 +123,8 @@ watch(activeAlbum, () => {
           v-for="album in albumsWithPhotos"
           :key="album.id"
           type="button"
-          class="focus-ring min-h-11 rounded-full border px-5 text-sm font-medium transition-all duration-200 active:scale-[0.98]"
-          :class="
-            activeAlbum === album.id
-              ? 'border-primary bg-primary text-white hover:bg-primary/90'
-              : 'border-secondary-light text-text hover:bg-surface'
-          "
+          class="focus-ring min-h-11 transition-all duration-200 active:scale-[0.98]"
+          :class="tabClass(activeAlbum === album.id)"
           @click="activeAlbum = album.id"
         >
           {{ album.name }}
@@ -105,7 +134,7 @@ watch(activeAlbum, () => {
 
     <section class="px-4 pb-24 sm:px-6">
       <div v-if="filteredPhotos.length === 0" class="mx-auto max-w-md py-20 text-center">
-        <LotusMotif class="mx-auto h-16 w-16 text-secondary-light" />
+        <LotusMotif v-if="theme === 'default'" class="mx-auto h-16 w-16 text-secondary-light" />
         <p class="mt-6 text-text-muted">
           Album đang được cập nhật, quay lại sau nhé! Ảnh cưới sẽ sớm xuất hiện ở đây.
         </p>
@@ -119,7 +148,8 @@ watch(activeAlbum, () => {
               :key="photo.id"
               v-reveal="(pagedPhotos.indexOf(photo) % 12) * 40"
               type="button"
-              class="focus-ring group block w-full overflow-hidden rounded-lg transition-shadow duration-200 hover:shadow-lg"
+              class="focus-ring group block w-full"
+              :class="tileClass()"
               @click="openLightbox(pagedPhotos.indexOf(photo))"
             >
               <img
@@ -128,7 +158,7 @@ watch(activeAlbum, () => {
                 :height="photo.height"
                 :alt="photo.caption || 'Ảnh cưới'"
                 loading="lazy"
-                class="h-auto w-full rounded-lg transition-transform duration-200 ease-out group-hover:scale-[1.03]"
+                :class="imageClass()"
               />
             </button>
           </div>

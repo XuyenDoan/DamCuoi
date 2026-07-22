@@ -25,7 +25,7 @@ const families = computed(() => [
           <div
             v-if="hasEventContent(family.info)"
             v-reveal
-            class="flex flex-col rounded-xl border border-secondary-light/40 bg-surface p-6 sm:p-8"
+            class="event-info-card flex flex-col rounded-xl border border-secondary-light/40 bg-surface p-6 sm:p-8"
           >
             <EventInfoCard :label="family.label" :info="family.info" />
           </div>

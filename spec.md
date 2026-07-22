@@ -1107,4 +1107,63 @@ Phản hồi thật: khi mốc thời gian có nội dung dài (nhiều dòng), 
 
 ---
 
+## 36. Đa phong cách giao diện — Website Theme (đợt sau mục 35)
+
+Yêu cầu: đề xuất 2 phong cách giao diện hoàn toàn mới (khác nhau, khác giao diện Hoa Sen hiện có), chỉ code khi được chọn, thêm mục chọn theme trong Admin (kèm sample xem trước), dùng CHUNG 1 nguồn dữ liệu cho mọi theme, không đổi schema/không nhân bản dữ liệu, kiến trúc mở rộng được cho Theme 3/4 sau này.
+
+### 36.1 Đề xuất & chốt phương án
+
+Đã nghiên cứu xu hướng thiết kế website cưới hiện đại 2026 (WebSearch — xác nhận xu hướng "oversized typography layered over photography", "navy/cream + serif", "less flashy movement, more thoughtful controlled animation") và trình bày 2 phương án qua artifact trực quan (mockup màu/font/wireframe thật) trước khi code:
+- **Phương án 01 — "Biên Tập Sang Trọng" (Modern Editorial)**: cảm hứng tạp chí thời trang cao cấp, lưới bất đối xứng tĩnh, typography lớn làm chủ đạo, không hoạ tiết trang trí.
+- **Phương án 02 — "Điện Ảnh Cuộn" (Cinematic Scroll)**: mỗi màn hình là 1 "cảnh phim" full-bleed, Ken Burns rất chậm, chuyển động có kiểm soát.
+
+Chủ dự án chốt **cả 2** — tổng cộng 3 phong cách (kèm Hoa Sen mặc định).
+
+### 36.2 Kiến trúc dữ liệu — 1 nguồn duy nhất, không đổi schema
+
+- Thêm đúng **1 field tuỳ chọn** `websiteTheme?: string` vào `Settings` (`server/utils/types.ts`) — KHÔNG thêm bảng/collection mới, không nhân bản bất kỳ dữ liệu nào theo theme.
+- `server/utils/store.ts`: `DEFAULT_SETTINGS.websiteTheme = 'default'` + `migrateSettings()` validate giá trị đọc lên (fallback `'default'` nếu thiếu/sai) — **backward compatible tuyệt đối**: file `settings.json` cũ (trước khi có tính năng này) đọc lên vẫn chạy đúng, không cần script migrate.
+- `PUT /api/settings` (form "Nội dung trang") **luôn đọc lại `websiteTheme` hiện có từ store, bỏ qua giá trị trong body** — đảm bảo form nội dung không bao giờ vô tình reset theme khi lưu nội dung khác (tách biệt hành động, giống cách `pageBackgrounds` đã tách riêng trước đó).
+- Đổi theme qua endpoint riêng **`PUT /api/admin/theme`** (mới) — dùng `settingsStore.update()` (đọc-sửa-ghi an toàn), chỉ đổi đúng 1 field.
+- `shared/themes.ts` (mới, theo đúng quy ước `shared/pages.ts`): registry `WEBSITE_THEMES` (id/label/mô tả/palette/font hiển thị) — dùng chung server (validate) + client (Admin UI, layout công khai). Thêm Theme 3/4 sau này chỉ cần thêm 1 phần tử vào mảng này.
+- Mọi theme đọc **CHUNG** đúng các composable dữ liệu đã có (`useSiteSettings`, `useAlbums`, `usePublishedPhotos`, `useWishes`) — không component theme nào tự fetch dữ liệu riêng hay định nghĩa lại API.
+
+### 36.3 Kiến trúc code — CSS token-driven, hạn chế tối đa nhân bản component
+
+Nguyên tắc chủ đạo: **đa số khác biệt giữa 3 theme chỉ là CSS**, không phải component riêng — tận dụng cơ chế Tailwind v4 `@theme` sinh custom property thật (`--color-primary`, `--font-heading`...) mà mọi utility (`bg-primary`, `font-heading`...) đọc qua `var()` ở runtime:
+- `[data-theme="editorial"]` / `[data-theme="cinematic"]` trong `main.css` ghi đè đúng các custom property đó (đặt NGOÀI `@layer`, cùng lý do đã ghi ở `.text-hover` mục trước) — mọi component tương tác **dùng chung nguyên vẹn, không sửa 1 dòng logic nào**: `PhotoLightbox`, `WishModal`/`WishSubmitModal`, `AppModal`, `PhotoPager`, toàn bộ form/focus-ring, tự động đổi màu/font đúng theo theme.
+- Hình dạng (bo góc/đổ bóng/viền) một số class dùng `@apply` cứng (`.btn-primary`, `.btn-outline`, `.wish-card`, `.app-modal-panel`...) được ghi đè thêm bằng CSS scoped `[data-theme="..."] .class-name` — vẫn 0 thay đổi ở component Vue, chỉ thêm CSS.
+- `data-theme` đặt trên `<html>` (không phải 1 div con) qua `useHead()` trong `app.vue`, tính theo `settings.websiteTheme`, **luôn để trống ở route `/admin/**`** — trang quản trị tuyệt đối không đổi theo theme khách xem.
+- **Chỉ những phần cấu trúc/layout THỰC SỰ khác nhau** (không chỉ màu/font) mới có component riêng theo theme, đặt ở `app/components/theme/` + `app/layouts/`:
+  - `layouts/editorial.vue`, `layouts/cinematic.vue` (mới) — nav/footer riêng cấu trúc, `layouts/default.vue` giữ nguyên không đổi.
+  - `app.vue`: `<NuxtLayout :name="layoutName">` chọn layout động theo `websiteTheme` (chỉ áp dụng route công khai).
+  - Mỗi trang công khai (`index.vue`, `album.vue`, `loi-chuc.vue`, `thong-tin.vue`, `gui-anh.vue`) giữ nguyên toàn bộ logic fetch dữ liệu/phân trang/lightbox hiện có — với **Trang chủ** (khác biệt cấu trúc lớn nhất theo đề xuất: hero split-grid vs full-bleed cinema vs storytelling hiện tại, timeline mục lục vs cuộn phim vs đường ống hoa sen), tách hẳn 3 component view riêng (`components/theme/DefaultHomeView.vue`/`EditorialHomeView.vue`/`CinematicHomeView.vue` + `EditorialLoveStory.vue`/`CinematicLoveStory.vue`), `index.vue` chỉ còn là dispatcher mỏng theo `useWebsiteTheme()`. 4 trang còn lại (Album/Lời chúc/Thông tin/Gửi ảnh) giữ nguyên 1 file, chỉ thêm `:class` tính theo theme cho phần khung/hình dạng (lưới ảnh, tab lọc, dropzone...) — đúng tinh thần "tránh duplicate component chỉ vì khác giao diện" khi cấu trúc về cơ bản vẫn hợp lý cho cả 3 theme.
+  - `components/PageBackgroundImage.vue` (mới, nhẹ) — thay `PageBackdrop`/`LotusScene` (giữ nguyên, chỉ dùng ở `layouts/default.vue`) cho 2 theme mới: chỉ hiện ảnh nền riêng admin đã chọn (dữ liệu chung `pageBackgrounds`), KHÔNG hoạ tiết hoa sen (đúng tinh thần "không hoạ tiết trang trí" của 2 theme mới).
+- `app/composables/useWebsiteTheme.ts` (mới) — 1 nguồn đọc theme hiện tại dùng khắp app.
+
+### 36.4 Bảng màu/font 2 theme mới + hiệu chỉnh đạt WCAG AAA
+
+- **Biên Tập Sang Trọng**: `Bodoni Moda` (heading) + `Libre Franklin` (body), navy `#1C2333` – ngà `#F5F1E6` – đồng thau.
+- **Điện Ảnh Cuộn**: `Fraunces` (heading) + `Karla` (body), đen ấm `#16130F` – vàng hổ phách – hồng bụi.
+- Font tự lưu trữ qua `@fontsource/*` (đúng nguyên tắc mục 34 — chỉ tải đúng weight/style thực dùng: Bodoni Moda 600/700/700italic, Libre Franklin 400/500/600, Fraunces 500/600/500italic, Karla 400/500/600).
+- **Đo tương phản thật bằng công thức WCAG (Python), không đoán**: phát hiện màu nhấn/chữ mờ ban đầu (đồng thau `#8E6F3E`, hổ phách `#CE9A55`, chữ mờ `#6B675C`/`#A79E8C`) chỉ đạt AA (4.1–7:1), CHƯA đạt AAA (≥7:1) ở một vài cặp nền. Đã hiệu chỉnh độ sáng (giữ nguyên sắc, chỉ đổi độ sáng) — đồng thau → `#644C2A`, hổ phách → `#D4A463`, chữ mờ editorial → `#514D41`, chữ mờ cinematic → `#B0A799` — **toàn bộ cặp chữ/nền chính của 2 theme mới đều đạt AAA (7.1–15.7:1)** cả trên nền `bg` lẫn `surface`. Đối chiếu: mức này ngang bằng hoặc tốt hơn hẳn theme Hoa Sen gốc hiện có (chữ mờ gốc chỉ 4.7–5.1:1, màu `gold` gốc chỉ 2.42:1 — chưa từng đạt AA, không thuộc phạm vi đợt này).
+
+### 36.5 Lỗi thật gặp phải & fix
+
+- **Component con không resolve được (SSR khác client → hydration mismatch)**: `EditorialHomeView.vue`/`CinematicHomeView.vue` dùng `<EditorialLoveStory>`/`<CinematicLoveStory>` không import tường minh, kỳ vọng Nuxt auto-import theo tên file — nhưng file nằm trong thư mục con `components/theme/` nên Nuxt tự thêm tiền tố thư mục (`ThemeEditorialLoveStory`), khiến tên trong template không khớp gì cả. SSR render ra node rỗng, client cố resolve lại → `[Vue warn] Hydration node mismatch`. **Khắc phục & quy tắc bắt buộc**: mọi component trong `components/theme/` dùng bởi component theme khác PHẢI `import` tường minh bằng đường dẫn tương đối, không dựa vào auto-import.
+- **Lỗi nghiêm trọng hơn — layout admin bị layout công khai đè lên**: `app.vue` tính `layoutName = activeTheme.value ?? 'default'` — trên route `/admin/**`, `activeTheme` đúng ý đồ trả về `undefined`, nhưng dòng `?? 'default'` biến nó thành CHUỖI `'default'`. `<NuxtLayout :name="layoutName">` khi nhận 1 CHUỖI tường minh sẽ LUÔN dùng đúng layout đó, ĐÈ MẤT `definePageMeta({ layout: 'admin' })` mà từng trang admin tự khai (chỉ khi prop `name` thực sự `undefined`/không truyền thì `<NuxtLayout>` mới tự đọc `route.meta.layout`). Hậu quả xác nhận bằng ảnh chụp thật: header + hoạ tiết hoa sen của `layouts/default.vue` hiện chồng lên `AdminTopbar` ở MỌI trang admin. **Khắc phục**: tách riêng điều kiện — trả `undefined` thẳng cho route `/admin/**` thay vì để lọt qua `?? 'default'`. Đã re-test toàn bộ 5 trang admin sau fix — sạch hoàn toàn.
+
+### 36.6 Admin — mục "Giao Diện Website"
+
+- Trang mới `/admin/giao-dien` (thêm link ở Bảng điều khiển, `admin/index.vue`) — 3 thẻ chọn theme, mỗi thẻ có **sample thu nhỏ dùng ĐÚNG font/màu thật** của theme đó (không phải ảnh chụp màn hình tĩnh — render trực tiếp bằng style inline theo `WEBSITE_THEMES` registry) + swatch màu + tên font, badge "Đang dùng" cho theme hiện tại.
+- Bấm chọn → gọi `PUT /api/admin/theme` → `refreshNuxtData('site-settings')` → **đổi ngay lập tức**, xác nhận bằng test thật: mở tab mới xem trang chủ công khai ngay sau khi bấm chọn ở tab admin, không cần tải lại/deploy, `data-theme` trên `<html>` và `GET /api/settings` đều phản ánh đúng theme mới trong cùng 1 lượt test.
+
+### 36.7 Tự kiểm tra sau khi hoàn thành
+
+`npx vue-tsc --noEmit` sạch, `npm run build` production thành công (đủ route `api/admin/theme.put`). Playwright: build ma trận đầy đủ **3 theme × 5 trang công khai + 5 trang admin** (25 tổ hợp) — 0 lỗi console, 0 tràn ngang mobile (375px) ở mọi tổ hợp; `data-theme` đúng theo từng theme; `prefers-reduced-motion: reduce` đóng băng đúng animation Ken Burns (`animation-duration` ép về ~0); điều hướng bàn phím (Tab) tới link vẫn hiện đúng vòng focus theo màu theme hiện tại. Đối chiếu tương phản màu bằng công thức WCAG thật (không đoán, mục 36.4).
+
+**Thành phần thêm/sửa**: `shared/themes.ts` (mới), `server/utils/types.ts`, `server/utils/store.ts`, `server/api/settings.put.ts`, `server/api/admin/theme.put.ts` (mới), `app/composables/useWebsiteTheme.ts` (mới), `app/app.vue`, `app/assets/css/main.css`, `app/layouts/editorial.vue` (mới), `app/layouts/cinematic.vue` (mới), `app/components/PageBackgroundImage.vue` (mới), `app/components/theme/*` (mới — `DefaultHomeView.vue`, `EditorialHomeView.vue`, `CinematicHomeView.vue`, `EditorialLoveStory.vue`, `CinematicLoveStory.vue`), `app/pages/index.vue`, `app/pages/album.vue`, `app/pages/loi-chuc.vue`, `app/pages/thong-tin.vue`, `app/pages/gui-anh.vue`, `app/pages/admin/giao-dien.vue` (mới), `app/pages/admin/index.vue`, `package.json` (4 package `@fontsource/*` mới).
+
+---
+
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

@@ -31,6 +31,25 @@
 @import "@fontsource/cormorant-garamond/500-italic.css";
 
 /*
+  Font riêng cho 2 theme mới (spec.md mục 36 — "Biên Tập Sang Trọng" +
+  "Điện Ảnh Cuộn"). Chỉ tải đúng weight/style thực dùng trong CSS theme bên
+  dưới (cùng nguyên tắc đã áp dụng khi tự lưu trữ font mục 34) — không tải
+  cả bộ 9 weight có sẵn của mỗi font.
+*/
+@import "@fontsource/bodoni-moda/600.css";
+@import "@fontsource/bodoni-moda/700.css";
+@import "@fontsource/bodoni-moda/700-italic.css";
+@import "@fontsource/libre-franklin/400.css";
+@import "@fontsource/libre-franklin/500.css";
+@import "@fontsource/libre-franklin/600.css";
+@import "@fontsource/fraunces/500.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/500-italic.css";
+@import "@fontsource/karla/400.css";
+@import "@fontsource/karla/500.css";
+@import "@fontsource/karla/600.css";
+
+/*
   Design tokens theo D:\Dev\DamCuoi\spec.md mục 4 (Bảng màu) & mục 6 (Typography).
   Không thêm màu ngoài palette này (checklist 17.1).
 */
@@ -50,6 +69,63 @@
   --color-gold: #c9a227;
   --color-success: #16a34a;
   --color-error: #dc2626;
+}
+
+/*
+  Token riêng cho 2 theme mới (spec.md mục 36) — GHI ĐÈ đúng các custom
+  property ở trên theo `[data-theme]` đặt trên <html> (app.vue, chỉ áp dụng
+  ở route công khai, KHÔNG áp dụng ở /admin — xem app.vue). Mọi utility
+  Tailwind (`bg-primary`, `font-heading`...) đọc qua `var(--color-primary)`
+  ở runtime nên tự động đổi theo, KHÔNG cần đổi class ở component — đây là
+  lý do 3 theme dùng chung được gần như toàn bộ component tương tác
+  (PhotoLightbox, WishModal, form, nút bấm...) mà không cần nhân bản logic
+  (yêu cầu "tránh duplicate component chỉ vì khác giao diện").
+  ĐẶT NGOÀI `@layer` (giống `.text-hover` bên dưới) để chắc chắn thắng mọi
+  rule Tailwind sinh ra trong `@layer theme/base` — tự tin không phụ thuộc
+  thứ tự layer nội bộ của Tailwind v4.
+*/
+[data-theme="editorial"] {
+  --font-heading: "Bodoni Moda", Georgia, "Times New Roman", serif;
+  --font-accent: "Bodoni Moda", Georgia, serif;
+  --font-body: "Libre Franklin", system-ui, sans-serif;
+
+  --color-primary: #1c2333;
+  --color-primary-light: #3a4560;
+  /* Đo lại tương phản thật (WCAG AAA, xem spec.md mục 36.4): #8e6f3e chỉ đạt
+     4.14:1/4.67:1 (AA) — hạ độ sáng còn #644c2a để đạt AAA (≥7:1) cả trên
+     nền `bg` lẫn `surface` mà vẫn giữ đúng sắc đồng thau. */
+  --color-secondary: #644c2a;
+  --color-secondary-light: #b8a272;
+  --color-bg: #f5f1e6;
+  --color-surface: #ffffff;
+  --color-text: #1c2333;
+  /* #6b675c chỉ đạt 5.00:1/5.65:1 (AA) — đổi #514d41 để đạt AAA cả 2 nền. */
+  --color-text-muted: #514d41;
+  --color-gold: #644c2a;
+  --color-success: #2f6b45;
+  --color-error: #a63d2f;
+}
+
+[data-theme="cinematic"] {
+  --font-heading: "Fraunces", Georgia, serif;
+  --font-accent: "Fraunces", Georgia, serif;
+  --font-body: "Karla", system-ui, sans-serif;
+
+  /* Đo lại tương phản thật (WCAG AAA, xem spec.md mục 36.4): #ce9a55 chỉ đạt
+     7.39:1/6.91:1 (chưa AAA trên surface) — tăng sáng nhẹ thành #d4a463 để
+     đạt AAA (≥7:1) cả trên nền `bg` lẫn `surface`. */
+  --color-primary: #d4a463;
+  --color-primary-light: #e0b87d;
+  --color-secondary: #ad7b72;
+  --color-secondary-light: #c9a199;
+  --color-bg: #16130f;
+  --color-surface: #1e1a14;
+  --color-text: #f2ead9;
+  /* #a79e8c chỉ đạt 6.98:1/6.52:1 — tăng sáng nhẹ thành #b0a799 để đạt AAA. */
+  --color-text-muted: #b0a799;
+  --color-gold: #d4a463;
+  --color-success: #4ade80;
+  --color-error: #f87171;
 }
 
 html {
@@ -135,6 +211,159 @@ body {
 }
 
 /*
+  Hình dạng nút riêng theo theme (spec.md mục 36) — `.btn-primary`/
+  `.btn-outline` gốc (trên) là dáng "pill bo tròn đổ bóng" hợp phong cách
+  Hoa Sen mặc định, nhưng KHÔNG hợp Biên Tập Sang Trọng (góc vuông, chữ hoa
+  tracking rộng kiểu tạp chí — không bo tròn/đổ bóng) hay Điện Ảnh Cuộn
+  (dáng ghost/viền sáng kiểu vé xem phim, có glow khi hover thay vì đổ
+  bóng). Đây là lý do DUY NHẤT cần ghi đè cấp component (ngoài màu/font) —
+  mọi thứ khác của 2 nút này (kích thước chạm 44px, focus ring, disabled...)
+  giữ nguyên logic gốc. Đặt NGOÀI `@layer` để chắc chắn thắng `@layer
+  components` (cùng lý do đã ghi ở `.text-hover` bên dưới).
+*/
+[data-theme="editorial"] .btn-primary,
+[data-theme="editorial"] .btn-outline {
+  border-radius: 2px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+[data-theme="editorial"] .btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+[data-theme="editorial"] .btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 85%, black);
+}
+[data-theme="editorial"] .btn-outline {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+[data-theme="editorial"] .btn-outline:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+[data-theme="cinematic"] .btn-primary,
+[data-theme="cinematic"] .btn-outline {
+  border-radius: 999px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: transparent;
+  box-shadow: none;
+}
+[data-theme="cinematic"] .btn-primary {
+  border: 1px solid var(--color-primary);
+  color: var(--color-text);
+}
+[data-theme="cinematic"] .btn-primary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+[data-theme="cinematic"] .btn-outline {
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text);
+}
+[data-theme="cinematic"] .btn-outline:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="editorial"] .btn-primary:hover,
+  [data-theme="cinematic"] .btn-primary:hover {
+    transition: none;
+  }
+}
+
+/* Ken Burns rất chậm cho hero theme Điện Ảnh Cuộn (spec.md mục 36) — zoom
+   1 -> 1.05 trong 18s, tự động tắt bởi rule prefers-reduced-motion chung ở
+   đầu file (animation-duration: 0.01ms !important áp dụng cho mọi *). */
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+.ken-burns {
+  animation: ken-burns 18s ease-in-out infinite alternate;
+}
+
+/*
+  Thẻ lời chúc (`WishCard.vue`) đổi hình dạng theo theme (spec.md mục 36) —
+  cùng lý do đã ghi ở phần nút bấm: chỉ CSS, không đụng tới component/markup.
+  Editorial: bỏ hẳn đổ bóng/nâng thẻ khi hover (tĩnh, chỉ đổi màu viền).
+  Cinematic: đổ bóng ĐEN mặc định (`shadow-sm`) gần như VÔ HÌNH trên nền tối
+  gần đen — phải đổi hẳn sang glow màu hổ phách mới thấy được hiệu ứng nổi
+  khi hover.
+*/
+[data-theme="editorial"] .wish-card {
+  border-radius: 2px;
+  box-shadow: none;
+}
+[data-theme="editorial"] .wish-card:hover {
+  box-shadow: none;
+  transform: none;
+}
+[data-theme="cinematic"] .wish-card {
+  border-radius: 2px;
+  box-shadow: none;
+}
+[data-theme="cinematic"] .wish-card:hover {
+  box-shadow: 0 0 0 1px var(--color-primary), 0 0 20px color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+/* Khung popup dùng chung (`AppModal.vue`, class `.app-modal-panel`) — cùng
+   lý do WishCard ở trên: bo góc/đổ bóng gốc hợp Hoa Sen, không hợp 2 theme
+   mới. */
+[data-theme="editorial"] .app-modal-panel {
+  border-radius: 2px;
+  box-shadow: none;
+}
+[data-theme="cinematic"] .app-modal-panel {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent), 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Thẻ thông tin lễ cưới (`thong-tin.vue`, class `.event-info-card`). */
+[data-theme="editorial"] .event-info-card {
+  border-radius: 2px;
+  border-color: color-mix(in srgb, var(--color-text) 12%, transparent);
+  background-color: var(--color-surface);
+}
+[data-theme="cinematic"] .event-info-card {
+  border-radius: 4px;
+  border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+  background-color: var(--color-surface);
+}
+
+/* Vùng kéo-thả + hàng danh sách ảnh chờ gửi (`gui-anh.vue`). */
+[data-theme="editorial"] .upload-dropzone,
+[data-theme="editorial"] .upload-queue-item {
+  border-radius: 2px;
+}
+[data-theme="cinematic"] .upload-dropzone,
+[data-theme="cinematic"] .upload-queue-item {
+  border-radius: 2px;
+}
+
+/* Ảnh nền riêng từng trang (PageBackgroundImage.vue) — độ mờ mặc định 0.14
+   tính cho nền sáng; theme tối cần đậm hơn 1 chút mới thấy rõ ảnh. */
+.page-bg-image {
+  opacity: 0.14;
+}
+[data-theme="cinematic"] .page-bg-image {
+  opacity: 0.22;
+}
+
+/*
   Hover cho nội dung văn bản CẤU HÌNH TỪ ADMIN nhưng không gắn hành động click
   nào (VD: câu chào mừng, mô tả, mốc thời gian câu chuyện tình yêu, giờ/địa
   điểm lễ cưới...) — khác `.focus-ring` (dành cho phần tử BẤM ĐƯỢC). Mục đích
@@ -164,7 +393,10 @@ body {
 .text-hover:hover {
   color: var(--color-primary);
   transform: translateY(-2px);
-  text-shadow: 0 0 18px rgba(219, 39, 119, 0.35);
+  /* color-mix() thay vì rgba() cứng — glow phải đổi màu theo theme (mục 36),
+     trước đây hardcode rgba(219,39,119,...) (hồng primary mặc định) nên
+     theme khác vẫn sáng lên màu hồng dù đã đổi đúng --color-primary. */
+  text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 .text-hover-dark {
   transition: color 200ms, transform 200ms;
