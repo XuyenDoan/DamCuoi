@@ -763,74 +763,84 @@ body {
 }
 
 /*
-  Bố cục "duo portrait" xen phủ theo đường chéo (mục 38.10 — sửa lại từ bản
-  xoay+lệch nhẹ ở mục 38.9 theo phản hồi "giao nhau kì quá"; yêu cầu cụ thể:
-  MÉP PHẢI-DƯỚI của ảnh cô dâu giao với MÉP TRÁI-TRÊN của ảnh chú rể). Bỏ
-  hẳn `rotate()` — 1 giao điểm góc rõ ràng, thẳng cạnh, đọc dứt khoát hơn là
-  xoay nghiêng. Ảnh cô dâu ở TRÊN-TRÁI (đúng ưu tiên "cô dâu trước"), ảnh chú
-  rể ở DƯỚI-PHẢI, đè lên nhau đúng 1 vùng góc chéo ở giữa.
+  Bố cục "cối xay gió" 2×2 (mục 38.11 — sửa lại từ bản mục 38.10 theo phản
+  hồi "chữ để dưới ảnh khó coi, để 2 bên ảnh"): giữ NGUYÊN hướng giao ảnh đã
+  đúng ý (mép phải-dưới cô dâu giao mép trái-trên chú rể), nhưng thay vì đặt
+  2 nhãn tên thành 1 hàng NGANG bên dưới toàn khối ảnh, đặt MỖI nhãn vào
+  đúng GÓC TRỐNG ĐỐI DIỆN CHÉO với ảnh tương ứng — ảnh cô dâu (trên-trái) đi
+  cùng nhãn "Cô Dâu" ở góc trên-phải; ảnh chú rể (dưới-phải) đi cùng nhãn
+  "Chú Rể" ở góc dưới-trái. Ảnh và chữ luân phiên đủ 4 góc — bố cục lưới
+  2×2 bất đối xứng phổ biến ở portfolio/tạp chí cao cấp (Behance, Awwwards).
 
-  Cách tính (không dùng `position:absolute` để khỏi tự tính chiều cao
-  container — mọi lệch pha đều qua margin ảnh hưởng LUỒNG LAYOUT thật):
-  - Ảnh chú rể `margin-top: min(40vw, 16rem)` — CHÍNH XÁC bằng biểu thức bề
-    RỘNG của thẻ (khớp `width` của cả 2 ảnh). Do tỉ lệ khung `3/4` cố định
-    (rộng:cao = 3:4 → cao = 4/3 × rộng), đặt `margin-top = 1 × rộng` cho ra
-    đúng phần chồng theo chiều dọc = 25% chiều cao thẻ — tỉ lệ này ĐÚNG ở
-    MỌI kích thước màn hình vì cùng dùng chung 1 biểu thức `min(40vw, 16rem)`
-    với `width`, không lệ thuộc số cố định.
-  - Ảnh cô dâu `margin-right: calc(min(40vw, 16rem) * -0.18)` — chồng theo
-    chiều ngang ~18% bề rộng thẻ, cũng theo cùng biểu thức nên luôn đúng tỉ
-    lệ ở mọi màn hình (khác lỗi thật gặp ở mục 38.9: `margin` PHẦN TRĂM trên
-    flex item tính theo bề rộng CONTAINER CHA chứ không phải chính phần tử
-    — ở đây dùng `calc()` nhân trực tiếp lên đúng biểu thức `width` của
-    chính nó nên tránh hẳn được lỗi đó).
-  - `align-items: flex-start` để ảnh cô dâu neo đúng mép trên khung, ảnh chú
-    rể tự đẩy xuống bằng `margin-top` (ảnh hưởng chiều cao khung thật —
-    không cần padding bù như dùng `transform`, vốn KHÔNG tác động layout).
+  Cách tính (định nghĩa 1 lần qua CSS custom property trên `.couple-duo-frame`,
+  mọi phần tử con dùng chung — sửa 1 chỗ, đồng bộ khắp bố cục):
+  - `--duo-w`: bề rộng 1 ảnh — CÙNG 1 biểu thức responsive cho mọi tính
+    toán bên dưới nên tỉ lệ luôn đúng ở mọi kích thước màn hình (đúng bài
+    học rút ra từ lỗi margin phần trăm ở mục 38.9).
+  - `--duo-h`: chiều cao ảnh, suy từ tỉ lệ khung cố định `3/4` (rộng:cao).
+  - `--duo-overlap-x`: phần ảnh cô dâu chồng lên ảnh chú rể theo chiều
+    ngang (~18% bề rộng — giữ nguyên tỉ lệ đã đúng ý ở mục 38.10).
+  - Khung `.couple-duo-frame` dùng `position:relative` với `width`/`height`
+    TÍNH TOÁN ĐỦ để chứa toàn bộ 4 góc (2 ảnh + 2 nhãn), 4 phần tử con đều
+    `position:absolute` định vị theo đúng 4 góc của khung này — không dùng
+    `margin`/`transform` chắp vá như 2 bản trước (an toàn hơn khi có thêm
+    phần tử thứ 3-4, không sợ lệch cascade với `v-reveal` như lỗi từng gặp).
 
-  Khi chỉ 1 người có ảnh, dùng `.couple-duo-photo-solo` — cỡ lớn hơn, không
-  xen phủ (không có ảnh còn lại để "xen" cùng).
+  Khi chỉ 1 người có ảnh, dùng `.couple-duo-photo-solo` (không nằm trong
+  `.couple-duo-frame`) — cỡ lớn hơn, căn giữa bình thường, tên hiện bên
+  dưới như thiết kế gốc (không có ảnh còn lại để tạo góc chéo cùng).
 */
 .couple-duo-frame {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-.couple-duo-photo {
+  --duo-w: min(40vw, 16rem);
+  --duo-h: calc(var(--duo-w) * 4 / 3);
+  --duo-overlap-x: calc(var(--duo-w) * 0.18);
   position: relative;
-  flex-shrink: 0;
+  width: calc(var(--duo-w) * 2 - var(--duo-overlap-x));
+  height: calc(var(--duo-w) + var(--duo-h));
+  margin: 0 auto;
+}
+.couple-duo-photo-bride,
+.couple-duo-photo-groom {
+  position: absolute;
+  width: var(--duo-w);
   margin: 0;
+}
+.couple-duo-photo-bride {
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+.couple-duo-photo-groom {
+  left: calc(var(--duo-w) - var(--duo-overlap-x));
+  top: var(--duo-w);
+  z-index: 1;
 }
 .couple-duo-photo-solo {
   width: 100%;
   max-width: 26rem;
 }
-.couple-duo-photo-bride,
-.couple-duo-photo-groom {
-  width: min(40vw, 16rem);
-  max-width: 16rem;
-}
-.couple-duo-photo-bride {
-  z-index: 2;
-  margin-right: calc(min(40vw, 16rem) * -0.18);
-}
-.couple-duo-photo-groom {
-  z-index: 1;
-  margin-top: min(40vw, 16rem);
-}
 
-.couple-duo-names {
-  margin-top: 2.5rem;
+.couple-duo-name {
+  position: absolute;
+  width: calc(var(--duo-w) - var(--duo-overlap-x));
+  height: var(--duo-w);
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
-  gap: 2.5rem 3.5rem;
-  text-align: center;
 }
-@media (min-width: 640px) {
-  .couple-duo-names {
-    margin-top: 3rem;
-  }
+.couple-duo-name-bride {
+  left: var(--duo-w);
+  top: 0;
+  align-items: flex-start;
+  text-align: left;
+  padding-left: 1rem;
+}
+.couple-duo-name-groom {
+  left: 0;
+  top: var(--duo-h);
+  align-items: flex-end;
+  text-align: right;
+  padding-right: 1rem;
 }
 
 [data-theme="editorial"] .couple-intro-portrait-wrap {
@@ -880,7 +890,9 @@ body {
    bỏ chữ nghiêng font-accent (không hợp phong cách sắc/thẳng), dùng chữ hoa
    rời chữ thay thế. */
 [data-theme="editorial"] .couple-intro-name-block p:first-child,
-[data-theme="kinetic"] .couple-intro-name-block p:first-child {
+[data-theme="editorial"] .couple-duo-name p:first-child,
+[data-theme="kinetic"] .couple-intro-name-block p:first-child,
+[data-theme="kinetic"] .couple-duo-name p:first-child {
   font-family: var(--font-body);
   font-style: normal;
   font-weight: 700;

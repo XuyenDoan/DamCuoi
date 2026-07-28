@@ -1304,6 +1304,20 @@ Phản hồi sau khi xem bản mục 38.9: (1) tên trên ảnh hero không cầ
 
 **Thành phần sửa**: `app/components/HeroCoupleImage.vue`, `app/assets/css/main.css`.
 
+### 38.11 Sửa lại: bố cục "cối xay gió" cho tên cô dâu chú rể (đợt sửa 5, ngay sau mục 38.10)
+
+Phản hồi: hướng giao ảnh (mục 38.10) đã ổn, nhưng 2 nhãn tên đặt thành 1 hàng ngang bên dưới toàn khối ảnh trông khó coi — yêu cầu chuyển sang đặt 2 bên ảnh, có tham khảo cách các trang AAA bố trí. Đã trình bày 3 phương án qua `AskUserQuestion` (cối xay gió 2×2 / ảnh giữa-chữ 2 cột đối xứng / nhãn nhỏ đè lên góc ảnh) — chủ dự án chọn **cối xay gió 2×2**.
+
+**Bố cục "cối xay gió"**: giữ NGUYÊN hướng giao ảnh đã đúng ý ở mục 38.10 (cô dâu trên-trái, chú rể dưới-phải, giao đúng 1 góc chéo) — chỉ đổi vị trí 2 nhãn tên. Thay vì xếp thành 1 hàng dưới toàn khối, mỗi nhãn chuyển vào đúng **góc trống đối diện chéo** với ảnh tương ứng: nhãn "Cô Dâu" vào góc TRÊN-PHẢI (đối diện chéo với ảnh cô dâu ở trên-trái), nhãn "Chú Rể" vào góc DƯỚI-TRÁI (đối diện chéo với ảnh chú rể ở dưới-phải) — ảnh và chữ luân phiên đủ 4 góc của 1 lưới 2×2 bất đối xứng, tham khảo bố cục phổ biến ở các trang portfolio/tạp chí cao cấp (Behance, Awwwards, biên tập tạp chí cưới) khi trình bày ảnh đôi.
+
+**Cách dựng**: đổi hẳn từ margin-chắp-vá (mục 38.10) sang định vị TUYỆT ĐỐI (`position: absolute`) cho cả 4 phần tử (2 ảnh + 2 nhãn) bên trong 1 khung `.couple-duo-frame` (`position: relative`) có kích thước TÍNH TOÁN ĐỦ chứa toàn bộ 4 góc — khi có thêm phần tử thứ 3/4 (nhãn), cách "margin ảnh hưởng layout" trước đó không còn đủ linh hoạt để định vị chính xác từng góc. Toạ độ mỗi phần tử tính qua **CSS custom property khai báo 1 lần** trên `.couple-duo-frame` (`--duo-w`, `--duo-h`, `--duo-overlap-x`) — mọi phần tử con dùng chung qua `var()`, sửa 1 chỗ đồng bộ khắp bố cục, vẫn giữ nguyên tinh thần "1 biểu thức responsive dùng lại ở mọi nơi" đã rút ra từ lỗi mục 38.9/38.10. Nhãn "Cô Dâu" canh chữ trái (`align-items: flex-start`, gần ảnh cô dâu ở bên trái nó); nhãn "Chú Rể" canh chữ phải (`align-items: flex-end`, gần ảnh chú rể ở bên phải nó) — đường kẻ trang trí `.couple-intro-divider` tự đổi hướng theo đúng `align-items` của khối cha, không cần class riêng.
+
+Trường hợp chỉ 1 người có ảnh: bỏ hẳn bố cục cối xay gió (không có ảnh còn lại để tạo góc chéo cùng), quay lại thiết kế đơn giản — 1 ảnh cỡ lớn căn giữa, tên bên dưới (giữ nguyên từ mục 38.9).
+
+**Tự kiểm tra**: `npx vue-tsc --noEmit` sạch. Playwright: xác nhận vị trí ảnh (toạ độ `boundingBox()`) giữ NGUYÊN không đổi so với mục 38.10 (chứng minh hướng giao ảnh không bị ảnh hưởng bởi thay đổi vị trí nhãn); ảnh chụp viewport thật xác nhận trực quan cả 6 theme: nhãn "Cô Dâu" nằm gọn trong góc trên-phải cạnh ảnh cô dâu, nhãn "Chú Rể" nằm gọn trong góc dưới-trái cạnh ảnh chú rể, đường kẻ trang trí đổi hướng đúng theo từng bên; 0 lỗi console, 0 tràn ngang cả desktop (1280px) và mobile (375px, đã xem riêng — góc chữ tuy hẹp hơn ở mobile nhưng vẫn đọc thoải mái, không tràn) trên cả 6 theme. Dọn dữ liệu test sau khi xong.
+
+**Thành phần sửa**: `app/components/CoupleIntroSection.vue`, `app/assets/css/main.css`.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*
