@@ -5,6 +5,12 @@ import GlassLoveStory from './GlassLoveStory.vue'
  * Trang chủ — theme "Kính Mờ Ánh Sáng" (spec.md mục 37, Phương án 03).
  * Nền aurora trôi chậm xuyên suốt + nội dung đặt trong khối kính mờ nổi.
  * Cùng nguồn dữ liệu với các theme khác — chỉ đổi trình bày.
+ *
+ * spec.md mục 38.12: tagline + tên cô dâu chú rể chuyển hẳn lên ảnh hero
+ * (`HeroCoupleImage.vue`) — khối kính mờ giờ chỉ còn `welcomeMessage`, bỏ
+ * `min-h-screen` (rút gọn còn đủ chỗ cho nền aurora "thở" mà không chiếm
+ * trọn màn hình khi nội dung đã ngắn lại). CTA "Xem Album Ảnh" dời xuống
+ * cuối trang qua `<AlbumCtaSection />`.
  */
 const { data: settings } = useSiteSettings()
 
@@ -26,28 +32,22 @@ function onHeroMove(e: MouseEvent) {
   <div>
     <HeroCoupleImage />
 
-    <section ref="heroRef" class="aurora-hero relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-32" @mousemove="onHeroMove">
+    <section
+      v-if="settings?.welcomeMessage"
+      ref="heroRef"
+      class="aurora-hero relative flex items-center justify-center overflow-hidden px-6 py-24"
+      @mousemove="onHeroMove"
+    >
       <div class="aurora-blob b1" aria-hidden="true" />
       <div class="aurora-blob b2" aria-hidden="true" />
       <div class="aurora-blob b3" aria-hidden="true" />
       <div class="aurora-blob b4" aria-hidden="true" />
       <div class="cursor-glow" aria-hidden="true" />
 
-      <div class="glass-hero-card relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[32px] px-8 py-12 text-center sm:px-12">
-        <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-accent text-lg italic text-text-muted">
-          {{ settings.heroTagline }}
-        </p>
-
-        <h1 v-reveal="100" class="font-heading text-5xl leading-tight text-text sm:text-6xl">
-          {{ settings?.coupleNames.bride }} <em class="text-[var(--color-primary-vivid)] not-italic">&amp;</em><br />
-          {{ settings?.coupleNames.groom }}
-        </h1>
-
-        <p v-if="settings?.welcomeMessage" v-reveal="220" class="max-w-sm text-[15px] leading-relaxed text-text-muted">
+      <div class="glass-hero-card relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[32px] px-8 py-10 text-center sm:px-12">
+        <p v-reveal="0" class="max-w-sm text-[15px] leading-relaxed text-text-muted">
           {{ settings.welcomeMessage }}
         </p>
-
-        <NuxtLink to="/album" v-reveal="320" class="btn-primary mt-2">Xem Album Ảnh</NuxtLink>
       </div>
     </section>
 
@@ -86,6 +86,8 @@ function onHeroMove(e: MouseEvent) {
         </NuxtLink>
       </div>
     </section>
+
+    <AlbumCtaSection />
   </div>
 </template>
 

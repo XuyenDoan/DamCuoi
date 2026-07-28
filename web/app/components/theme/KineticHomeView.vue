@@ -6,70 +6,28 @@ import KineticLoveStory from './KineticLoveStory.vue'
  * Hero chữ lớn tương phản cao + nút CTA "nam châm" (`v-magnetic`), câu
  * chuyện tình yêu kể bằng chữ cuộn kịch tính (`KineticLoveStory`). Cùng
  * nguồn dữ liệu với các theme khác — chỉ đổi trình bày.
+ *
+ * spec.md mục 38.12: tagline + tên cô dâu chú rể chuyển hẳn lên ảnh hero
+ * (`HeroCoupleImage.vue`) — khối dưới ảnh giờ chỉ còn `welcomeMessage`, bỏ
+ * `min-h-screen` + nút "cuộn xuống" (không còn khối chữ cao để dẫn dắt cuộn
+ * qua). CTA "Xem Album Ảnh" (kèm `v-magnetic`) dời xuống cuối trang qua
+ * `<AlbumCtaSection />`.
  */
 const { data: settings } = useSiteSettings()
 
 const hasAnyEventInfo = computed(
   () => hasEventContent(settings.value?.eventInfo.groom) || hasEventContent(settings.value?.eventInfo.bride)
 )
-
-const scrollHintOpacity = ref(1)
-let ticking = false
-function updateScrollHintOpacity() {
-  const fadeRange = window.innerHeight * 0.6
-  scrollHintOpacity.value = Math.max(0, 1 - window.scrollY / fadeRange)
-  ticking = false
-}
-function onScroll() {
-  if (ticking) return
-  ticking = true
-  requestAnimationFrame(updateScrollHintOpacity)
-}
-onMounted(() => {
-  window.addEventListener('scroll', onScroll, { passive: true })
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll)
-})
-function scrollPastHero() {
-  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
-}
 </script>
 
 <template>
   <div>
     <HeroCoupleImage />
 
-    <section class="relative flex min-h-screen flex-col items-center justify-center px-6 py-32 text-center">
-      <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-body text-sm font-bold uppercase tracking-[0.14em] text-primary">
-        {{ settings.heroTagline }}
-      </p>
-
-      <h1 v-reveal="100" class="mt-5 font-heading text-6xl font-extrabold uppercase leading-[1.05] text-text sm:text-8xl">
-        {{ settings?.coupleNames.bride }}<br />
-        <span class="align-middle text-[0.5em] text-primary">&amp;</span>
-        {{ settings?.coupleNames.groom }}
-      </h1>
-
-      <p v-if="settings?.welcomeMessage" v-reveal="240" class="mt-7 max-w-lg text-base leading-relaxed text-text-muted">
+    <section v-if="settings?.welcomeMessage" class="px-6 py-16 text-center sm:py-20">
+      <p v-reveal="0" class="text-hover mx-auto max-w-lg text-base leading-relaxed text-text-muted">
         {{ settings.welcomeMessage }}
       </p>
-
-      <NuxtLink to="/album" v-reveal="320" v-magnetic class="btn-primary mt-8 inline-block">Xem Album Ảnh</NuxtLink>
-
-      <button
-        v-if="scrollHintOpacity > 0.02"
-        type="button"
-        class="focus-ring absolute inset-x-0 bottom-8 mx-auto flex flex-col items-center gap-1 text-text-muted transition-colors duration-200 hover:text-primary"
-        :style="{ opacity: scrollHintOpacity }"
-        aria-label="Cuộn xuống xem thêm"
-        @click="scrollPastHero"
-      >
-        <span class="text-xs font-bold uppercase tracking-[0.3em]">Cuộn xuống</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="scroll-hint-icon h-5 w-5">
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-      </button>
     </section>
 
     <CoupleIntroSection />
@@ -104,5 +62,7 @@ function scrollPastHero() {
         </NuxtLink>
       </div>
     </section>
+
+    <AlbumCtaSection />
   </div>
 </template>

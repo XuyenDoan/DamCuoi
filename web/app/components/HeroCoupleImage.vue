@@ -18,6 +18,12 @@
  * theo đúng yêu cầu thẩm mỹ của chủ dự án, đã bù bằng shadow đủ dày để đọc
  * tốt trên phần lớn ảnh cưới thực tế (nền có dải tông màu tự nhiên, không
  * phải test case cực đoan trắng/đen tuyệt đối).
+ *
+ * mục 38.12: đưa `heroTagline` (VD "Chúng tôi sắp về chung một nhà") lên
+ * làm dòng overline nhỏ phía TRÊN tên, cùng khối chữ nổi trên ảnh — gộp
+ * chung 1 nơi duy nhất thay vì lặp lại y hệt ở khối text bên dưới ảnh (khối
+ * đó đã bỏ hẳn tagline + tên, chỉ còn lời ngỏ `welcomeMessage`, xem các
+ * `*HomeView.vue`).
  */
 const { data: settings } = useSiteSettings()
 const heroImage = computed(() => settings.value?.siteImages?.hero ?? null)
@@ -27,6 +33,9 @@ const heroImage = computed(() => settings.value?.siteImages?.hero ?? null)
   <div v-if="heroImage" v-reveal="0" class="hero-portrait-wrap">
     <img :src="`/uploads/${heroImage}`" alt="" class="hero-portrait" />
     <div class="hero-portrait-names">
+      <p v-if="settings?.heroTagline" class="hero-portrait-tagline font-accent">
+        {{ settings.heroTagline }}
+      </p>
       <p class="hero-portrait-names-text font-heading">
         {{ settings?.coupleNames.bride }} <span class="text-primary">&amp;</span> {{ settings?.coupleNames.groom }}
       </p>

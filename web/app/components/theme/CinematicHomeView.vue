@@ -5,6 +5,16 @@ import CinematicLoveStory from './CinematicLoveStory.vue'
  * Trang chủ — theme "Điện Ảnh Cuộn" (spec.md mục 36, Phương án 02). Hero
  * full-bleed như 1 cảnh phim mở đầu, Ken Burns rất chậm, chữ neo đáy khung
  * kiểu phụ đề. Cùng nguồn dữ liệu với theme mặc định — chỉ đổi trình bày.
+ *
+ * spec.md mục 38.12: tagline + tên cô dâu chú rể chuyển hẳn lên ảnh hero
+ * (`HeroCoupleImage.vue`) — cảnh phim Ken Burns dưới đây (ảnh khác, từ
+ * `pageBackgrounds.home`) giờ chỉ còn nhãn "Cảnh 01" + `welcomeMessage`.
+ * Vẫn giữ `min-h-screen` cho khối này (khác các theme không có ảnh nền
+ * riêng) vì bản thân ẢNH NỀN full-bleed + Ken Burns đã đủ ấn tượng để lấp
+ * đầy màn hình dù chữ đã rút gọn — không giống các theme nền phẳng (rút gọn
+ * chiều cao vì không còn gì lấp khoảng trống). Bỏ nút "cuộn xuống" (JS
+ * `scrollHintOpacity`) do không còn khối text cao để dẫn dắt cuộn qua. CTA
+ * "Xem Album Ảnh" dời xuống cuối trang qua `<AlbumCtaSection />`.
  */
 const { data: settings } = useSiteSettings()
 
@@ -13,28 +23,6 @@ const hasAnyEventInfo = computed(
 )
 
 const heroImage = computed(() => settings.value?.pageBackgrounds?.home ?? null)
-
-const scrollHintOpacity = ref(1)
-let ticking = false
-function updateScrollHintOpacity() {
-  const fadeRange = window.innerHeight * 0.6
-  scrollHintOpacity.value = Math.max(0, 1 - window.scrollY / fadeRange)
-  ticking = false
-}
-function onScroll() {
-  if (ticking) return
-  ticking = true
-  requestAnimationFrame(updateScrollHintOpacity)
-}
-onMounted(() => {
-  window.addEventListener('scroll', onScroll, { passive: true })
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll)
-})
-function scrollPastHero() {
-  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
-}
 </script>
 
 <template>
@@ -56,34 +44,10 @@ function scrollPastHero() {
       <div class="relative max-w-2xl">
         <span v-reveal="0" class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Cảnh 01 · Mở đầu</span>
 
-        <h1 v-reveal="100" class="mt-4 font-heading text-5xl leading-[1.05] text-text sm:text-6xl md:text-7xl">
-          {{ settings?.coupleNames.bride }} &amp;<br />
-          <em>{{ settings?.coupleNames.groom }}</em>
-        </h1>
-
-        <p v-if="settings?.heroTagline" v-reveal="180" class="mt-5 max-w-md text-base text-text-muted">
-          {{ settings.heroTagline }}
-        </p>
-        <p v-if="settings?.welcomeMessage" v-reveal="240" class="mt-3 max-w-md text-sm leading-relaxed text-text-muted">
+        <p v-if="settings?.welcomeMessage" v-reveal="120" class="mt-4 max-w-md text-sm leading-relaxed text-text-muted">
           {{ settings.welcomeMessage }}
         </p>
-
-        <NuxtLink to="/album" v-reveal="320" class="btn-primary mt-8">Xem Album Ảnh</NuxtLink>
       </div>
-
-      <button
-        v-if="scrollHintOpacity > 0.02"
-        type="button"
-        class="focus-ring-dark absolute inset-x-0 bottom-8 mx-auto flex flex-col items-center gap-1 text-text-muted transition-colors duration-200 hover:text-primary"
-        :style="{ opacity: scrollHintOpacity }"
-        aria-label="Cuộn xuống xem thêm"
-        @click="scrollPastHero"
-      >
-        <span class="text-[10px] uppercase tracking-[0.3em]">Cuộn để tiếp tục</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="scroll-hint-icon h-5 w-5">
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-      </button>
     </section>
 
     <CoupleIntroSection />
@@ -125,5 +89,7 @@ function scrollPastHero() {
         </NuxtLink>
       </div>
     </section>
+
+    <AlbumCtaSection />
   </div>
 </template>

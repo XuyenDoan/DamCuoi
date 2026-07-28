@@ -705,10 +705,41 @@ body {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.6rem;
   padding: 1.5rem;
   pointer-events: none;
+}
+.hero-portrait-tagline {
+  margin: 0;
+  max-width: 90%;
+  text-align: center;
+  color: #fff;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.45);
+}
+@media (min-width: 640px) {
+  .hero-portrait-tagline {
+    font-size: 1.25rem;
+  }
+}
+[data-theme="kinetic"] .hero-portrait-tagline {
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.8rem;
+}
+@media (min-width: 640px) {
+  [data-theme="kinetic"] .hero-portrait-tagline {
+    font-size: 0.95rem;
+  }
 }
 .hero-portrait-names-text {
   margin: 0;
@@ -791,7 +822,7 @@ body {
   dưới như thiết kế gốc (không có ảnh còn lại để tạo góc chéo cùng).
 */
 .couple-duo-frame {
-  --duo-w: min(40vw, 16rem);
+  --duo-w: min(44vw, 19rem);
   --duo-h: calc(var(--duo-w) * 4 / 3);
   --duo-overlap-x: calc(var(--duo-w) * 0.18);
   position: relative;

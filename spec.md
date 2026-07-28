@@ -1318,6 +1318,27 @@ Trường hợp chỉ 1 người có ảnh: bỏ hẳn bố cục cối xay gió
 
 **Thành phần sửa**: `app/components/CoupleIntroSection.vue`, `app/assets/css/main.css`.
 
+### 38.12 Gộp tagline lên ảnh hero, bỏ nội dung trùng, ảnh cô dâu chú rể to hơn, CTA xuống cuối trang (đợt sửa 6, ngay sau mục 38.11)
+
+Yêu cầu: (1) đưa `heroTagline` (VD "Chúng tôi sắp về chung một nhà") lên ảnh hero, cùng chỗ với tên cô dâu chú rể; (2) xoá nội dung tagline + tên (nay trùng lặp) ở khối text bên dưới ảnh; (3) ảnh cô dâu/chú rể xen phủ — làm to hơn 1 chút; (4) CTA "Xem Album Ảnh" dời xuống cuối trang. Áp dụng cả 6 theme.
+
+**Tagline lên ảnh hero**: `HeroCoupleImage.vue` thêm dòng overline nhỏ (`heroTagline`, chữ nghiêng, cùng kỹ thuật `text-shadow` nhiều lớp đã có ở mục 38.10 — không thêm khối nền) NGAY TRÊN tên, gộp chung 1 vị trí duy nhất. `.hero-portrait-names` đổi từ `flex` hàng ngang (1 dòng) sang `flex-direction: column` để xếp chồng 2 dòng (tagline rồi đến tên).
+
+**Bỏ nội dung trùng dưới ảnh — rút gọn khối hero theo TỪNG theme khác nhau tuỳ có ảnh nền hay không**:
+- **Default/Kinetic** (nền phẳng, không ảnh): bỏ hẳn `min-h-screen` (không còn lý do chiếm trọn màn hình khi nội dung chỉ còn `welcomeMessage`) VÀ bỏ nút "cuộn xuống" (`scrollHintOpacity`, thiết kế riêng cho khối cao hết màn hình — không còn hợp khi khối đã thu gọn).
+- **Editorial**: cột trái chỉ còn `welcomeMessage` (bỏ tagline/H1/đường kẻ trang trí gắn liền H1); cột phải (ảnh lớn từ `pageBackgrounds.home` — tính năng KHÁC, ảnh nền riêng từng trang, không phải ảnh hero mới) giữ nguyên không đổi. Bỏ luôn link neo "Cuộn xuống ↓" (`#cau-chuyen`) do gắn với bố cục cũ.
+- **Cinematic**: GIỮ NGUYÊN `min-h-screen` cho cảnh Ken Burns (khác Default/Kinetic) — vì bản thân ảnh nền full-bleed (từ `pageBackgrounds.home`, KHÁC ảnh hero mới) đã đủ ấn tượng lấp đầy màn hình dù chữ rút gọn, không giống theme nền phẳng cần thu nhỏ để tránh khoảng trống. Vẫn bỏ nút "cuộn xuống" do không còn khối chữ cao dẫn dắt.
+- **Glass**: bỏ `min-h-screen`, giữ khối kính mờ (`glass-hero-card`) chỉ còn `welcomeMessage`, nền aurora vẫn "thở" bình thường ở chiều cao rút gọn.
+- **Bento**: đổi hẳn VAI TRÒ ô 2×2 lớn trong lưới — từ "ô tên + CTA" (nay trùng/thừa) thành ô "dấu ấn thương hiệu" (brand mark) chỉ còn monogram chữ lồng lớn, đúng tinh thần 1 ô bento làm điểm nhấn đồ hoạ thuần tuý thay vì để trống hẳn khi bỏ nội dung cũ.
+
+**Ảnh cô dâu chú rể to hơn**: `--duo-w` (mục 38.11) tăng từ `min(40vw, 16rem)` lên `min(44vw, 19rem)` — to hơn ~19% ở kích thước tối đa (desktop), vẫn responsive đúng công thức cũ nên hình học giao ảnh (mục 38.10) không đổi tỉ lệ.
+
+**CTA "Xem Album Ảnh" xuống cuối trang**: tách thành component dùng chung mới `AlbumCtaSection.vue` (đoạn dẫn ngắn + nút, tái dùng `.btn-primary` đã có CSS riêng theo theme — không cần CSS mới) — chèn làm phần tử CUỐI CÙNG ở cả 6 `*HomeView.vue` (sau "Giờ Lễ & Địa Điểm"). Đơn giản hoá có chủ đích: bỏ `v-magnetic` từng gắn riêng cho nút này ở theme Kinetic (khi CTA còn là hành động chính của hero) — nay CTA là lời mời gọi phụ ở cuối trang, dùng chung 1 component không hiệu ứng riêng cho gọn, không còn là điểm nhấn tương tác chính của trang.
+
+**Tự kiểm tra**: `npx vue-tsc --noEmit` sạch. Playwright: tải 3 ảnh test qua cả 6 theme — xác nhận `.hero-portrait-tagline` + `.hero-portrait-names-text` cùng hiện đúng nội dung trên ảnh; đếm `document.querySelectorAll('h1').length === 0` ở mọi theme (xác nhận không còn tiêu đề tên trùng lặp bên dưới ảnh); đo `.couple-duo-photo-bride` rộng ra `304px` ở desktop 1280px (tăng từ `256px` — đúng mức "to hơn xíu" tính toán trước); xác nhận nút "Xem Album Ảnh" hiện đúng ở cuối trang (`.album-cta-section a[href="/album"]` visible sau khi cuộn tới cuối); ảnh chụp thực tế xác nhận trực quan cả 6 theme + mobile (375px); 0 lỗi console, 0 tràn ngang. Dọn dữ liệu test sau khi xong.
+
+**Thành phần thêm/sửa**: `app/components/HeroCoupleImage.vue`, `app/components/AlbumCtaSection.vue` (mới), `app/assets/css/main.css`, `app/components/theme/*HomeView.vue` (cả 6).
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

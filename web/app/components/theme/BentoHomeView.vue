@@ -12,6 +12,13 @@ import BentoLoveStory from './BentoLoveStory.vue'
  * trang (đúng yêu cầu chung cho cả 6 theme) — trước đây 2 ô "Nhà Trai"/"Nhà
  * Gái" nằm NGAY TRONG lưới (row-span-2), nay lưới chỉ còn 4 ô số liệu +
  * ô tên/CTA, xếp gọn 2x2 bên cạnh ô tên thay vì để trống.
+ *
+ * spec.md mục 38.12: tagline + tên cô dâu chú rể + CTA đã chuyển hẳn ra khỏi
+ * ô 2x2 này — tagline lên ảnh hero (`HeroCoupleImage.vue`), CTA dời xuống
+ * cuối trang (`<AlbumCtaSection />`). Ô 2x2 (vốn là ô "tên + CTA") giờ đổi
+ * vai trò thành ô "dấu ấn thương hiệu" (brand mark) — chỉ còn monogram chữ
+ * lồng lớn, đúng tinh thần 1 ô bento làm điểm nhấn đồ hoạ thuần tuý (không
+ * hiếm gặp ở lưới bento thật) thay vì để trống hẳn.
  */
 const { data: settings } = useSiteSettings()
 const { data: photos } = usePublishedPhotos()
@@ -51,13 +58,8 @@ const monogram = computed(() => {
 
     <section class="tilt-grid mx-auto max-w-6xl px-6 pb-20 pt-14 sm:pt-16">
       <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div v-reveal="0" v-tilt class="col-span-2 row-span-2 flex flex-col justify-center gap-2 rounded-[28px] p-7" style="background: var(--bento-cell-1)">
-          <span class="text-xs font-bold uppercase tracking-[0.14em] text-text opacity-70">{{ monogram }}</span>
-          <h1 class="font-heading text-3xl font-extrabold leading-[1.05] text-text sm:text-4xl">
-            {{ settings?.coupleNames.bride }}<br />&amp; {{ settings?.coupleNames.groom }}
-          </h1>
-          <p v-if="settings?.heroTagline" class="mt-1 text-sm text-text opacity-75">{{ settings.heroTagline }}</p>
-          <NuxtLink to="/album" class="btn-primary mt-3 self-start">Xem Album Ảnh</NuxtLink>
+        <div v-reveal="0" v-tilt class="col-span-2 row-span-2 flex flex-col items-center justify-center rounded-[28px] p-7" style="background: var(--bento-cell-1)">
+          <span class="font-heading text-6xl font-extrabold leading-none text-text sm:text-7xl">{{ monogram }}</span>
         </div>
 
         <div v-if="daysUntil !== null" v-reveal="60" v-tilt class="flex flex-col justify-end rounded-[28px] p-5" style="background: var(--bento-cell-3)">
@@ -125,5 +127,7 @@ const monogram = computed(() => {
         </NuxtLink>
       </p>
     </section>
+
+    <AlbumCtaSection />
   </div>
 </template>
