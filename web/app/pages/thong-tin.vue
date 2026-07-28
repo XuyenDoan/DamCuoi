@@ -5,8 +5,8 @@ useHead({ title: 'Thông Tin Lễ Cưới — Album Cưới' })
 const { data: settings } = useSiteSettings()
 
 const families = computed(() => [
-  { key: 'groom', label: 'Nhà Trai', info: settings.value?.eventInfo.groom },
-  { key: 'bride', label: 'Nhà Gái', info: settings.value?.eventInfo.bride }
+  { key: 'bride', label: 'Lễ Vu Quy', info: settings.value?.eventInfo.bride },
+  { key: 'groom', label: 'Lễ Thành Hôn', info: settings.value?.eventInfo.groom }
 ])
 </script>
 

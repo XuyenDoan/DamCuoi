@@ -2,6 +2,7 @@ import { requireAdmin } from '../utils/adminSession'
 import { settingsStore } from '../utils/store'
 import type { EventInfoBlock, Settings } from '../utils/types'
 import { MANAGED_PAGES, isHideablePageKey } from '#shared/pages'
+import { SITE_IMAGES } from '#shared/siteImages'
 
 /**
  * Google Maps mặc định cho sao chép cả đoạn HTML <iframe>...</iframe>, không
@@ -65,7 +66,13 @@ export default defineEventHandler(async (event) => {
     ),
     // Chỉ giữ lại key hợp lệ + có thể ẩn (loại 'home' phòng thủ — trang chủ luôn bắt buộc hiện)
     hiddenPages: (body.hiddenPages ?? []).filter(isHideablePageKey),
-    websiteTheme: current.websiteTheme
+    websiteTheme: current.websiteTheme,
+    // siteImages thực chất được quản lý qua /api/admin/site-image/[key]
+    // (upload/xoá riêng), giống hệt cách pageBackgrounds đã làm ở trên — ở
+    // đây chỉ giữ nguyên trạng theo đúng danh sách key hợp lệ.
+    siteImages: Object.fromEntries(
+      SITE_IMAGES.map((s) => [s.key, body.siteImages?.[s.key] ?? null])
+    ) as Settings['siteImages']
   }
 
   await settingsStore.write(sanitized)

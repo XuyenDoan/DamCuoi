@@ -39,14 +39,16 @@ function scrollPastHero() {
 <template>
   <div>
     <section class="relative flex min-h-screen flex-col items-center justify-center px-6 py-32 text-center">
-      <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-body text-sm font-bold uppercase tracking-[0.14em] text-primary">
+      <HeroCoupleImage />
+
+      <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-body mt-6 text-sm font-bold uppercase tracking-[0.14em] text-primary">
         {{ settings.heroTagline }}
       </p>
 
       <h1 v-reveal="100" class="mt-5 font-heading text-6xl font-extrabold uppercase leading-[1.05] text-text sm:text-8xl">
-        {{ settings?.coupleNames.groom }}<br />
+        {{ settings?.coupleNames.bride }}<br />
         <span class="align-middle text-[0.5em] text-primary">&amp;</span>
-        {{ settings?.coupleNames.bride }}
+        {{ settings?.coupleNames.groom }}
       </h1>
 
       <p v-if="settings?.welcomeMessage" v-reveal="240" class="mt-7 max-w-lg text-base leading-relaxed text-text-muted">
@@ -70,23 +72,27 @@ function scrollPastHero() {
       </button>
     </section>
 
+    <CoupleIntroSection />
+
+    <KineticLoveStory />
+
     <section v-if="hasAnyEventInfo" class="border-t-2 border-text px-6 py-24">
       <div class="mx-auto max-w-3xl text-center">
         <h2 v-reveal class="font-heading text-3xl font-extrabold uppercase text-text">Giờ Lễ &amp; Địa Điểm</h2>
         <div class="mt-10 grid gap-10 sm:grid-cols-2">
-          <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="80">
-            <p class="text-xs font-bold uppercase tracking-[0.14em] text-primary">Nhà Trai</p>
-            <p class="text-hover mt-3 font-heading text-2xl font-extrabold text-text">
-              {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
-            </p>
-            <p v-if="settings?.eventInfo.groom.venueName" class="text-hover mt-1 text-sm text-text-muted">{{ settings.eventInfo.groom.venueName }}</p>
-          </div>
-          <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="140">
-            <p class="text-xs font-bold uppercase tracking-[0.14em] text-primary">Nhà Gái</p>
+          <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="80">
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-primary">Lễ Vu Quy</p>
             <p class="text-hover mt-3 font-heading text-2xl font-extrabold text-text">
               {{ settings?.eventInfo.bride.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.bride.ceremonyTime) : 'Đang cập nhật' }}
             </p>
             <p v-if="settings?.eventInfo.bride.venueName" class="text-hover mt-1 text-sm text-text-muted">{{ settings.eventInfo.bride.venueName }}</p>
+          </div>
+          <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="140">
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-primary">Lễ Thành Hôn</p>
+            <p class="text-hover mt-3 font-heading text-2xl font-extrabold text-text">
+              {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
+            </p>
+            <p v-if="settings?.eventInfo.groom.venueName" class="text-hover mt-1 text-sm text-text-muted">{{ settings.eventInfo.groom.venueName }}</p>
           </div>
         </div>
         <NuxtLink
@@ -98,7 +104,5 @@ function scrollPastHero() {
         </NuxtLink>
       </div>
     </section>
-
-    <KineticLoveStory />
   </div>
 </template>

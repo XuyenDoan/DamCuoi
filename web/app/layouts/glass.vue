@@ -28,7 +28,7 @@ const navLinks = computed(() =>
 const wordmark = computed(() => {
   const s = settings.value
   if (!s) return ''
-  return `${s.coupleNames.groom} & ${s.coupleNames.bride}`
+  return `${s.coupleNames.bride} & ${s.coupleNames.groom}`
 })
 </script>
 

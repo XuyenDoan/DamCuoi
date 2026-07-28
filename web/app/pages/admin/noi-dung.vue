@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Settings } from '../../../server/utils/types'
 import { MANAGED_PAGES } from '#shared/pages'
+import { SITE_IMAGES, type SiteImageKey } from '#shared/siteImages'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 useHead({ title: 'Nội Dung Trang — Quản Trị' })
@@ -23,7 +24,8 @@ const form = ref<Settings>(
         },
         footerText: '',
         pageBackgrounds: {},
-        hiddenPages: []
+        hiddenPages: [],
+        siteImages: { hero: null, bridePortrait: null, groomPortrait: null }
       }
 )
 
@@ -103,6 +105,42 @@ async function removePageBg(key: string) {
   }
 }
 
+// ---- Ảnh cố định trang chủ (hero + cô dâu/chú rể) — spec.md mục 38 ----
+const siteImageUploading = reactive<Record<string, boolean>>({})
+const siteImageError = reactive<Record<string, string>>({})
+
+async function uploadSiteImage(key: SiteImageKey, file: File) {
+  siteImageError[key] = ''
+  siteImageUploading[key] = true
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    const res = await $fetch<{ image: string }>(`/api/admin/site-image/${key}`, {
+      method: 'POST',
+      body: formData
+    })
+    form.value.siteImages[key] = res.image
+  } catch (err: unknown) {
+    siteImageError[key] =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      'Tải ảnh thất bại, vui lòng thử lại.'
+  } finally {
+    siteImageUploading[key] = false
+  }
+}
+
+async function removeSiteImage(key: SiteImageKey) {
+  siteImageUploading[key] = true
+  try {
+    await $fetch(`/api/admin/site-image/${key}`, { method: 'DELETE' })
+    form.value.siteImages[key] = null
+  } finally {
+    siteImageUploading[key] = false
+  }
+}
+
 function isPageHidden(key: string): boolean {
   return key !== 'home' && form.value.hiddenPages.includes(key)
 }
@@ -157,12 +195,12 @@ async function save() {
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label for="groom-name" class="mb-2 block text-sm font-medium text-text">
-                Tên chú rể <span class="text-error">*</span>
+              <label for="bride-name" class="mb-2 block text-sm font-medium text-text">
+                Tên cô dâu <span class="text-error">*</span>
               </label>
               <input
-                id="groom-name"
-                v-model="form.coupleNames.groom"
+                id="bride-name"
+                v-model="form.coupleNames.bride"
                 type="text"
                 required
                 class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -170,12 +208,12 @@ async function save() {
               />
             </div>
             <div>
-              <label for="bride-name" class="mb-2 block text-sm font-medium text-text">
-                Tên cô dâu <span class="text-error">*</span>
+              <label for="groom-name" class="mb-2 block text-sm font-medium text-text">
+                Tên chú rể <span class="text-error">*</span>
               </label>
               <input
-                id="bride-name"
-                v-model="form.coupleNames.bride"
+                id="groom-name"
+                v-model="form.coupleNames.groom"
                 type="text"
                 required
                 class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -197,6 +235,26 @@ async function save() {
               style="min-height: 44px"
             />
           </div>
+        </fieldset>
+
+        <!-- Ảnh cố định trang chủ: hero + cô dâu/chú rể (spec.md mục 38) -->
+        <fieldset class="flex flex-col gap-3 rounded-xl border border-secondary-light/40 p-6">
+          <legend class="px-2 font-heading text-lg text-text">Ảnh trang chủ</legend>
+          <p class="mb-1 text-xs text-text-muted">
+            Ảnh hiển thị trực tiếp trong nội dung trang chủ — khác với "Ảnh nền &amp; hiển thị từng
+            trang" bên dưới (đó chỉ là ảnh nền mờ phía sau nội dung).
+          </p>
+          <AdminSiteImageField
+            v-for="s in SITE_IMAGES"
+            :key="s.key"
+            :label="s.label"
+            :description="s.description"
+            :image="form.siteImages[s.key]"
+            :uploading="siteImageUploading[s.key] ?? false"
+            :error="siteImageError[s.key] ?? ''"
+            @upload="(file) => uploadSiteImage(s.key, file)"
+            @remove="removeSiteImage(s.key)"
+          />
         </fieldset>
 
         <!-- Ảnh nền từng trang + hiển thị/ẩn trang -->
@@ -381,65 +439,9 @@ async function save() {
           @close="editingMilestoneId = null"
         />
 
-        <!-- Thông tin lễ cưới nhà trai -->
+        <!-- Thông tin lễ cưới nhà gái — Lễ Vu Quy (spec.md mục 38, đổi tên hiển thị) -->
         <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
-          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Nhà trai</legend>
-
-          <div>
-            <label for="groom-ceremony-time" class="mb-2 block text-sm font-medium text-text">
-              Giờ tổ chức (giờ Việt Nam)
-            </label>
-            <input
-              id="groom-ceremony-time"
-              v-model="groomCeremonyLocal"
-              type="datetime-local"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
-              style="min-height: 44px"
-            />
-          </div>
-
-          <div>
-            <label for="groom-venue-name" class="mb-2 block text-sm font-medium text-text">Tên địa điểm</label>
-            <input
-              id="groom-venue-name"
-              v-model="form.eventInfo.groom.venueName"
-              type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              style="min-height: 44px"
-            />
-          </div>
-
-          <div>
-            <label for="groom-venue-address" class="mb-2 block text-sm font-medium text-text">Địa chỉ</label>
-            <input
-              id="groom-venue-address"
-              v-model="form.eventInfo.groom.venueAddress"
-              type="text"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              style="min-height: 44px"
-            />
-          </div>
-
-          <div>
-            <label for="groom-map-embed" class="mb-2 block text-sm font-medium text-text">
-              Link nhúng Google Maps (không bắt buộc)
-            </label>
-            <textarea
-              id="groom-map-embed"
-              v-model="form.eventInfo.groom.mapEmbedUrl"
-              rows="2"
-              placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
-              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-            <p class="mt-1 text-xs text-text-muted">
-              Lấy từ Google Maps → Chia sẻ → Nhúng bản đồ. Dán nguyên cả đoạn mã (kể cả thẻ &lt;iframe&gt;) hoặc chỉ link trong thuộc tính src đều được — hệ thống tự nhận diện và trích đúng link khi lưu.
-            </p>
-          </div>
-        </fieldset>
-
-        <!-- Thông tin lễ cưới nhà gái -->
-        <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
-          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Nhà gái</legend>
+          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Lễ Vu Quy (nhà gái)</legend>
 
           <div>
             <label for="bride-ceremony-time" class="mb-2 block text-sm font-medium text-text">
@@ -493,6 +495,62 @@ async function save() {
           </div>
         </fieldset>
 
+        <!-- Thông tin lễ cưới nhà trai — Lễ Thành Hôn (spec.md mục 38, đổi tên hiển thị) -->
+        <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
+          <legend class="px-2 font-heading text-lg text-text">Thông tin lễ cưới — Lễ Thành Hôn (nhà trai)</legend>
+
+          <div>
+            <label for="groom-ceremony-time" class="mb-2 block text-sm font-medium text-text">
+              Giờ tổ chức (giờ Việt Nam)
+            </label>
+            <input
+              id="groom-ceremony-time"
+              v-model="groomCeremonyLocal"
+              type="datetime-local"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:w-72"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="groom-venue-name" class="mb-2 block text-sm font-medium text-text">Tên địa điểm</label>
+            <input
+              id="groom-venue-name"
+              v-model="form.eventInfo.groom.venueName"
+              type="text"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="groom-venue-address" class="mb-2 block text-sm font-medium text-text">Địa chỉ</label>
+            <input
+              id="groom-venue-address"
+              v-model="form.eventInfo.groom.venueAddress"
+              type="text"
+              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              style="min-height: 44px"
+            />
+          </div>
+
+          <div>
+            <label for="groom-map-embed" class="mb-2 block text-sm font-medium text-text">
+              Link nhúng Google Maps (không bắt buộc)
+            </label>
+            <textarea
+              id="groom-map-embed"
+              v-model="form.eventInfo.groom.mapEmbedUrl"
+              rows="2"
+              placeholder="https://www.google.com/maps/embed?... hoặc dán cả đoạn <iframe>"
+              class="w-full resize-none rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <p class="mt-1 text-xs text-text-muted">
+              Lấy từ Google Maps → Chia sẻ → Nhúng bản đồ. Dán nguyên cả đoạn mã (kể cả thẻ &lt;iframe&gt;) hoặc chỉ link trong thuộc tính src đều được — hệ thống tự nhận diện và trích đúng link khi lưu.
+            </p>
+          </div>
+        </fieldset>
+
         <!-- Footer -->
         <fieldset class="flex flex-col gap-4 rounded-xl border border-secondary-light/40 p-6">
           <legend class="px-2 font-heading text-lg text-text">Footer</legend>
@@ -532,9 +590,9 @@ async function save() {
             {{ form.heroTagline }}
           </p>
           <h2 class="mt-2 font-heading text-2xl text-text">
-            {{ form.coupleNames.groom || 'Chú Rể' }}
-            <span class="text-primary">&amp;</span>
             {{ form.coupleNames.bride || 'Cô Dâu' }}
+            <span class="text-primary">&amp;</span>
+            {{ form.coupleNames.groom || 'Chú Rể' }}
           </h2>
           <p v-if="form.welcomeMessage" class="mt-3 text-sm text-text-muted">
             {{ form.welcomeMessage }}

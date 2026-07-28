@@ -1214,6 +1214,56 @@ Thêm 3 Vue custom directive qua Nuxt plugin (nối dài mẫu `v-reveal` đã c
 
 **Thành phần thêm/sửa**: `shared/themes.ts`, `app/assets/css/main.css`, `app/plugins/tilt.ts` (mới), `app/plugins/kinetic.ts` (mới), `app/plugins/magnetic.ts` (mới), `app/layouts/glass.vue`/`bento.vue`/`kinetic.vue` (mới), `app/components/theme/GlassHomeView.vue`/`GlassLoveStory.vue`/`BentoHomeView.vue`/`BentoLoveStory.vue`/`KineticHomeView.vue`/`KineticLoveStory.vue` (mới), `app/pages/index.vue`, `app/pages/album.vue`, `app/pages/loi-chuc.vue`, `package.json` (6 package `@fontsource/*`/`@fontsource-variable/*` mới). Không đổi: schema `Settings`, API theme, `app/pages/admin/giao-dien.vue`, `app/pages/admin/index.vue`, `app/pages/thong-tin.vue`, `app/pages/gui-anh.vue`.
 
+## 38. Ảnh chân dung trang chủ + thứ tự cô dâu trước + đổi tên lễ (đợt sau mục 37)
+
+Yêu cầu: (1) thêm 1 ảnh chữ nhật cô dâu/chú rể ở đầu trang chủ, kèm mục chỉnh sửa ở Admin, đề xuất phương án trước khi code; (2) dời "Giờ Lễ & Địa Điểm" xuống cuối trang chủ; (3) đổi thứ tự hiển thị tên — cô dâu trước chú rể; (4) thêm 2 khối giới thiệu cô dâu/chú rể (ảnh + tên) trước "Câu Chuyện Của Chúng Tôi", tham khảo mẫu "Meet the couple" của các trang cưới AAA, kèm mục chỉnh sửa ảnh ở Admin; (5) đổi nhãn "Nhà gái"/"Nhà trai" thành "Lễ Vu Quy"/"Lễ Thành Hôn". Áp dụng nhất quán cho **cả 6 theme** hiện có.
+
+### 38.1 Đề xuất & chốt phương án ảnh hero
+
+Trình bày 3 phương án qua `AskUserQuestion` (không dựng mockup rời vì đây là 1 lựa chọn bố cục đơn giản, không cần so sánh trực quan nhiều biến thể màu/font như mục 36/37):
+- **Khung ảnh nổi phía trên tên** — ảnh chữ nhật bo góc mềm, đặt NGAY TRÊN tagline/tên, không đè lên chữ → tuyệt đối an toàn cho tương phản AAA (chữ luôn nằm trên nền phẳng của theme, không phải trên ảnh).
+- **Ảnh nền chia đôi màn hình** (split hero) — nửa ảnh full-bleed, nửa chữ trên nền phẳng.
+- **Thiệp ảnh nghiêng kiểu Polaroid** — ảnh nhỏ hơn, khung nghiêng nhẹ, đặt lệch góc.
+
+Chủ dự án chọn **phương án 1 — Khung ảnh nổi phía trên tên**.
+
+### 38.2 Kiến trúc dữ liệu — 1 field mới, theo đúng khuôn mẫu `pageBackgrounds`
+
+- `shared/siteImages.ts` (mới, theo đúng quy ước `shared/pages.ts`/`shared/themes.ts`): registry `SITE_IMAGES` gồm 3 key cố định `hero`/`bridePortrait`/`groomPortrait` (nhãn + mô tả) — dùng chung server (validate key) + client (Admin UI tự sinh 3 ô upload từ registry, không hard-code).
+- `Settings.siteImages: Record<SiteImageKey, string | null>` (mới) — khác `pageBackgrounds` (ảnh NỀN MỜ phía sau nội dung từng trang): đây là ảnh hiển thị TRỰC TIẾP trong nội dung trang chủ. `migrateSettings()` gộp theo TỪNG KEY (`{...DEFAULT_SETTINGS.siteImages, ...(r.siteImages ?? {})}`) thay vì spread nguyên khối — dữ liệu cũ thiếu field này (hoặc thiếu 1/vài key nếu sau này thêm key mới) vẫn nhận `null` mặc định đúng key đó, không mất dữ liệu — cùng nguyên tắc đã áp dụng cho `eventInfo`/`websiteTheme` ở mục 36.
+- `PUT /api/settings`: `siteImages` round-trip qua `body` giống hệt `pageBackgrounds` (không force-preserve từ server như `websiteTheme`) — vì cả 2 đều được client cập nhật ngay vào `form.value` sau khi API upload/xoá trả về, và gửi lại nguyên vẹn khi bấm "Lưu thay đổi".
+- `POST/DELETE /api/admin/site-image/[key]` (mới) — sao chép Y HỆT khuôn mẫu `page-background/[pageKey]` (resize `sharp` width tối đa 2000px, nén `webp` quality 85, lưu `/uploads/site-images/`, xoá file cũ khi thay/xoá) — chỉ khác thư mục lưu + tập key hợp lệ (3 key cố định thay vì danh sách trang động).
+
+### 38.3 2 component dùng chung mới — không nhân bản theo theme
+
+Tiếp tục đúng kiến trúc token-driven đã lập từ mục 36.3: `HeroCoupleImage.vue` (ảnh đầu trang) và `CoupleIntroSection.vue` (khối giới thiệu cô dâu + chú rể) là **1 component DUY NHẤT dùng chung cho cả 6 theme** — hình dạng khung ảnh (bo góc/viền/đổ bóng/kính mờ...) đổi qua CSS hook `.hero-portrait-wrap`/`.couple-intro-portrait-wrap` (`[data-theme="..."]` trong `main.css`), không tạo 6 component riêng. `aspect-ratio` cố định đặt trên khung bao ngoài (4:3 cho hero, 3:4 cho chân dung) để chống layout shift mà KHÔNG cần lưu `width`/`height` thật của ảnh — khác `Photo`/`LightboxPhoto`, vì ảnh này luôn hiển thị đúng 1 tỉ lệ cố định qua `object-fit: cover`, không cần giữ tỉ lệ gốc như ảnh Album/Lời chúc.
+
+`CoupleIntroSection.vue`: cô dâu LUÔN ở khối TRÊN (ảnh trái/chữ phải), chú rể LUÔN ở khối DƯỚI (ảnh phải/chữ trái) — bố cục xen kẽ trái/phải tham khảo mẫu "Meet the couple" phổ biến ở các trang cưới AAA (The Knot, Zola). Mỗi khối chỉ hiện khi CHÍNH người đó có ảnh (độc lập nhau); ẩn cả section nếu cả 2 đều chưa có ảnh — không có placeholder ở trang công khai, đúng nguyên tắc "chỉ hiện khi có nội dung" đã áp dụng cho `pageBackgrounds`/`eventInfo`.
+
+### 38.4 Admin — mục "Ảnh trang chủ"
+
+Thêm fieldset mới trong `admin/noi-dung.vue` (giữa "Trang bìa" và "Ảnh nền & hiển thị từng trang") — 3 ô `AdminSiteImageField.vue` (mới, component nhỏ tái dùng 3 lần, tránh lặp markup) lặp qua `SITE_IMAGES`, mỗi ô có preview + nút "Tải ảnh lên"/"Đổi ảnh"/"Xoá" — cùng mẫu UI với `PageBackgroundEditModal.vue` nhưng đặt TRỰC TIẾP trong trang (không cần popup) vì chỉ có 2 hành động, không có tuỳ chọn ẩn/hiện như ảnh nền từng trang.
+
+### 38.5 Áp dụng cho 6 HomeView — thứ tự nội dung mới
+
+Thứ tự trang chủ mới cho cả 6 theme: **Hero (ảnh + tên cô dâu trước) → CoupleIntroSection (cô dâu → chú rể) → Câu Chuyện Của Chúng Tôi → Giờ Lễ & Địa Điểm (cuối trang)**. Trước đây "Giờ Lễ & Địa Điểm" nằm ngay sau hero.
+
+- **Default/Editorial/Cinematic/Glass/Kinetic**: chỉ di chuyển khối JSX + đổi thứ tự biến `bride`/`groom`, không đổi cấu trúc.
+- **Bento** (dựng lại phức tạp nhất): trước đây 2 ô "Nhà Trai"/"Nhà Gái" nằm NGAY TRONG lưới bento (mỗi ô `row-span-2`) — nay tách hẳn khỏi lưới, chuyển thành 1 section riêng ở cuối trang (2 thẻ pastel `event-info-card` + `v-tilt`, cùng phong cách các ô lưới). Lưới trên chỉ còn 5 ô: tên/CTA (2×2) + 4 ô số liệu (đếm ngược/mốc yêu thương/ảnh album/lời chúc) xếp gọn 2×2 bên cạnh — không còn ô trống do thiếu 2 ô sự kiện. `HeroCoupleImage` đặt phía TRÊN toàn bộ lưới (không nhét vào trong ô tên) để tránh phá vỡ layout tính chiều cao tự động (`auto` row) của lưới `row-span-2`.
+- Nhãn đổi cho cả 6 theme + `thong-tin.vue`: **"Nhà Trai" → "Lễ Thành Hôn"**, **"Nhà Gái" → "Lễ Vu Quy"** (đúng phong tục: Vu Quy tổ chức ở nhà gái, Thành Hôn ở nhà trai) — khối Lễ Vu Quy (cô dâu) hiển thị TRƯỚC khối Lễ Thành Hôn (chú rể) ở mọi nơi, nhất quán với yêu cầu (3).
+- Thứ tự tên cô dâu/chú rể đổi ở: h1 hero 6 theme, monogram Editorial + Bento, `wordmark` (tên hiệu website trên nav) 6 layout, preview `admin/giao-dien.vue` + `admin/noi-dung.vue`, thứ tự field nhập tên + 2 fieldset "Thông tin lễ cưới" trong `admin/noi-dung.vue` (đổi cả nhãn legend thành "Lễ Vu Quy (nhà gái)"/"Lễ Thành Hôn (nhà trai)" cho admin dễ đối chiếu).
+
+### 38.6 Lỗi thật gặp phải & fix
+
+- **Monogram Editorial vẫn hiện chữ cái chú rể trước** ("MT" thay vì "TM"): khi đổi thứ tự tên ở h1, quên đổi luôn biến `monogram` (dùng cho khối chữ lồng lớn phía phải hero khi chưa có ảnh nền) — vẫn ghép `groom.charAt(0) + bride.charAt(0)`. Phát hiện bằng cách xem ảnh chụp thật (`home_editorial_full.png`) thấy "MT" thay vì "TM" dù h1 đã đúng "Thanh Trúc & Minh Khôi". **Khắc phục**: `grep coupleNames\.groom.*coupleNames\.bride` quét lại TOÀN BỘ `app/` để tìm hết chỗ còn sót thứ tự cũ (không chỉ sửa chỗ vừa phát hiện) — xác nhận Bento cũng có `monogram` tương tự nhưng đã đổi đúng từ đầu, chỉ Editorial bị sót.
+- **Ảnh chụp `fullPage: true` cho thấy header/nav (`position: fixed`) đè lên giữa nội dung trang** (ở cả header mặc định, thanh pill kính mờ theme Glass): xác nhận đây là ĐÚNG hiện tượng nhiễu ảnh đã ghi nhận từ trước (không phải lỗi thật) — chụp lại 1 viewport cố định sau khi cuộn thủ công tới đúng vị trí đó cho thấy header hiển thị bình thường ở đúng vị trí `fixed` (đầu màn hình), không đè lên nội dung khi xem thực tế. Không sửa gì, chỉ xác nhận qua ảnh chụp viewport thường (không `fullPage`) để tránh nhầm lẫn.
+
+### 38.7 Tự kiểm tra sau khi hoàn thành
+
+`npx vue-tsc --noEmit` sạch. Playwright: tải thật 3 ảnh test qua `admin/noi-dung.vue` (hero + 2 chân dung), xác nhận `GET /api/settings` phản ánh đúng 3 đường dẫn; quét **6 theme** trang chủ + `/thong-tin` — ảnh hero hiển thị, nhãn "Lễ Vu Quy"/"Lễ Thành Hôn" đúng vị trí (trước bằng `indexOf` trong `document.body.innerText`, có tính tới CSS `text-transform: uppercase` ở 1 số theme khiến so khớp chữ hoa/thường phải xác nhận qua ảnh chụp/DOM trực tiếp thay vì string match cứng), khối giới thiệu cô dâu/chú rể nằm TRƯỚC "Câu Chuyện Của Chúng Tôi", "Giờ Lễ & Địa Điểm" nằm SAU — 0 lỗi console, 0 tràn ngang ở cả desktop (1280px) và mobile (375px, 12 tổ hợp theme × trang). Xác nhận nút "Xoá" ảnh trong Admin hoạt động đúng (số ảnh còn lại giảm sau khi xoá). Dọn dữ liệu test (xoá 3 ảnh vừa tải, đưa `siteImages` về `{hero: null, bridePortrait: null, groomPortrait: null}`, `websiteTheme` về `'default'`).
+
+**Thành phần thêm/sửa**: `shared/siteImages.ts` (mới), `server/utils/types.ts`, `server/utils/store.ts`, `server/utils/paths.ts`, `server/api/settings.put.ts`, `server/api/admin/site-image/[key].post.ts` + `[key].delete.ts` (mới), `app/components/HeroCoupleImage.vue` + `CoupleIntroSection.vue` (mới), `app/components/admin/SiteImageField.vue` (mới), `app/assets/css/main.css`, `app/pages/admin/noi-dung.vue`, `app/pages/admin/giao-dien.vue`, `app/pages/thong-tin.vue`, `app/pages/index.vue` (không đổi — dispatcher không cần sửa), `app/components/theme/*HomeView.vue` (cả 6), `app/layouts/*.vue` (cả 6, chỉ đổi `wordmark`).
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

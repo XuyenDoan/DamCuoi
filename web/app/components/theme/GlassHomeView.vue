@@ -32,13 +32,15 @@ function onHeroMove(e: MouseEvent) {
       <div class="cursor-glow" aria-hidden="true" />
 
       <div class="glass-hero-card relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[32px] px-8 py-12 text-center sm:px-12">
+        <HeroCoupleImage />
+
         <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-accent text-lg italic text-text-muted">
           {{ settings.heroTagline }}
         </p>
 
         <h1 v-reveal="100" class="font-heading text-5xl leading-tight text-text sm:text-6xl">
-          {{ settings?.coupleNames.groom }} <em class="text-[var(--color-primary-vivid)] not-italic">&amp;</em><br />
-          {{ settings?.coupleNames.bride }}
+          {{ settings?.coupleNames.bride }} <em class="text-[var(--color-primary-vivid)] not-italic">&amp;</em><br />
+          {{ settings?.coupleNames.groom }}
         </h1>
 
         <p v-if="settings?.welcomeMessage" v-reveal="220" class="max-w-sm text-[15px] leading-relaxed text-text-muted">
@@ -49,25 +51,29 @@ function onHeroMove(e: MouseEvent) {
       </div>
     </section>
 
+    <CoupleIntroSection />
+
+    <GlassLoveStory />
+
     <section v-if="hasAnyEventInfo" class="relative px-6 pb-28">
       <div class="mx-auto max-w-3xl text-center">
         <span class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-primary-vivid)]">Trân trọng kính mời</span>
         <h2 v-reveal class="mt-2 font-heading text-3xl text-text">Giờ Lễ &amp; Địa Điểm</h2>
 
         <div class="mt-10 flex flex-col gap-5 sm:flex-row">
-          <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="100" class="event-info-card flex-1 rounded-[26px] p-6 text-left">
-            <p class="font-accent text-base italic text-[var(--color-primary-vivid)]">Nhà Trai</p>
-            <p class="text-hover mt-2 text-lg text-text">
-              {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
-            </p>
-            <p v-if="settings?.eventInfo.groom.venueName" class="text-hover text-sm text-text-muted">{{ settings.eventInfo.groom.venueName }}</p>
-          </div>
-          <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="160" class="event-info-card flex-1 rounded-[26px] p-6 text-left">
-            <p class="font-accent text-base italic text-[var(--color-primary-vivid)]">Nhà Gái</p>
+          <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="100" class="event-info-card flex-1 rounded-[26px] p-6 text-left">
+            <p class="font-accent text-base italic text-[var(--color-primary-vivid)]">Lễ Vu Quy</p>
             <p class="text-hover mt-2 text-lg text-text">
               {{ settings?.eventInfo.bride.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.bride.ceremonyTime) : 'Đang cập nhật' }}
             </p>
             <p v-if="settings?.eventInfo.bride.venueName" class="text-hover text-sm text-text-muted">{{ settings.eventInfo.bride.venueName }}</p>
+          </div>
+          <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="160" class="event-info-card flex-1 rounded-[26px] p-6 text-left">
+            <p class="font-accent text-base italic text-[var(--color-primary-vivid)]">Lễ Thành Hôn</p>
+            <p class="text-hover mt-2 text-lg text-text">
+              {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
+            </p>
+            <p v-if="settings?.eventInfo.groom.venueName" class="text-hover text-sm text-text-muted">{{ settings.eventInfo.groom.venueName }}</p>
           </div>
         </div>
 
@@ -80,8 +86,6 @@ function onHeroMove(e: MouseEvent) {
         </NuxtLink>
       </div>
     </section>
-
-    <GlassLoveStory />
   </div>
 </template>
 

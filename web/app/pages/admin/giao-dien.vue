@@ -81,7 +81,7 @@ async function selectTheme(id: string) {
               :style="{ color: t.palette[3] ?? t.palette[0], opacity: 0.85 }"
             >{{ t.subLabel }}</span>
             <span class="theme-sample-heading text-xl leading-tight" :style="{ fontFamily: `'${t.fonts.heading}', serif` }">
-              {{ settings?.coupleNames?.groom || 'Chú Rể' }} &amp; {{ settings?.coupleNames?.bride || 'Cô Dâu' }}
+              {{ settings?.coupleNames?.bride || 'Cô Dâu' }} &amp; {{ settings?.coupleNames?.groom || 'Chú Rể' }}
             </span>
             <span class="flex gap-1.5">
               <span v-for="c in t.palette" :key="c" class="h-3 w-3 rounded-full border border-black/10" :style="{ background: c }" />

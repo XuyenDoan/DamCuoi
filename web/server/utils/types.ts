@@ -1,4 +1,5 @@
 // Kiểu dữ liệu khớp với schema mô tả trong spec.md mục 14.2-14.3
+import type { SiteImageKey } from '#shared/siteImages'
 
 /** Ảnh tối thiểu đủ dùng cho PhotoLightbox (album, mốc thời gian...) */
 export interface LightboxPhoto {
@@ -48,6 +49,15 @@ export interface Settings {
    * được phép có trong mảng này — luôn bắt buộc hiển thị.
    */
   hiddenPages: string[]
+  /**
+   * Ảnh chân dung cố định của trang chủ (khớp key trong shared/siteImages.ts
+   * — spec.md mục 38): ảnh đầu trang + ảnh cô dâu/chú rể ở khối giới thiệu
+   * trước "Câu Chuyện Của Chúng Tôi". Khác `pageBackgrounds` (ảnh NỀN mờ phía
+   * sau nội dung) — đây là ảnh hiển thị TRỰC TIẾP trong nội dung. Giá trị
+   * null -> không hiển thị khối/ảnh đó (không có placeholder trên trang công
+   * khai, chỉ admin thấy khung trống để tải lên).
+   */
+  siteImages: Record<SiteImageKey, string | null>
   /**
    * Phong cách giao diện đang áp dụng cho toàn bộ trang công khai (khớp id
    * trong shared/themes.ts — spec.md mục 36). Chỉ đổi LAYOUT/COMPONENT/STYLE

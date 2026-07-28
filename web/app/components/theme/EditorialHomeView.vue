@@ -18,9 +18,9 @@ const heroImage = computed(() => settings.value?.pageBackgrounds?.home ?? null)
 const monogram = computed(() => {
   const s = settings.value
   if (!s) return ''
-  const g = s.coupleNames.groom?.trim().charAt(0) ?? ''
   const b = s.coupleNames.bride?.trim().charAt(0) ?? ''
-  return `${g}${b}`.toUpperCase()
+  const g = s.coupleNames.groom?.trim().charAt(0) ?? ''
+  return `${b}${g}`.toUpperCase()
 })
 </script>
 
@@ -28,14 +28,16 @@ const monogram = computed(() => {
   <div>
     <section class="mx-auto grid max-w-6xl gap-10 px-6 pb-20 pt-14 sm:pt-20 lg:grid-cols-12 lg:gap-0 lg:pt-28">
       <div class="flex flex-col justify-center gap-6 lg:col-span-5 lg:pr-14">
+        <HeroCoupleImage />
+
         <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-accent text-base italic text-text-muted">
           {{ settings.heroTagline }}
         </p>
 
         <h1 v-reveal="100" class="font-heading text-5xl leading-[1.02] text-text sm:text-6xl">
-          {{ settings?.coupleNames.groom }}
-          <em class="not-italic text-secondary">&amp;</em><br />
           {{ settings?.coupleNames.bride }}
+          <em class="not-italic text-secondary">&amp;</em><br />
+          {{ settings?.coupleNames.groom }}
         </h1>
 
         <div v-reveal="180" class="h-px w-16 bg-text/25" />
@@ -70,26 +72,32 @@ const monogram = computed(() => {
       >Cuộn xuống ↓</a>
     </p>
 
+    <CoupleIntroSection />
+
+    <div id="cau-chuyen">
+      <EditorialLoveStory />
+    </div>
+
     <section v-if="hasAnyEventInfo" class="mx-auto max-w-3xl px-6 pb-24">
       <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-secondary">Trân trọng kính mời</p>
       <h2 v-reveal class="mb-10 font-heading text-3xl text-text">Giờ Lễ &amp; Địa Điểm</h2>
       <div class="grid gap-x-10 gap-y-8 border-t border-text/10 sm:grid-cols-2">
-        <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="80" class="border-b border-text/10 py-6 sm:border-b-0">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Nhà Trai</p>
-          <p class="text-hover mt-3 font-heading text-lg text-text">
-            {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
-          </p>
-          <p v-if="settings?.eventInfo.groom.venueName" class="text-hover mt-1 text-sm text-text-muted">
-            {{ settings.eventInfo.groom.venueName }}
-          </p>
-        </div>
-        <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="140" class="py-6">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Nhà Gái</p>
+        <div v-if="hasEventContent(settings?.eventInfo.bride)" v-reveal="80" class="border-b border-text/10 py-6 sm:border-b-0">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Lễ Vu Quy</p>
           <p class="text-hover mt-3 font-heading text-lg text-text">
             {{ settings?.eventInfo.bride.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.bride.ceremonyTime) : 'Đang cập nhật' }}
           </p>
           <p v-if="settings?.eventInfo.bride.venueName" class="text-hover mt-1 text-sm text-text-muted">
             {{ settings.eventInfo.bride.venueName }}
+          </p>
+        </div>
+        <div v-if="hasEventContent(settings?.eventInfo.groom)" v-reveal="140" class="py-6">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Lễ Thành Hôn</p>
+          <p class="text-hover mt-3 font-heading text-lg text-text">
+            {{ settings?.eventInfo.groom.ceremonyTime ? formatVietnameseDateTime(settings.eventInfo.groom.ceremonyTime) : 'Đang cập nhật' }}
+          </p>
+          <p v-if="settings?.eventInfo.groom.venueName" class="text-hover mt-1 text-sm text-text-muted">
+            {{ settings.eventInfo.groom.venueName }}
           </p>
         </div>
       </div>
@@ -101,9 +109,5 @@ const monogram = computed(() => {
         Xem đầy đủ thông tin lễ cưới →
       </NuxtLink>
     </section>
-
-    <div id="cau-chuyen">
-      <EditorialLoveStory />
-    </div>
   </div>
 </template>

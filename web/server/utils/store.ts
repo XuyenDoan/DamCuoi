@@ -1,6 +1,7 @@
 import { dataFilePath } from './paths'
 import { readJsonFile, updateJsonFile, writeJsonFile } from './jsonStore'
 import { DEFAULT_WEBSITE_THEME, isValidThemeId } from '#shared/themes'
+import { SITE_IMAGES } from '#shared/siteImages'
 import type {
   AdminAuth,
   AlbumsFile,
@@ -11,6 +12,7 @@ import type {
 } from './types'
 
 const EMPTY_EVENT_INFO: EventInfoBlock = { ceremonyTime: '', venueName: '', venueAddress: '', mapEmbedUrl: '' }
+const EMPTY_SITE_IMAGES = Object.fromEntries(SITE_IMAGES.map((s) => [s.key, null])) as Settings['siteImages']
 
 const DEFAULT_SETTINGS: Settings = {
   coupleNames: { groom: 'Chú Rể', bride: 'Cô Dâu' },
@@ -21,7 +23,8 @@ const DEFAULT_SETTINGS: Settings = {
   footerText: '',
   pageBackgrounds: {},
   hiddenPages: [],
-  websiteTheme: DEFAULT_WEBSITE_THEME
+  websiteTheme: DEFAULT_WEBSITE_THEME,
+  siteImages: EMPTY_SITE_IMAGES
 }
 
 function toEventInfoBlock(v: Partial<EventInfoBlock> | undefined): EventInfoBlock {
@@ -52,7 +55,14 @@ function migrateSettings(raw: unknown): Settings {
 
   const websiteTheme = isValidThemeId(r.websiteTheme) ? r.websiteTheme : DEFAULT_WEBSITE_THEME
 
-  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme }
+  // Gộp theo từng key (không spread nguyên khối) để dữ liệu cũ thiếu 1/vài
+  // key ảnh mới (VD: chưa từng có `siteImages`, hoặc có nhưng thiếu key mới
+  // thêm sau này) vẫn nhận null mặc định cho đúng key đó thay vì cả object
+  // bị ghi đè/mất do `...r` spread nguyên `siteImages` (nếu có) đè lên
+  // DEFAULT_SETTINGS.siteImages.
+  const siteImages = { ...DEFAULT_SETTINGS.siteImages, ...(r.siteImages ?? {}) }
+
+  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme, siteImages }
 }
 
 const DEFAULT_ALBUMS: AlbumsFile = { albums: [] }
