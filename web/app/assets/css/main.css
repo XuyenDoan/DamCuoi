@@ -688,6 +688,82 @@ body {
   pointer-events: none;
 }
 
+/*
+  Tên cô dâu chú rể hiện NGAY TRÊN ảnh hero (mục 38.9) — "tấm bảng" (plate)
+  gần như đục (94%) theo ĐÚNG cặp `--color-bg`/`--color-text` của theme hiện
+  tại, không dùng chữ trắng cứng: kế thừa nguyên tương phản AAA đã tự kiểm ở
+  mục 36.4/37.4 cho mọi theme, bất kể ảnh admin tải lên sáng/tối/màu gì (đã
+  tính toán worst-case ở comment trong `HeroCoupleImage.vue`).
+*/
+.hero-portrait-names {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  pointer-events: none;
+}
+.hero-portrait-names-plate {
+  max-width: 90%;
+  background-color: color-mix(in srgb, var(--color-bg) 94%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: 20px;
+  padding: 0.9rem 2rem;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+  text-align: center;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+@media (min-width: 640px) {
+  .hero-portrait-names-plate {
+    font-size: 1.875rem;
+    padding: 1.1rem 2.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-portrait-names-plate {
+    font-size: 2.5rem;
+  }
+}
+[data-theme="editorial"] .hero-portrait-names-plate {
+  border-radius: 2px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-color: var(--color-bg);
+  box-shadow: none;
+  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+}
+[data-theme="cinematic"] .hero-portrait-names-plate {
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+[data-theme="glass"] .hero-portrait-names-plate {
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+}
+[data-theme="bento"] .hero-portrait-names-plate {
+  border-radius: 24px;
+  background-color: var(--color-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 20%, transparent);
+}
+[data-theme="kinetic"] .hero-portrait-names-plate {
+  border-radius: 0;
+  background-color: var(--color-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 3px solid var(--color-text);
+  box-shadow: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* Ảnh chân dung cô dâu/chú rể (`CoupleIntroSection.vue`) — vẫn là thẻ nhỏ
    trong nội dung (không full-bleed), giữ khung/viền/bo góc riêng theo theme
    như thiết kế ban đầu (mục 38.3). */
@@ -705,6 +781,88 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/*
+  Bố cục "duo portrait" xen phủ (mục 38.9) — 2 ảnh chân dung lệch nhau, xoay
+  nhẹ ngược chiều, ảnh cô dâu đè lên mép ảnh chú rể một chút bằng
+  `margin-right` âm (không dùng `position: absolute` để tránh phải tự tính
+  chiều cao container — margin âm tự nhiên vẫn giữ đúng luồng layout).
+  `width: min(40vw, 16rem)` giữ đủ nhỏ để 2 ảnh xen phủ không tràn ngang ở
+  màn hình hẹp nhất (320px, đã tính toán/đo lại bằng Playwright). Khi chỉ 1
+  người có ảnh, dùng `.couple-duo-photo-solo` — cỡ lớn hơn, không xoay/không
+  xen phủ (không có ảnh còn lại để "xen" cùng).
+
+  LƯU Ý (2 lỗi thật gặp khi verify bằng ảnh chụp — mục 38.9):
+  (1) `margin-right: -14%` — với flex item, % margin luôn tính theo chiều
+  RỘNG CỦA CONTAINER cha, KHÔNG PHẢI theo chiều rộng của chính phần tử (đặc
+  tả CSS, khác trực giác thường nghĩ) — đo thực tế ra âm tới ~119px (gần
+  50% bề rộng thẻ) dù chỉ định "một xíu". Khắc phục: đổi hẳn sang đơn vị cố
+  định (`rem`) để xen phủ luôn nhỏ, dễ đoán, không phụ thuộc bề rộng
+  container.
+  (2) `transform: rotate()` KHÔNG hiện ra ảnh chụp dù đã set đúng — vì
+  directive `v-reveal` (dùng trên chính 2 thẻ này) cũng gán `transform`
+  (`.reveal-init`/`.reveal-visible`, định nghĩa DƯỚI vị trí này trong file)
+  cho hiệu ứng "trượt lên khi cuộn tới" — 2 rule cùng đặc hiệu (1 class),
+  rule đứng SAU trong file thắng toàn bộ giá trị `transform` (không cộng
+  dồn), xoá mất phần `rotate()`. Khắc phục: viết riêng `transform` cho tổ
+  hợp `.couple-duo-photo-bride.reveal-init`/`.reveal-visible` (2 class →
+  đặc hiệu cao hơn hẳn `.reveal-init`/`.reveal-visible` đứng riêng, luôn
+  thắng bất kể thứ tự trong file) — gộp đúng cả state "ẩn trước khi cuộn
+  tới" lẫn "hiện sau khi cuộn tới" đều giữ nguyên góc xoay, chỉ phần
+  `translateY`/`scale` đổi theo hiệu ứng reveal.
+*/
+.couple-duo-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.couple-duo-photo {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0;
+}
+.couple-duo-photo-solo {
+  width: 100%;
+  max-width: 26rem;
+}
+.couple-duo-photo-bride,
+.couple-duo-photo-groom {
+  width: min(40vw, 16rem);
+  max-width: 16rem;
+}
+.couple-duo-photo-bride {
+  z-index: 2;
+  margin-right: -2rem;
+}
+.couple-duo-photo-groom {
+  z-index: 1;
+}
+.couple-duo-photo-bride.reveal-init {
+  transform: translateY(16px) scale(0.98) rotate(-3deg);
+}
+.couple-duo-photo-bride.reveal-visible {
+  transform: translateY(0) scale(1) rotate(-3deg);
+}
+.couple-duo-photo-groom.reveal-init {
+  transform: translateY(calc(16px + 8%)) scale(0.98) rotate(3deg);
+}
+.couple-duo-photo-groom.reveal-visible {
+  transform: translateY(8%) scale(1) rotate(3deg);
+}
+
+.couple-duo-names {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2.5rem 3.5rem;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .couple-duo-names {
+    margin-top: 3rem;
+  }
 }
 
 [data-theme="editorial"] .couple-intro-portrait-wrap {
@@ -750,11 +908,11 @@ body {
   background: color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 
-/* Khối "Cô Dâu"/"Chú Rể" trước Câu Chuyện Của Chúng Tôi — Editorial/Kinetic
+/* Nhãn "Cô Dâu"/"Chú Rể" trước Câu Chuyện Của Chúng Tôi — Editorial/Kinetic
    bỏ chữ nghiêng font-accent (không hợp phong cách sắc/thẳng), dùng chữ hoa
    rời chữ thay thế. */
-[data-theme="editorial"] .couple-intro-block p:first-child,
-[data-theme="kinetic"] .couple-intro-block p:first-child {
+[data-theme="editorial"] .couple-intro-name-block p:first-child,
+[data-theme="kinetic"] .couple-intro-name-block p:first-child {
   font-family: var(--font-body);
   font-style: normal;
   font-weight: 700;
