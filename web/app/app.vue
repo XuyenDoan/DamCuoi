@@ -42,7 +42,13 @@ useHead({
  */
 const layoutName = computed(() => {
   if (route.path.startsWith('/admin')) return undefined
-  return activeTheme.value ?? 'default'
+  const t = activeTheme.value ?? 'default'
+  // 'watercolor' (spec.md mục 39) tái dùng NGUYÊN layout 'default' — chỉ
+  // khác màu/nền qua CSS token (`[data-theme="watercolor"]`) + `PageBackdrop`,
+  // không có bố cục khung riêng nên không tạo `layouts/watercolor.vue`
+  // trùng lặp. `data-theme` (biến riêng, không đổi) vẫn giữ đúng giá trị
+  // 'watercolor' nên mọi CSS override vẫn áp dụng đúng.
+  return t === 'watercolor' ? 'default' : t
 })
 </script>
 

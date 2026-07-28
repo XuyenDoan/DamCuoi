@@ -155,7 +155,7 @@ function imageClass(): string {
 
     <section class="px-4 pb-24 sm:px-6">
       <div v-if="filteredPhotos.length === 0" class="mx-auto max-w-md py-20 text-center">
-        <LotusMotif v-if="theme === 'default'" class="mx-auto h-16 w-16 text-secondary-light" />
+        <LotusMotif v-if="theme === 'default' || theme === 'watercolor'" class="mx-auto h-16 w-16 text-secondary-light" />
         <p class="mt-6 text-text-muted">
           Album đang được cập nhật, quay lại sau nhé! Ảnh cưới sẽ sớm xuất hiện ở đây.
         </p>

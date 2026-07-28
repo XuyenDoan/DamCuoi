@@ -74,6 +74,15 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
       'Chữ cỡ lớn đậm dần, đổi màu, trượt vào đúng lúc cuộn tới — kể câu chuyện tình yêu như một bài thơ chuyển động.',
     palette: ['#211C1A', '#FAF8F4', '#8A2626', '#4A3F3A'],
     fonts: { heading: 'Bricolage Grotesque', body: 'Archivo' }
+  },
+  {
+    id: 'watercolor',
+    label: 'Sen Màu Nước',
+    subLabel: 'Watercolor Lotus Pond',
+    description:
+      'Nền tranh màu nước ao sen mềm mại — lam nhạt, tím lavender, vàng bơ, xanh lá dịu hoà quyện, tôn sắc hồng phấn của hoa sen.',
+    palette: ['#803651', '#3C5638', '#F7F4F2', '#624C1E'],
+    fonts: { heading: 'Cormorant Garamond', body: 'Be Vietnam Pro' }
   }
 ]
 

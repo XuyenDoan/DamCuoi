@@ -7,9 +7,15 @@ import { pageKeyFromPath } from '#shared/pages'
  * - Nếu không -> hiện khung cảnh ao sen (LotusScene): ban đầu vài bông (có bông
  *   còn là búp), cuộn xuống thì thêm bông xuất hiện và nở dần.
  * Chỉ dùng trong layout default (trang công khai) — KHÔNG dùng cho layout admin.
+ *
+ * spec.md mục 39: theme "Sen Màu Nước" (`watercolor`) TÁI DÙNG layout này
+ * nguyên vẹn (xem `app.vue`) nhưng thay `LotusScene` bằng `WatercolorWash`
+ * (mảng màu nước pastel thay vì hoạ tiết line-art) — vẫn ưu tiên ảnh nền
+ * riêng của trang (nếu admin đã tải) như mọi theme khác.
  */
 const route = useRoute()
 const { data: settings } = useSiteSettings()
+const theme = useWebsiteTheme()
 
 const pageKey = computed(() => pageKeyFromPath(route.path))
 const backgroundImage = computed(() => settings.value?.pageBackgrounds?.[pageKey.value] ?? null)
@@ -60,6 +66,9 @@ watch(pageKey, () => {
       alt=""
       class="h-full w-full object-cover opacity-[0.14]"
     />
+    <div v-else-if="theme === 'watercolor'" class="h-full w-full">
+      <WatercolorWash />
+    </div>
     <div v-else class="h-full w-full opacity-45">
       <LotusScene :progress="bloomProgress" />
     </div>

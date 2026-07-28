@@ -73,6 +73,16 @@
 @import "@fontsource/archivo/600.css";
 
 /*
+  Font riêng cho theme mới "Sen Màu Nước" (spec.md mục 39) — tái dùng gần
+  hết tài nguyên đã tải (Be Vietnam Pro cho phần thân, Cormorant Garamond
+  ĐÃ có bản in nghiêng 500-italic từ theme mặc định) — chỉ thêm ĐÚNG 1 file
+  còn thiếu: bản đứng (roman) 500 để dùng làm heading (theme mặc định trước
+  giờ chỉ dùng Cormorant Garamond ở dạng in nghiêng cho `font-accent`, chưa
+  từng dùng bản đứng làm heading).
+*/
+@import "@fontsource/cormorant-garamond/500.css";
+
+/*
   Design tokens theo D:\Dev\DamCuoi\spec.md mục 4 (Bảng màu) & mục 6 (Typography).
   Không thêm màu ngoài palette này (checklist 17.1).
 */
@@ -224,6 +234,50 @@
   --color-gold: #a3792e;
   --color-success: #2f7a4f;
   --color-error: #b23a3a;
+}
+
+/*
+  Theme thứ 7 — "Sen Màu Nước" (spec.md mục 39): tái dùng NGUYÊN cấu trúc/bố
+  cục theme mặc định (layouts/default.vue, DefaultHomeView.vue, LoveStorySection,
+  toàn bộ .wish-card/.app-modal-panel/.event-info-card... không có override
+  riêng theme này ở dưới) — chỉ đổi màu + nền trang trí (`WatercolorWash.vue`,
+  thay `LotusScene` line-art trong `PageBackdrop.vue`). Đúng tinh thần yêu
+  cầu "thêm 1 phong cách HÌNH NỀN" (không phải bố cục mới) — khai thác tối
+  đa kiến trúc token-driven mục 36.3 để không phải nhân bản component nào.
+
+  Bảng màu lấy cảm hứng từ 3 tranh màu nước ao sen chủ dự án gửi (lam nhạt,
+  tím lavender, vàng bơ, xanh lá dịu, hồng phấn cánh sen) — ĐO TƯƠNG PHẢN
+  THẬT bằng công thức WCAG (Python, không đoán, xem chi tiết ở
+  `WatercolorWash.vue`): mọi cặp chữ/nền đều đạt AAA (≥7:1) NGAY CẢ khi chữ
+  vô tình rơi đúng vùng đậm nhất của 1 mảng màu nước phía sau (kịch bản xấu
+  nhất đã tính riêng cho `--color-text-muted`/`--color-primary`/
+  `--color-secondary`/`--color-gold` — 4 màu duy nhất có nguy cơ do ban đầu
+  chỉ vừa đủ AAA trên nền phẳng, chưa tính thêm lớp màu nước phía sau).
+*/
+[data-theme="watercolor"] {
+  --font-heading: "Cormorant Garamond", Georgia, serif;
+  --font-accent: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+
+  --color-primary: #803651;
+  --color-primary-light: #d8a0b5;
+  --color-secondary: #3c5638;
+  --color-secondary-light: #a8c49a;
+  --color-bg: #f7f4f2;
+  --color-surface: #ffffff;
+  --color-text: #362e42;
+  --color-text-muted: #4d4651;
+  --color-gold: #624c1e;
+  --color-success: #2f7a4f;
+  --color-error: #b23a3a;
+  /* Màu mảng "màu nước" thuần trang trí cho `WatercolorWash.vue` — KHÔNG
+     dùng cho chữ (không cần tự đạt AAA riêng lẻ, đã tính ở độ đục thấp kết
+     hợp với các màu chữ AAA phía trên mới là điều kiện thật). */
+  --wash-blue: #b9d3e4;
+  --wash-lavender: #cbb8de;
+  --wash-yellow: #f0e2b0;
+  --wash-sage: #b7d1a0;
+  --wash-pink: #e8afc4;
 }
 
 html {

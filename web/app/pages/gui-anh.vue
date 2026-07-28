@@ -155,7 +155,7 @@ async function submitUpload() {
           @dragleave.prevent="isDragOver = false"
           @drop.prevent="onDrop"
         >
-          <LotusMotif v-if="theme === 'default'" class="h-10 w-10 text-secondary-light" />
+          <LotusMotif v-if="theme === 'default' || theme === 'watercolor'" class="h-10 w-10 text-secondary-light" />
           <svg
             v-else
             viewBox="0 0 24 24"

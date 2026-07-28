@@ -20,7 +20,7 @@ const theme = useWebsiteTheme()
 </script>
 
 <template>
-  <DefaultHomeView v-if="theme === 'default'" />
+  <DefaultHomeView v-if="theme === 'default' || theme === 'watercolor'" />
   <EditorialHomeView v-else-if="theme === 'editorial'" />
   <CinematicHomeView v-else-if="theme === 'cinematic'" />
   <GlassHomeView v-else-if="theme === 'glass'" />
