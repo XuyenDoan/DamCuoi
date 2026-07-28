@@ -85,10 +85,10 @@ const rings: Ring[] = [
 ]
 
 const toneColors: Record<Ring['tone'], { base: string; tip: string }> = {
-  cream: { base: '#FFFEFB', tip: '#FDF2F8' },
-  blush: { base: '#FFF6FA', tip: '#F9A8D4' },
-  pink: { base: '#FDEFF6', tip: '#F472B6' },
-  deep: { base: '#FCE7F0', tip: '#DB2777' }
+  cream: { base: 'var(--lotus-top-cream-base, #FFFEFB)', tip: 'var(--lotus-top-cream-tip, #FDF2F8)' },
+  blush: { base: 'var(--lotus-top-blush-base, #FFF6FA)', tip: 'var(--lotus-top-blush-tip, #F9A8D4)' },
+  pink: { base: 'var(--lotus-top-pink-base, #FDEFF6)', tip: 'var(--lotus-top-pink-tip, #F472B6)' },
+  deep: { base: 'var(--lotus-top-deep-base, #FCE7F0)', tip: 'var(--lotus-top-deep-tip, #DB2777)' }
 }
 
 /**
@@ -265,9 +265,9 @@ const seedHoles: SeedHole[] = [
       />
 
       <radialGradient :id="`lt-pod-${uid}`" cx="0.4" cy="0.35" r="0.75">
-        <stop offset="0" stop-color="#E4D98A" stop-opacity="0.98" />
-        <stop offset="0.6" stop-color="#C7C468" stop-opacity="0.97" />
-        <stop offset="1" stop-color="#93A25A" stop-opacity="0.98" />
+        <stop offset="0" stop-color="var(--lotus-pod-1, #E4D98A)" stop-opacity="0.98" />
+        <stop offset="0.6" stop-color="var(--lotus-pod-2, #C7C468)" stop-opacity="0.97" />
+        <stop offset="1" stop-color="var(--lotus-pod-3, #93A25A)" stop-opacity="0.98" />
       </radialGradient>
     </defs>
 
@@ -276,11 +276,11 @@ const seedHoles: SeedHole[] = [
         :href="`#lt-petal${p.ringIndex}-${uid}`"
         :fill="`url(#lt-ring${p.ringIndex}-${uid})`"
         :fill-opacity="p.opacity"
-        stroke="#BE185D"
+        stroke="var(--lotus-top-stroke, #BE185D)"
         stroke-opacity="0.32"
         stroke-width="0.9"
       />
-      <use :href="`#lt-vein${p.ringIndex}-${uid}`" fill="none" stroke="#BE185D" stroke-opacity="0.22" stroke-width="0.5" />
+      <use :href="`#lt-vein${p.ringIndex}-${uid}`" fill="none" stroke="var(--lotus-top-stroke, #BE185D)" stroke-opacity="0.22" stroke-width="0.5" />
     </g>
 
     <!-- Gương sen ở tâm: đĩa vàng-xanh có lỗ hạt — thay hẳn hướng "nhị hoa
@@ -292,14 +292,14 @@ const seedHoles: SeedHole[] = [
          mất tác dụng và gương sen lệch về góc viewBox thay vì tâm hoa. -->
     <g transform="translate(100 100)">
       <g class="lotus-pod-top" :style="{ transform: `scale(${podScale})`, transformOrigin: '0 0' }">
-        <circle r="13" :fill="`url(#lt-pod-${uid})`" stroke="#78823F" stroke-opacity="0.55" stroke-width="0.6" />
+        <circle r="13" :fill="`url(#lt-pod-${uid})`" stroke="var(--lotus-pod-stroke, #78823F)" stroke-opacity="0.55" stroke-width="0.6" />
         <circle
           v-for="(hole, hi) in seedHoles"
           :key="hi"
           :cx="0"
           :cy="0"
           :r="hole.size"
-          fill="#5B6B3A"
+          fill="var(--lotus-pod-dot, #5B6B3A)"
           fill-opacity="0.85"
           :transform="`rotate(${hole.angle.toFixed(2)}) translate(0 ${-hole.radius})`"
         />
@@ -313,7 +313,7 @@ const seedHoles: SeedHole[] = [
       :dx="16"
       :dy="20"
       :rotate-end="90"
-      color="#DB2777"
+      color="var(--lotus-top-deep-tip, #DB2777)"
       @done="showDroppedPetal = false"
     />
   </svg>

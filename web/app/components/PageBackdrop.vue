@@ -8,10 +8,14 @@ import { pageKeyFromPath } from '#shared/pages'
  *   còn là búp), cuộn xuống thì thêm bông xuất hiện và nở dần.
  * Chỉ dùng trong layout default (trang công khai) — KHÔNG dùng cho layout admin.
  *
- * spec.md mục 39: theme "Sen Màu Nước" (`watercolor`) TÁI DÙNG layout này
- * nguyên vẹn (xem `app.vue`) nhưng thay `LotusScene` bằng `WatercolorWash`
- * (mảng màu nước pastel thay vì hoạ tiết line-art) — vẫn ưu tiên ảnh nền
- * riêng của trang (nếu admin đã tải) như mọi theme khác.
+ * spec.md mục 39/39.1: theme "Sen Màu Nước" (`watercolor`) TÁI DÙNG layout
+ * này nguyên vẹn (xem `app.vue`), thêm `WatercolorWash` (mảng màu nước pastel
+ * mờ, trôi chậm) làm lớp NỀN, rồi vẫn xếp `LotusScene` (hoa sen thật — cùng
+ * component dùng cho 6 theme kia) LÊN TRÊN, chỉ đổi màu hoa qua biến CSS
+ * `--lotus-*` (xem main.css) sang tông hồng dâu trầm khớp theme thay vì hồng
+ * "kẹo" mặc định — bản đầu (mục 39) chỉ có mảng màu trừu tượng, thiếu hẳn
+ * hoạ tiết hoa sen thật nên bị phản hồi "hình nền hoa sen đâu". Vẫn ưu tiên
+ * ảnh nền riêng của trang (nếu admin đã tải) như mọi theme khác.
  */
 const route = useRoute()
 const { data: settings } = useSiteSettings()
@@ -66,8 +70,11 @@ watch(pageKey, () => {
       alt=""
       class="h-full w-full object-cover opacity-[0.14]"
     />
-    <div v-else-if="theme === 'watercolor'" class="h-full w-full">
+    <div v-else-if="theme === 'watercolor'" class="relative h-full w-full">
       <WatercolorWash />
+      <div class="absolute inset-0 opacity-50">
+        <LotusScene :progress="bloomProgress" />
+      </div>
     </div>
     <div v-else class="h-full w-full opacity-45">
       <LotusScene :progress="bloomProgress" />

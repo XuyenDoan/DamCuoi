@@ -278,6 +278,33 @@
   --wash-yellow: #f0e2b0;
   --wash-sage: #b7d1a0;
   --wash-pink: #e8afc4;
+
+  /* Ghi đè màu hoa sen (LotusFlower.vue/LotusFlowerTop.vue, xem spec.md mục
+     39.1) — 2 component này vốn tô cứng màu hồng "kẹo" (#DB2777/#EC4899...)
+     của theme mặc định. Đã đổi các chỗ tô màu đó sang `var(--lotus-*, fallback)`
+     nên 6 theme kia không đổi gì (dùng đúng giá trị fallback = màu cũ), còn
+     theme này ghi đè bằng tông hồng dâu trầm hơn (khớp `--color-primary`) +
+     nhuỵ vàng-xanh ngả sage — để hoa sen thật sự XUẤT HIỆN trên nền, không chỉ
+     có mảng màu nước trừu tượng phía sau (`WatercolorWash.vue`, mục 39). Chỉ
+     là màu trang trí thuần tuý, không cần tự đạt AAA riêng. */
+  --lotus-petal-1: #803651;
+  --lotus-petal-2: #b5658a;
+  --lotus-petal-3: #dfa0b9;
+  --lotus-petal-4: #f3dee6;
+  --lotus-top-cream-base: #fdfbf8;
+  --lotus-top-cream-tip: #f1e4e9;
+  --lotus-top-blush-base: #faf1ef;
+  --lotus-top-blush-tip: #e3afc4;
+  --lotus-top-pink-base: #f1dce4;
+  --lotus-top-pink-tip: #c97fa0;
+  --lotus-top-deep-base: #e7c6d2;
+  --lotus-top-deep-tip: #803651;
+  --lotus-top-stroke: #803651;
+  --lotus-pod-1: #ead9a0;
+  --lotus-pod-2: #c9b36a;
+  --lotus-pod-3: #7c8f5e;
+  --lotus-pod-stroke: #5f6b45;
+  --lotus-pod-dot: #4d5a3a;
 }
 
 html {

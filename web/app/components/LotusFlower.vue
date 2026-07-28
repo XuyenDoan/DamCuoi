@@ -134,17 +134,17 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
   >
     <defs>
       <linearGradient :id="`lf-back-${uid}`" gradientUnits="userSpaceOnUse" x1="100" y1="80" x2="100" y2="150">
-        <stop offset="0" stop-color="#DB2777" stop-opacity="0.72" />
-        <stop offset="0.55" stop-color="#EC4899" stop-opacity="0.5" />
-        <stop offset="1" stop-color="#F9A8D4" stop-opacity="0.26" />
+        <stop offset="0" stop-color="var(--lotus-petal-1, #DB2777)" stop-opacity="0.72" />
+        <stop offset="0.55" stop-color="var(--lotus-petal-2, #EC4899)" stop-opacity="0.5" />
+        <stop offset="1" stop-color="var(--lotus-petal-3, #F9A8D4)" stop-opacity="0.26" />
       </linearGradient>
       <linearGradient :id="`lf-mid-${uid}`" gradientUnits="userSpaceOnUse" x1="100" y1="80" x2="100" y2="150">
-        <stop offset="0" stop-color="#EC4899" stop-opacity="0.66" />
-        <stop offset="1" stop-color="#F9A8D4" stop-opacity="0.24" />
+        <stop offset="0" stop-color="var(--lotus-petal-2, #EC4899)" stop-opacity="0.66" />
+        <stop offset="1" stop-color="var(--lotus-petal-3, #F9A8D4)" stop-opacity="0.24" />
       </linearGradient>
       <linearGradient :id="`lf-front-${uid}`" gradientUnits="userSpaceOnUse" x1="100" y1="82" x2="100" y2="150">
-        <stop offset="0" stop-color="#F9A8D4" stop-opacity="0.92" />
-        <stop offset="1" stop-color="#FBCFE8" stop-opacity="0.22" />
+        <stop offset="0" stop-color="var(--lotus-petal-3, #F9A8D4)" stop-opacity="0.92" />
+        <stop offset="1" stop-color="var(--lotus-petal-4, #FBCFE8)" stop-opacity="0.22" />
       </linearGradient>
       <!-- Cánh: gốc nhọn ở tâm (100,150), phình giữa, chóp hơi nhọn -->
       <path :id="`lf-petal-${uid}`" d="M100,150 C85,130 82,100 100,82 C118,100 115,130 100,150 Z" />
@@ -153,21 +153,21 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
     </defs>
 
     <!-- Đài hoa xanh ở chân -->
-    <path d="M100,150 C93,145 89,134 95,126 C98,135 99,143 100,150 Z" fill="#4D7C5F" opacity="0.42" transform="rotate(-40 100 150)" />
-    <path d="M100,150 C107,145 111,134 105,126 C102,135 101,143 100,150 Z" fill="#4D7C5F" opacity="0.42" transform="rotate(40 100 150)" />
+    <path d="M100,150 C93,145 89,134 95,126 C98,135 99,143 100,150 Z" fill="var(--color-secondary)" opacity="0.42" transform="rotate(-40 100 150)" />
+    <path d="M100,150 C107,145 111,134 105,126 C102,135 101,143 100,150 Z" fill="var(--color-secondary)" opacity="0.42" transform="rotate(40 100 150)" />
 
     <g v-for="(p, i) in petals" :key="i" class="lotus-petal" :style="petalStyle(p)">
       <use
         :href="`#lf-petal-${uid}`"
         :fill="`url(#lf-${layerFill[p.layer]}-${uid})`"
-        stroke="#DB2777"
+        stroke="var(--lotus-petal-1, #DB2777)"
         stroke-opacity="0.2"
         stroke-width="0.7"
       />
-      <use :href="`#lf-vein-${uid}`" fill="none" stroke="#DB2777" stroke-opacity="0.16" stroke-width="0.6" />
+      <use :href="`#lf-vein-${uid}`" fill="none" stroke="var(--lotus-petal-1, #DB2777)" stroke-opacity="0.16" stroke-width="0.6" />
     </g>
 
-    <ellipse cx="100" cy="134" rx="8" ry="5" fill="#C9A227" class="lotus-pod" :style="{ opacity: podOpacity }" />
+    <ellipse cx="100" cy="134" rx="8" ry="5" fill="var(--color-gold)" class="lotus-pod" :style="{ opacity: podOpacity }" />
 
     <LotusPetalDrop
       v-if="showDroppedPetal"
@@ -176,7 +176,7 @@ const podOpacity = computed(() => 0.75 * clamp01((clamp01(props.bloomProgress) -
       :dx="-8"
       :dy="40"
       :rotate-end="150"
-      color="#EC4899"
+      color="var(--lotus-petal-2, #EC4899)"
       @done="showDroppedPetal = false"
     />
   </svg>
