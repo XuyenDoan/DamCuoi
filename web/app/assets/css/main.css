@@ -689,11 +689,17 @@ body {
 }
 
 /*
-  Tên cô dâu chú rể hiện NGAY TRÊN ảnh hero (mục 38.9) — "tấm bảng" (plate)
-  gần như đục (94%) theo ĐÚNG cặp `--color-bg`/`--color-text` của theme hiện
-  tại, không dùng chữ trắng cứng: kế thừa nguyên tương phản AAA đã tự kiểm ở
-  mục 36.4/37.4 cho mọi theme, bất kể ảnh admin tải lên sáng/tối/màu gì (đã
-  tính toán worst-case ở comment trong `HeroCoupleImage.vue`).
+  Tên cô dâu chú rể hiện NGAY TRÊN ảnh hero (mục 38.10 — sửa lại từ "tấm
+  bảng" nền mờ ở mục 38.9 theo phản hồi "chỉ cần chữ, không cần nền đè lên
+  ảnh"). Chữ trắng thuần (không theo `--color-text` từng theme — trên ẢNH
+  THẬT bất kỳ, trắng+đổ bóng là lựa chọn AN TOÀN VÀ PHỔ BIẾN NHẤT trên các
+  trang AAA/tạp chí/điện ảnh, không phụ thuộc theme sáng/tối). 2 lớp
+  `text-shadow` chồng nhau: lớp SÁT (khoảng cách nhỏ, mờ ít) khắc nét viền
+  chữ chống lẫn vào ảnh sáng; lớp TOẢ RỘNG (mờ nhiều, độ đục thấp) tạo cảm
+  giác chữ "nổi khối" phía trên ảnh — không có khối nền/khối mờ nào phía
+  sau. Dấu `&` vẫn tô `--color-primary` (khớp mọi tiêu đề H1 khác trong
+  site) nhưng KẾ THỪA nguyên `text-shadow` từ thẻ cha (thuộc tính có tính kế
+  thừa trong CSS) nên vẫn đủ nổi bật.
 */
 .hero-portrait-names {
   position: absolute;
@@ -701,67 +707,40 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
+  padding: 1.5rem;
   pointer-events: none;
 }
-.hero-portrait-names-plate {
-  max-width: 90%;
-  background-color: color-mix(in srgb, var(--color-bg) 94%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-radius: 20px;
-  padding: 0.9rem 2rem;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+.hero-portrait-names-text {
+  margin: 0;
+  max-width: 92%;
   text-align: center;
-  color: var(--color-text);
-  font-size: 1.25rem;
-  line-height: 1.3;
+  color: #fff;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  font-size: 1.75rem;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    0 18px 44px rgba(0, 0, 0, 0.35);
 }
 @media (min-width: 640px) {
-  .hero-portrait-names-plate {
-    font-size: 1.875rem;
-    padding: 1.1rem 2.75rem;
+  .hero-portrait-names-text {
+    font-size: 2.75rem;
   }
 }
 @media (min-width: 1024px) {
-  .hero-portrait-names-plate {
-    font-size: 2.5rem;
+  .hero-portrait-names-text {
+    font-size: 3.5rem;
   }
 }
-[data-theme="editorial"] .hero-portrait-names-plate {
-  border-radius: 2px;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background-color: var(--color-bg);
-  box-shadow: none;
-  border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+[data-theme="bento"] .hero-portrait-names-text {
+  font-weight: 800;
 }
-[data-theme="cinematic"] .hero-portrait-names-plate {
-  border-radius: 4px;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
-[data-theme="glass"] .hero-portrait-names-plate {
-  border-radius: 999px;
-  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-}
-[data-theme="bento"] .hero-portrait-names-plate {
-  border-radius: 24px;
-  background-color: var(--color-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 20%, transparent);
-}
-[data-theme="kinetic"] .hero-portrait-names-plate {
-  border-radius: 0;
-  background-color: var(--color-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 3px solid var(--color-text);
-  box-shadow: none;
+[data-theme="kinetic"] .hero-portrait-names-text {
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 /* Ảnh chân dung cô dâu/chú rể (`CoupleIntroSection.vue`) — vẫn là thẻ nhỏ
@@ -784,37 +763,37 @@ body {
 }
 
 /*
-  Bố cục "duo portrait" xen phủ (mục 38.9) — 2 ảnh chân dung lệch nhau, xoay
-  nhẹ ngược chiều, ảnh cô dâu đè lên mép ảnh chú rể một chút bằng
-  `margin-right` âm (không dùng `position: absolute` để tránh phải tự tính
-  chiều cao container — margin âm tự nhiên vẫn giữ đúng luồng layout).
-  `width: min(40vw, 16rem)` giữ đủ nhỏ để 2 ảnh xen phủ không tràn ngang ở
-  màn hình hẹp nhất (320px, đã tính toán/đo lại bằng Playwright). Khi chỉ 1
-  người có ảnh, dùng `.couple-duo-photo-solo` — cỡ lớn hơn, không xoay/không
-  xen phủ (không có ảnh còn lại để "xen" cùng).
+  Bố cục "duo portrait" xen phủ theo đường chéo (mục 38.10 — sửa lại từ bản
+  xoay+lệch nhẹ ở mục 38.9 theo phản hồi "giao nhau kì quá"; yêu cầu cụ thể:
+  MÉP PHẢI-DƯỚI của ảnh cô dâu giao với MÉP TRÁI-TRÊN của ảnh chú rể). Bỏ
+  hẳn `rotate()` — 1 giao điểm góc rõ ràng, thẳng cạnh, đọc dứt khoát hơn là
+  xoay nghiêng. Ảnh cô dâu ở TRÊN-TRÁI (đúng ưu tiên "cô dâu trước"), ảnh chú
+  rể ở DƯỚI-PHẢI, đè lên nhau đúng 1 vùng góc chéo ở giữa.
 
-  LƯU Ý (2 lỗi thật gặp khi verify bằng ảnh chụp — mục 38.9):
-  (1) `margin-right: -14%` — với flex item, % margin luôn tính theo chiều
-  RỘNG CỦA CONTAINER cha, KHÔNG PHẢI theo chiều rộng của chính phần tử (đặc
-  tả CSS, khác trực giác thường nghĩ) — đo thực tế ra âm tới ~119px (gần
-  50% bề rộng thẻ) dù chỉ định "một xíu". Khắc phục: đổi hẳn sang đơn vị cố
-  định (`rem`) để xen phủ luôn nhỏ, dễ đoán, không phụ thuộc bề rộng
-  container.
-  (2) `transform: rotate()` KHÔNG hiện ra ảnh chụp dù đã set đúng — vì
-  directive `v-reveal` (dùng trên chính 2 thẻ này) cũng gán `transform`
-  (`.reveal-init`/`.reveal-visible`, định nghĩa DƯỚI vị trí này trong file)
-  cho hiệu ứng "trượt lên khi cuộn tới" — 2 rule cùng đặc hiệu (1 class),
-  rule đứng SAU trong file thắng toàn bộ giá trị `transform` (không cộng
-  dồn), xoá mất phần `rotate()`. Khắc phục: viết riêng `transform` cho tổ
-  hợp `.couple-duo-photo-bride.reveal-init`/`.reveal-visible` (2 class →
-  đặc hiệu cao hơn hẳn `.reveal-init`/`.reveal-visible` đứng riêng, luôn
-  thắng bất kể thứ tự trong file) — gộp đúng cả state "ẩn trước khi cuộn
-  tới" lẫn "hiện sau khi cuộn tới" đều giữ nguyên góc xoay, chỉ phần
-  `translateY`/`scale` đổi theo hiệu ứng reveal.
+  Cách tính (không dùng `position:absolute` để khỏi tự tính chiều cao
+  container — mọi lệch pha đều qua margin ảnh hưởng LUỒNG LAYOUT thật):
+  - Ảnh chú rể `margin-top: min(40vw, 16rem)` — CHÍNH XÁC bằng biểu thức bề
+    RỘNG của thẻ (khớp `width` của cả 2 ảnh). Do tỉ lệ khung `3/4` cố định
+    (rộng:cao = 3:4 → cao = 4/3 × rộng), đặt `margin-top = 1 × rộng` cho ra
+    đúng phần chồng theo chiều dọc = 25% chiều cao thẻ — tỉ lệ này ĐÚNG ở
+    MỌI kích thước màn hình vì cùng dùng chung 1 biểu thức `min(40vw, 16rem)`
+    với `width`, không lệ thuộc số cố định.
+  - Ảnh cô dâu `margin-right: calc(min(40vw, 16rem) * -0.18)` — chồng theo
+    chiều ngang ~18% bề rộng thẻ, cũng theo cùng biểu thức nên luôn đúng tỉ
+    lệ ở mọi màn hình (khác lỗi thật gặp ở mục 38.9: `margin` PHẦN TRĂM trên
+    flex item tính theo bề rộng CONTAINER CHA chứ không phải chính phần tử
+    — ở đây dùng `calc()` nhân trực tiếp lên đúng biểu thức `width` của
+    chính nó nên tránh hẳn được lỗi đó).
+  - `align-items: flex-start` để ảnh cô dâu neo đúng mép trên khung, ảnh chú
+    rể tự đẩy xuống bằng `margin-top` (ảnh hưởng chiều cao khung thật —
+    không cần padding bù như dùng `transform`, vốn KHÔNG tác động layout).
+
+  Khi chỉ 1 người có ảnh, dùng `.couple-duo-photo-solo` — cỡ lớn hơn, không
+  xen phủ (không có ảnh còn lại để "xen" cùng).
 */
 .couple-duo-frame {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 .couple-duo-photo {
@@ -833,22 +812,11 @@ body {
 }
 .couple-duo-photo-bride {
   z-index: 2;
-  margin-right: -2rem;
+  margin-right: calc(min(40vw, 16rem) * -0.18);
 }
 .couple-duo-photo-groom {
   z-index: 1;
-}
-.couple-duo-photo-bride.reveal-init {
-  transform: translateY(16px) scale(0.98) rotate(-3deg);
-}
-.couple-duo-photo-bride.reveal-visible {
-  transform: translateY(0) scale(1) rotate(-3deg);
-}
-.couple-duo-photo-groom.reveal-init {
-  transform: translateY(calc(16px + 8%)) scale(0.98) rotate(3deg);
-}
-.couple-duo-photo-groom.reveal-visible {
-  transform: translateY(8%) scale(1) rotate(3deg);
+  margin-top: min(40vw, 16rem);
 }
 
 .couple-duo-names {
