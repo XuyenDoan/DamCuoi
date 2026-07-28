@@ -47,10 +47,10 @@ const monogram = computed(() => {
 
 <template>
   <div>
-    <section class="tilt-grid mx-auto max-w-6xl px-6 pb-20 pt-28 sm:pt-36">
-      <HeroCoupleImage />
+    <HeroCoupleImage />
 
-      <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <section class="tilt-grid mx-auto max-w-6xl px-6 pb-20 pt-14 sm:pt-16">
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div v-reveal="0" v-tilt class="col-span-2 row-span-2 flex flex-col justify-center gap-2 rounded-[28px] p-7" style="background: var(--bento-cell-1)">
           <span class="text-xs font-bold uppercase tracking-[0.14em] text-text opacity-70">{{ monogram }}</span>
           <h1 class="font-heading text-3xl font-extrabold leading-[1.05] text-text sm:text-4xl">

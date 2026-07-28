@@ -38,10 +38,10 @@ function scrollPastHero() {
 
 <template>
   <div>
-    <section class="relative flex min-h-screen flex-col items-center justify-center px-6 py-32 text-center">
-      <HeroCoupleImage />
+    <HeroCoupleImage />
 
-      <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-body mt-6 text-sm font-bold uppercase tracking-[0.14em] text-primary">
+    <section class="relative flex min-h-screen flex-col items-center justify-center px-6 py-32 text-center">
+      <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-body text-sm font-bold uppercase tracking-[0.14em] text-primary">
         {{ settings.heroTagline }}
       </p>
 

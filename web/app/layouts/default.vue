@@ -48,7 +48,7 @@ const wordmark = computed(() => {
 
     <header
       class="fixed inset-x-0 top-0 z-40 transition-colors duration-300"
-      :class="isScrolled || mobileOpen ? 'bg-bg/95 shadow-sm backdrop-blur' : 'bg-transparent'"
+      :class="isScrolled || mobileOpen ? 'bg-bg/95 shadow-sm backdrop-blur' : 'bg-bg/40 backdrop-blur-sm'"
     >
       <nav
         class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"

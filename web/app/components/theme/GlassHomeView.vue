@@ -24,6 +24,8 @@ function onHeroMove(e: MouseEvent) {
 
 <template>
   <div>
+    <HeroCoupleImage />
+
     <section ref="heroRef" class="aurora-hero relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-32" @mousemove="onHeroMove">
       <div class="aurora-blob b1" aria-hidden="true" />
       <div class="aurora-blob b2" aria-hidden="true" />
@@ -32,8 +34,6 @@ function onHeroMove(e: MouseEvent) {
       <div class="cursor-glow" aria-hidden="true" />
 
       <div class="glass-hero-card relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[32px] px-8 py-12 text-center sm:px-12">
-        <HeroCoupleImage />
-
         <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-accent text-lg italic text-text-muted">
           {{ settings.heroTagline }}
         </p>

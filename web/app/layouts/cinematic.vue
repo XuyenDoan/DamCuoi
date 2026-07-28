@@ -51,7 +51,7 @@ const wordmark = computed(() => {
 
     <header
       class="fixed inset-x-0 top-0 z-40 transition-colors duration-300"
-      :class="isScrolled || mobileOpen ? 'border-b border-text/10 bg-bg/90 backdrop-blur' : 'bg-transparent'"
+      :class="isScrolled || mobileOpen ? 'border-b border-text/10 bg-bg/90 backdrop-blur' : 'bg-bg/30 backdrop-blur-sm'"
     >
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5" aria-label="Điều hướng chính">
         <NuxtLink

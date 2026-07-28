@@ -36,10 +36,10 @@ function scrollPastHero() {
 
 <template>
   <div>
+    <HeroCoupleImage />
+
     <section class="relative flex min-h-screen items-center justify-center px-6 py-32 text-center">
       <div class="relative flex max-w-2xl flex-col items-center gap-6">
-        <HeroCoupleImage />
-
         <p
           v-if="settings?.heroTagline"
           v-reveal="0"

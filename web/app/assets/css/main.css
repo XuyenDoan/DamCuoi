@@ -642,30 +642,55 @@ body {
 }
 
 /*
-  Ảnh chữ nhật đầu trang chủ (`HeroCoupleImage.vue`) + ảnh chân dung cô
-  dâu/chú rể (`CoupleIntroSection.vue`) — spec.md mục 38. Dùng chung 1
-  component cho cả 6 theme, chỉ đổi HÌNH DẠNG KHUNG qua CSS hook (đúng kiến
-  trúc token-driven mục 36.3) — không nhân bản component theo theme.
-  `aspect-ratio` cố định trên chính khung bao ngoài (không phải trên `<img>`)
-  để tránh layout shift mà KHÔNG cần lưu width/height thật của ảnh (khác
-  `Photo`/`LightboxPhoto` — ảnh này luôn hiển thị đúng 1 tỉ lệ cố định do
-  `object-fit: cover`, không cần giữ tỉ lệ gốc).
+  Ảnh chữ nhật đầu trang chủ (`HeroCoupleImage.vue`) — spec.md mục 38, đợt
+  sửa 2: banner PHỦ HẾT CHIỀU RỘNG trang ("phủ hết chiều rộng của web") thay
+  vì khung nhỏ nổi giữa trang như bản đầu. Đặt làm phần tử ĐẦU TIÊN trong
+  `<div>` gốc mỗi HomeView, NGOÀI mọi section hero có `max-width`/padding —
+  `<main>` của layout không giới hạn `max-width` nên khối con mặc định đã
+  full-width, không cần kỹ thuật "break out" 100vw/margin âm.
+
+  Vì ảnh chạm sát 2 mép màn hình, bỏ hẳn khung viền/bo góc riêng theo theme
+  (khác hẳn `.couple-intro-portrait-wrap` bên dưới — đó vẫn là thẻ nhỏ trong
+  nội dung, giữ khung riêng theo theme). Dải mờ (fade) ở 2 mép trên/dưới
+  dùng `var(--color-bg)` nên TỰ ĐỘNG đổi màu đúng theo từng theme mà không
+  cần viết CSS riêng: dải DƯỚI tạo chuyển tiếp mượt vào nội dung bên dưới;
+  dải TRÊN đảm bảo thanh điều hướng `position: fixed` (đang trong suốt lúc
+  chưa cuộn ở 1 số theme) luôn đọc được chữ dù ảnh admin tải lên sáng/tối/
+  màu sắc bất kỳ — an toàn tương phản AAA bất kể nội dung ảnh.
 */
 .hero-portrait-wrap {
+  position: relative;
   width: 100%;
-  max-width: 30rem;
-  aspect-ratio: 4 / 3;
-  margin: 0 auto;
+  aspect-ratio: 21 / 9;
+  min-height: 240px;
+  max-height: 64vh;
   overflow: hidden;
-  border-radius: 28px;
-  border: 1px solid color-mix(in srgb, var(--color-secondary) 25%, transparent);
-  box-shadow: 0 16px 40px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 .hero-portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+.hero-portrait-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.38), transparent);
+  pointer-events: none;
+}
+.hero-portrait-wrap::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(to top, var(--color-bg), transparent);
+  pointer-events: none;
+}
+
+/* Ảnh chân dung cô dâu/chú rể (`CoupleIntroSection.vue`) — vẫn là thẻ nhỏ
+   trong nội dung (không full-bleed), giữ khung/viền/bo góc riêng theo theme
+   như thiết kế ban đầu (mục 38.3). */
 .couple-intro-portrait-wrap {
   width: 100%;
   max-width: 26rem;
@@ -682,19 +707,16 @@ body {
   object-fit: cover;
 }
 
-[data-theme="editorial"] .hero-portrait-wrap,
 [data-theme="editorial"] .couple-intro-portrait-wrap {
   border-radius: 2px;
   border-color: color-mix(in srgb, var(--color-text) 15%, transparent);
   box-shadow: none;
 }
-[data-theme="cinematic"] .hero-portrait-wrap,
 [data-theme="cinematic"] .couple-intro-portrait-wrap {
   border-radius: 4px;
   border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
-[data-theme="glass"] .hero-portrait-wrap,
 [data-theme="glass"] .couple-intro-portrait-wrap {
   border-radius: 32px;
   border-color: transparent;
@@ -704,22 +726,28 @@ body {
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   box-shadow: 0 24px 60px color-mix(in srgb, var(--color-text) 14%, transparent);
 }
-[data-theme="glass"] .hero-portrait,
 [data-theme="glass"] .couple-intro-portrait {
   border-radius: 22px;
 }
-[data-theme="bento"] .hero-portrait-wrap,
 [data-theme="bento"] .couple-intro-portrait-wrap {
   border-radius: 28px;
   border-color: transparent;
   box-shadow: 0 6px 0 color-mix(in srgb, var(--color-text) 14%, transparent);
 }
-[data-theme="kinetic"] .hero-portrait-wrap,
 [data-theme="kinetic"] .couple-intro-portrait-wrap {
   border-radius: 0;
   border-width: 3px;
   border-color: var(--color-text);
   box-shadow: none;
+}
+
+/* Đường kẻ trang trí ngắn dưới nhãn "Cô Dâu"/"Chú Rể" — chi tiết tinh tế
+   kiểu tạp chí cao cấp, tự đổi hướng theo bên căn chữ (trái/phải) qua
+   `margin-inline`. */
+.couple-intro-divider {
+  height: 1px;
+  width: 3rem;
+  background: color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 
 /* Khối "Cô Dâu"/"Chú Rể" trước Câu Chuyện Của Chúng Tôi — Editorial/Kinetic

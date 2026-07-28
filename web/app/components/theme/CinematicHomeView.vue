@@ -39,6 +39,8 @@ function scrollPastHero() {
 
 <template>
   <div>
+    <HeroCoupleImage />
+
     <section class="relative flex min-h-screen items-end overflow-hidden px-6 pb-24 pt-32 sm:px-10">
       <div class="absolute inset-0" aria-hidden="true">
         <img
@@ -52,9 +54,7 @@ function scrollPastHero() {
       </div>
 
       <div class="relative max-w-2xl">
-        <HeroCoupleImage />
-
-        <span v-reveal="0" class="mt-6 block text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Cảnh 01 · Mở đầu</span>
+        <span v-reveal="0" class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Cảnh 01 · Mở đầu</span>
 
         <h1 v-reveal="100" class="mt-4 font-heading text-5xl leading-[1.05] text-text sm:text-6xl md:text-7xl">
           {{ settings?.coupleNames.bride }} &amp;<br />

@@ -26,10 +26,10 @@ const monogram = computed(() => {
 
 <template>
   <div>
+    <HeroCoupleImage />
+
     <section class="mx-auto grid max-w-6xl gap-10 px-6 pb-20 pt-14 sm:pt-20 lg:grid-cols-12 lg:gap-0 lg:pt-28">
       <div class="flex flex-col justify-center gap-6 lg:col-span-5 lg:pr-14">
-        <HeroCoupleImage />
-
         <p v-if="settings?.heroTagline" v-reveal="0" class="text-hover font-accent text-base italic text-text-muted">
           {{ settings.heroTagline }}
         </p>
