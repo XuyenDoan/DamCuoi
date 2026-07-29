@@ -5,7 +5,13 @@
  * ước `shared/pages.ts` — dùng chung server (validate key) + client (admin UI
  * tự sinh danh sách, không cần sửa khi thêm/bớt ảnh).
  */
-export type SiteImageKey = 'hero' | 'bridePortrait' | 'groomPortrait'
+/**
+ * `hero` (ảnh đầu trang chủ) đã tách RIÊNG khỏi hệ thống 1-ảnh-1-key này —
+ * xem `heroImages: string[]` trong `server/utils/types.ts` + endpoint
+ * `/api/admin/hero-image` (spec.md mục 40) — vì trang chủ giờ cần NHIỀU ảnh
+ * (carousel) thay vì đúng 1 ảnh cố định như 2 key còn lại.
+ */
+export type SiteImageKey = 'bridePortrait' | 'groomPortrait'
 
 export interface SiteImageDef {
   key: SiteImageKey
@@ -14,11 +20,6 @@ export interface SiteImageDef {
 }
 
 export const SITE_IMAGES: SiteImageDef[] = [
-  {
-    key: 'hero',
-    label: 'Ảnh đầu trang chủ',
-    description: 'Ảnh chữ nhật hiển thị phía trên tên cô dâu chú rể, ngay đầu trang chủ.'
-  },
   {
     key: 'bridePortrait',
     label: 'Ảnh cô dâu',

@@ -28,6 +28,17 @@
 @import "@fontsource/be-vietnam-pro/400.css";
 @import "@fontsource/be-vietnam-pro/500.css";
 @import "@fontsource/playfair-display/500.css";
+/*
+  Dancing Script (700) — CHỈ dùng cho tên cô dâu chú rể trên carousel ảnh
+  đầu trang chủ (`HeroCoupleImage.vue`, spec.md mục 40), tham khảo nét chữ
+  thư pháp trong ảnh mẫu chủ dự án gửi. Đã KIỂM TRA THẬT gói
+  @fontsource/dancing-script có xuất bản đủ file `vietnamese-*.css` (không
+  đoán) — đủ dấu tiếng Việt. Cố định DÙNG CHUNG cho cả 7 theme (không đổi
+  theo `--font-heading` từng theme) vì đây là 1 chi tiết thương hiệu trang
+  bìa có chủ đích, giống cách chữ trên ảnh hero vốn đã cố định trắng+shadow
+  bất kể theme từ mục 38.10.
+*/
+@import "@fontsource/dancing-script/700.css";
 @import "@fontsource/cormorant-garamond/500-italic.css";
 
 /*
@@ -747,11 +758,123 @@ body {
   max-height: 64vh;
   overflow: hidden;
 }
+.hero-portrait-slides {
+  position: absolute;
+  inset: 0;
+  /* z-index:0 (không phải "không đặt") CỐ Ý — tạo stacking context RIÊNG cho
+     khối này, để z-index:1 của `.hero-portrait-slide--active` (dùng phân
+     lớp ảnh đang hiện/ẩn bên trong) chỉ tranh nhau ở PHẠM VI nội bộ, không
+     thoát ra tranh với `::before`/`::after` (dải mờ, z-index auto) hay
+     `.hero-portrait-names` của `.hero-portrait-wrap` cha — lỗi thật đã gặp:
+     thiếu dòng này khiến ảnh đang active (z-index:1, không có stacking
+     context riêng) đè lên LUÔN cả tên cô dâu chú rể lẫn dải mờ đáy, vì
+     z-index dương bất kỳ luôn thắng z-index:auto bất kể thứ tự DOM. */
+  z-index: 0;
+}
 .hero-portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+/*
+  mục 40: carousel nhiều ảnh — mỗi ảnh 1 lớp xếp chồng tuyệt đối, chuyển
+  bằng crossfade opacity (KHÔNG dùng Vue `<Transition mode="out-in">` vì đó
+  đợi ảnh cũ ẩn hẳn mới hiện ảnh mới, gây chớp đen 1 nhịp — ở đây cả 2 lớp
+  cùng tồn tại trong DOM, chỉ đổi opacity nên luôn mượt). Hiệu ứng Ken Burns
+  (phóng nhẹ 1 → 1.06) CHỈ áp dụng khi thật sự là carousel (từ 2 ảnh trở
+  lên, class `--carousel`) — giữ ảnh ĐƠN (1 ảnh) tĩnh y hệt hành vi cũ,
+  tránh ảnh bị phóng to/cắt lố khi không có gì để "chuyển qua".
+*/
+.hero-portrait-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1100ms ease;
+}
+.hero-portrait-slide--active {
+  opacity: 1;
+  z-index: 1;
+}
+.hero-portrait-wrap--carousel .hero-portrait-slide .hero-portrait {
+  transform: scale(1);
+  transition: transform 7000ms linear;
+}
+.hero-portrait-wrap--carousel .hero-portrait-slide--active .hero-portrait {
+  transform: scale(1.06);
+}
+
+/* 2 nút tròn mờ bấm tay 2 bên — tham khảo ảnh mẫu chủ dự án gửi (mục 40),
+   nền kem trong suốt + backdrop-blur (đọc được trên ảnh sáng lẫn tối bất
+   kỳ), cùng icon mũi tên đã dùng ở `PhotoLightbox.vue` cho nhất quán. */
+.hero-carousel-btn {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+.hero-carousel-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.hero-carousel-btn:active {
+  transform: translateY(-50%) scale(0.94);
+}
+.hero-carousel-btn--prev {
+  left: 0.75rem;
+}
+.hero-carousel-btn--next {
+  right: 0.75rem;
+}
+@media (min-width: 640px) {
+  .hero-carousel-btn {
+    height: 2.75rem;
+    width: 2.75rem;
+  }
+  .hero-carousel-btn--prev {
+    left: 1.25rem;
+  }
+  .hero-carousel-btn--next {
+    right: 1.25rem;
+  }
+}
+
+.hero-carousel-dots {
+  position: absolute;
+  bottom: 0.9rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  transform: translateX(-50%);
+  gap: 0.4rem;
+}
+.hero-carousel-dot {
+  height: 0.4rem;
+  width: 0.4rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  padding: 0;
+  transition: width 200ms ease, background-color 200ms ease;
+}
+.hero-carousel-dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+.hero-carousel-dot--active {
+  width: 1.3rem;
+  background: #fff;
+}
+
 .hero-portrait-wrap::before {
   content: '';
   position: absolute;
@@ -785,6 +908,7 @@ body {
 .hero-portrait-names {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -822,14 +946,32 @@ body {
     font-size: 0.95rem;
   }
 }
+/*
+  mục 40: đổi sang font thư pháp "Dancing Script" cho tên cô dâu chú rể trên
+  ảnh hero, tham khảo đúng nét chữ trong ảnh mẫu chủ dự án gửi (đã kiểm tra
+  gói font có đủ dấu tiếng Việt — xem chú thích ở đầu file, khối `@import`).
+  Cỡ chữ tăng hơn bản Playfair trước (script mảnh, cùng cỡ point nhìn "bé"
+  hơn serif đứng) để giữ đúng cảm giác choán không gian tương đương. Cố định
+  DÙNG CHUNG mọi theme, TRỪ Bento/Kinetic (2 theme có bản sắc hình học/kiểu
+  chữ đậm-in-hoa riêng — chữ thư pháp bay bướm sẽ lệch hẳn tinh thần thiết
+  kế) tiếp tục dùng `--font-heading` riêng của theme như trước.
+*/
 .hero-portrait-names-text {
   margin: 0;
   max-width: 92%;
   text-align: center;
   color: #fff;
-  font-weight: 500;
+  font-family: "Dancing Script", "Cormorant Garamond", cursive, serif;
+  font-weight: 700;
   letter-spacing: 0.01em;
-  line-height: 1.25;
+  line-height: 1.2;
+  /* Cỡ mobile GIỮ NGUYÊN 1.75rem (giá trị cũ đã kiểm chứng vừa khít khung
+     `min-height: 240px` cạnh nav `position: fixed` phía trên) — lỗi thật đã
+     gặp: tăng lên 2.25rem như bản đầu khiến khối chữ 2 dòng (dòng tagline +
+     dòng tên) đẩy lên CHỜM VÀO vùng nav ở mobile (đo `getBoundingClientRect()`
+     xác nhận tagline chồng lên nav ~16px). Chỉ tăng cỡ chữ ở breakpoint
+     `sm`/`lg` trở lên, nơi khung hero cao hẳn theo `aspect-ratio` (không còn
+     bị chặn bởi sàn `min-height`) nên dư khoảng trống an toàn. */
   font-size: 1.75rem;
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.55),
@@ -838,18 +980,21 @@ body {
 }
 @media (min-width: 640px) {
   .hero-portrait-names-text {
-    font-size: 2.75rem;
+    font-size: 3.4rem;
   }
 }
 @media (min-width: 1024px) {
   .hero-portrait-names-text {
-    font-size: 3.5rem;
+    font-size: 4.25rem;
   }
 }
 [data-theme="bento"] .hero-portrait-names-text {
+  font-family: var(--font-heading);
   font-weight: 800;
+  letter-spacing: 0.01em;
 }
 [data-theme="kinetic"] .hero-portrait-names-text {
+  font-family: var(--font-heading);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;

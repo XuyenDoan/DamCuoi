@@ -30,6 +30,16 @@ export interface Settings {
   coupleNames: { groom: string; bride: string }
   heroTagline: string
   welcomeMessage: string
+  /**
+   * Ảnh carousel đầu trang chủ (spec.md mục 40) — 0..n ảnh, TỰ ĐỘNG chuyển
+   * lần lượt theo đúng thứ tự mảng này (thứ tự do admin sắp xếp bằng nút
+   * lên/xuống). Khác cơ chế `siteImages`/`pageBackgrounds` (ghi thẳng
+   * settings.json ngay khi upload): giống hệt `loveStory[].photos` — upload
+   * qua `/api/admin/hero-image` chỉ lưu FILE vật lý + trả về đường dẫn, còn
+   * mảng này chỉ thật sự lưu vào settings.json khi admin bấm "Lưu thay đổi"
+   * (PUT /api/settings) — cho phép sắp xếp/xoá thử trước khi lưu chính thức.
+   */
+  heroImages: string[]
   loveStory: LoveStoryMilestone[]
   /** Thông tin lễ (giờ/địa điểm) của từng nhà — nhà trai hiển thị trước, nhà gái sau */
   eventInfo: {

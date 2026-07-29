@@ -17,6 +17,7 @@ const form = ref<Settings>(
         coupleNames: { bride: '', groom: '' },
         heroTagline: '',
         welcomeMessage: '',
+        heroImages: [],
         loveStory: [],
         eventInfo: {
           groom: { ceremonyTime: '', venueName: '', venueAddress: '', mapEmbedUrl: '' },
@@ -25,7 +26,7 @@ const form = ref<Settings>(
         footerText: '',
         pageBackgrounds: {},
         hiddenPages: [],
-        siteImages: { hero: null, bridePortrait: null, groomPortrait: null }
+        siteImages: { bridePortrait: null, groomPortrait: null }
       }
 )
 
@@ -141,6 +142,55 @@ async function removeSiteImage(key: SiteImageKey) {
   }
 }
 
+// ---- Ảnh carousel đầu trang chủ (spec.md mục 40) — nhiều ảnh, chỉ lưu file
+// vật lý ngay khi upload, còn thứ tự/nội dung mảng chỉ ghi settings.json khi
+// bấm "Lưu thay đổi" (giống hệt cơ chế loveStory[].photos đã có) ----
+const heroImagesUploading = ref(false)
+const heroImagesError = ref('')
+
+async function uploadHeroImages(files: File[]) {
+  heroImagesError.value = ''
+  heroImagesUploading.value = true
+
+  const formData = new FormData()
+  files.forEach((f) => formData.append('files', f))
+
+  try {
+    const res = await $fetch<{ images: string[] }>('/api/admin/hero-image', {
+      method: 'POST',
+      body: formData
+    })
+    form.value.heroImages.push(...res.images)
+  } catch (err: unknown) {
+    heroImagesError.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      'Tải ảnh thất bại, vui lòng thử lại.'
+  } finally {
+    heroImagesUploading.value = false
+  }
+}
+
+async function removeHeroImage(index: number) {
+  const filename = form.value.heroImages[index]
+  if (!filename) return
+  const id = filename.split('/').pop()?.replace(/\.webp$/, '')
+  form.value.heroImages.splice(index, 1)
+  if (id) await $fetch(`/api/admin/hero-image/${id}`, { method: 'DELETE' }).catch(() => {})
+}
+
+function moveHeroImage(index: number, direction: -1 | 1) {
+  const targetIndex = index + direction
+  const items = form.value.heroImages
+  if (targetIndex < 0 || targetIndex >= items.length) return
+
+  const current = items[index]
+  const target = items[targetIndex]
+  if (current === undefined || target === undefined) return
+
+  items[index] = target
+  items[targetIndex] = current
+}
+
 function isPageHidden(key: string): boolean {
   return key !== 'home' && form.value.hiddenPages.includes(key)
 }
@@ -244,6 +294,22 @@ async function save() {
             Ảnh hiển thị trực tiếp trong nội dung trang chủ — khác với "Ảnh nền &amp; hiển thị từng
             trang" bên dưới (đó chỉ là ảnh nền mờ phía sau nội dung).
           </p>
+          <div>
+            <p class="mb-1 text-sm font-medium text-text">Ảnh đầu trang chủ (carousel)</p>
+            <p class="mb-2 text-xs text-text-muted">
+              Có thể chọn nhiều ảnh — hiển thị lần lượt tự động trên trang chủ theo đúng thứ tự bên
+              dưới. Bấm mũi tên trên mỗi ảnh để đổi thứ tự, hoặc dấu X để xoá.
+            </p>
+            <AdminHeroImagesField
+              :images="form.heroImages"
+              :uploading="heroImagesUploading"
+              :error="heroImagesError"
+              @upload="uploadHeroImages"
+              @remove="removeHeroImage"
+              @move="moveHeroImage"
+            />
+          </div>
+
           <AdminSiteImageField
             v-for="s in SITE_IMAGES"
             :key="s.key"

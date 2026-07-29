@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: Settings = {
   coupleNames: { groom: 'Chú Rể', bride: 'Cô Dâu' },
   heroTagline: '',
   welcomeMessage: '',
+  heroImages: [],
   loveStory: [],
   eventInfo: { groom: EMPTY_EVENT_INFO, bride: EMPTY_EVENT_INFO },
   footerText: '',
@@ -62,7 +63,23 @@ function migrateSettings(raw: unknown): Settings {
   // DEFAULT_SETTINGS.siteImages.
   const siteImages = { ...DEFAULT_SETTINGS.siteImages, ...(r.siteImages ?? {}) }
 
-  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme, siteImages }
+  /**
+   * Migrate dữ liệu cũ (spec.md mục 40): trước đây ảnh đầu trang chủ là 1
+   * ảnh cố định lưu ở `siteImages.hero` (key này đã bỏ khỏi `SiteImageKey`
+   * — xem shared/siteImages.ts). Nếu dữ liệu cũ còn field này và admin chưa
+   * từng lưu `heroImages` mới, tự chuyển thành mảng 1 phần tử để KHÔNG mất
+   * ảnh hero đang hiển thị thật trên site (không migrate lại nếu
+   * `heroImages` đã có — tránh nhân đôi ảnh mỗi lần đọc).
+   */
+  const legacyHero = (r.siteImages as Record<string, unknown> | undefined)?.hero
+  const heroImages =
+    Array.isArray(r.heroImages) && r.heroImages.length > 0
+      ? r.heroImages
+      : typeof legacyHero === 'string' && legacyHero
+        ? [legacyHero]
+        : (r.heroImages ?? [])
+
+  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme, siteImages, heroImages }
 }
 
 const DEFAULT_ALBUMS: AlbumsFile = { albums: [] }

@@ -46,6 +46,11 @@ export default defineEventHandler(async (event) => {
     },
     heroTagline: body.heroTagline?.trim() ?? '',
     welcomeMessage: body.welcomeMessage?.trim() ?? '',
+    // Giống hệt cơ chế loveStory[].photos: /api/admin/hero-image chỉ lưu file
+    // vật lý, mảng thứ tự thật sự chỉ ghi vào settings.json ở đây.
+    heroImages: Array.isArray(body.heroImages)
+      ? body.heroImages.filter((f): f is string => typeof f === 'string' && f.length > 0)
+      : [],
     loveStory: (body.loveStory ?? []).map((m, i) => ({
       id: m.id || `story_${Date.now()}_${i}`,
       year: m.year?.trim() ?? '',
