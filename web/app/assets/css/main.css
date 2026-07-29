@@ -849,26 +849,42 @@ body {
   }
 }
 
+/*
+  Lỗi thật đã gặp (phản hồi "nút... hơi mờ, ko thấy được"): chấm tròn trắng
+  mờ (opacity 0.5) đặt ngay trong dải mờ ĐÁY (`::after`, chuyển dần sang
+  `var(--color-bg)` — SÁNG ở hầu hết theme) nên gần như biến mất khi ảnh
+  admin tải lên cũng sáng màu — không đủ tương phản với NỀN BẤT KỲ như 2 nút
+  mũi tên (vốn đã có nền kem `backdrop-blur` riêng nên luôn nổi). Khắc phục:
+  bọc cả cụm chấm trong 1 viên nang nền tối mờ + `backdrop-blur`, CÙNG kỹ
+  thuật với `.hero-carousel-btn` — đảm bảo tương phản ổn định bất kể ảnh nền
+  sáng/tối/màu gì, không chỉ dựa vào độ đục của riêng chấm trắng.
+*/
 .hero-carousel-dots {
   position: absolute;
   bottom: 0.9rem;
   left: 50%;
   z-index: 2;
   display: flex;
+  align-items: center;
   transform: translateX(-50%);
   gap: 0.4rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .hero-carousel-dot {
-  height: 0.4rem;
-  width: 0.4rem;
+  height: 0.45rem;
+  width: 0.45rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   border: none;
   padding: 0;
   transition: width 200ms ease, background-color 200ms ease;
 }
 .hero-carousel-dot:hover {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.85);
 }
 .hero-carousel-dot--active {
   width: 1.3rem;
@@ -1048,7 +1064,8 @@ body {
   dưới như thiết kế gốc (không có ảnh còn lại để tạo góc chéo cùng).
 */
 .couple-duo-frame {
-  --duo-w: min(44vw, 19rem);
+  /* "to lên xíu" (đợt sửa sau mục 40) — tăng tiếp từ min(44vw,19rem) */
+  --duo-w: min(48vw, 21rem);
   --duo-h: calc(var(--duo-w) * 4 / 3);
   --duo-overlap-x: calc(var(--duo-w) * 0.18);
   position: relative;

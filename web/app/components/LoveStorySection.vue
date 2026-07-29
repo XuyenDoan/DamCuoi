@@ -75,13 +75,13 @@ function prevPhoto() {
 
         <div class="min-w-0 flex-1 pb-14 sm:pb-20">
           <div
-            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"
-            :class="i % 2 === 1 ? 'sm:flex-row-reverse' : ''"
+            class="flex flex-row items-center gap-3 sm:gap-6"
+            :class="i % 2 === 1 ? 'flex-row-reverse' : ''"
           >
             <button
               v-if="milestone.photos?.length"
               type="button"
-              class="focus-ring group relative w-full shrink-0 overflow-hidden rounded-2xl bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md sm:w-[42%]"
+              class="focus-ring group relative w-[38%] shrink-0 overflow-hidden rounded-2xl bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md sm:w-[42%]"
               style="aspect-ratio: 4 / 3"
               @click="openMilestonePhoto(milestone.photos)"
             >
