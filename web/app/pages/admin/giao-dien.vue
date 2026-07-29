@@ -36,6 +36,53 @@ async function selectTheme(id: string) {
     savingId.value = null
   }
 }
+
+/**
+ * Nhạc nền (spec.md mục 41) — đặt ở đây (chung trang với Website Theme) vì
+ * cùng là 1 lựa chọn TOÀN SITE, đổi ngay lập tức, không thuộc nội dung theo
+ * trang như `admin/noi-dung.vue`. KHÔNG kèm sẵn nhạc mặc định nào — bản
+ * quyền âm nhạc phải do chủ dự án tự đảm bảo, không tự ý gắn 1 bài hát cụ
+ * thể (kể cả bản hoà tấu/cover) vào mã nguồn.
+ */
+const musicFileInputRef = ref<HTMLInputElement | null>(null)
+const musicUploading = ref(false)
+const musicError = ref('')
+
+function triggerMusicUpload() {
+  musicFileInputRef.value?.click()
+}
+
+async function onMusicFileSelected(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  musicError.value = ''
+  musicUploading.value = true
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    await $fetch('/api/admin/background-music', { method: 'POST', body: formData })
+    await refreshNuxtData('site-settings')
+  } catch (err: unknown) {
+    musicError.value =
+      (err as { data?: { statusMessage?: string } })?.data?.statusMessage ||
+      'Tải nhạc thất bại, vui lòng thử lại.'
+  } finally {
+    musicUploading.value = false
+  }
+}
+
+async function removeMusic() {
+  musicUploading.value = true
+  try {
+    await $fetch('/api/admin/background-music', { method: 'DELETE' })
+    await refreshNuxtData('site-settings')
+  } finally {
+    musicUploading.value = false
+  }
+}
 </script>
 
 <template>
@@ -112,6 +159,54 @@ async function selectTheme(id: string) {
             </p>
           </div>
         </button>
+      </div>
+
+      <div class="mt-12 max-w-xl rounded-xl border border-secondary-light/40 p-6">
+        <h2 class="mb-2 font-heading text-xl text-text">Nhạc nền</h2>
+        <p class="mb-4 text-sm text-text-muted">
+          Phát tự động khi khách bấm nút nhạc trên trang công khai (trình duyệt không cho tự phát
+          có tiếng khi chưa có thao tác nào). Chỉ nhận file MP3/OGG/WAV, tối đa 20MB — chủ dự án tự
+          đảm bảo bản quyền bài hát đã chọn.
+        </p>
+
+        <p v-if="musicError" role="alert" class="mb-3 text-xs text-error">{{ musicError }}</p>
+
+        <div v-if="settings?.backgroundMusic" class="mb-3 flex items-center gap-3 rounded-lg border border-secondary-light/30 bg-surface p-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6 shrink-0 text-primary">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg>
+          <audio :src="`/uploads/${settings.backgroundMusic}`" controls class="min-w-0 flex-1" style="height: 36px" />
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="btn-outline flex-1 px-4 py-2 text-sm"
+            :disabled="musicUploading"
+            @click="triggerMusicUpload"
+          >
+            {{ musicUploading ? 'Đang tải...' : settings?.backgroundMusic ? 'Đổi bài khác' : 'Tải nhạc lên' }}
+          </button>
+          <button
+            v-if="settings?.backgroundMusic"
+            type="button"
+            class="focus-ring rounded-full border border-error px-4 py-2 text-sm font-medium text-error transition-colors duration-200 hover:bg-error hover:text-white disabled:pointer-events-none disabled:opacity-50"
+            :disabled="musicUploading"
+            @click="removeMusic"
+          >
+            Xoá
+          </button>
+        </div>
+        <input
+          ref="musicFileInputRef"
+          type="file"
+          accept="audio/mpeg,audio/mp3,audio/ogg,audio/wav,audio/x-wav"
+          class="sr-only"
+          aria-label="Chọn file nhạc nền"
+          @change="onMusicFileSelected"
+        />
       </div>
     </div>
   </div>

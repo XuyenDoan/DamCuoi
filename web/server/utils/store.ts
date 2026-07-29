@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS: Settings = {
   pageBackgrounds: {},
   hiddenPages: [],
   websiteTheme: DEFAULT_WEBSITE_THEME,
-  siteImages: EMPTY_SITE_IMAGES
+  siteImages: EMPTY_SITE_IMAGES,
+  backgroundMusic: null
 }
 
 function toEventInfoBlock(v: Partial<EventInfoBlock> | undefined): EventInfoBlock {

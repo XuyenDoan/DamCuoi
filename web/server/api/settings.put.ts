@@ -72,6 +72,10 @@ export default defineEventHandler(async (event) => {
     // Chỉ giữ lại key hợp lệ + có thể ẩn (loại 'home' phòng thủ — trang chủ luôn bắt buộc hiện)
     hiddenPages: (body.hiddenPages ?? []).filter(isHideablePageKey),
     websiteTheme: current.websiteTheme,
+    // backgroundMusic thực chất được quản lý qua /api/admin/background-music
+    // (upload/xoá riêng, giống hệt siteImages/pageBackgrounds) — giữ nguyên
+    // trạng thái hiện có, không lấy theo body.
+    backgroundMusic: current.backgroundMusic,
     // siteImages thực chất được quản lý qua /api/admin/site-image/[key]
     // (upload/xoá riêng), giống hệt cách pageBackgrounds đã làm ở trên — ở
     // đây chỉ giữ nguyên trạng theo đúng danh sách key hợp lệ.

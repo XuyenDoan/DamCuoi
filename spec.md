@@ -1437,6 +1437,27 @@ Phản hồi sau khi xem bản mục 40: (1) chấm tròn báo vị trí dưới
 
 **Thành phần sửa**: `app/assets/css/main.css`, `app/components/LoveStorySection.vue`.
 
+## 41. Nhạc nền trang công khai
+
+Yêu cầu: thêm nhạc nền, chủ dự án đề nghị dùng bản "A Thousand Years" không lời/miễn phí bản quyền.
+
+**Từ chối tìm bài hát cụ thể — lý do bản quyền**: "A Thousand Years" (Christina Perri, phát hành 2011) vẫn còn trong thời hạn bảo hộ bản quyền; kể cả bản hoà tấu/cover không lời cũng là tác phẩm phái sinh, không tồn tại phiên bản "miễn phí bản quyền" hợp pháp cho đúng bài hát này. Ngoài ra, môi trường chạy phiên làm việc này CHẶN truy cập Internet mở theo chính sách (chỉ cho phép vài domain hạ tầng như npm/pypi — đã xác nhận thật bằng `curl` bị từ chối 403, không phải đoán), nên kể cả muốn cũng không có cách tự tải file nhạc bất kỳ về. Đã trao đổi rõ với chủ dự án và thống nhất: KHÔNG gắn sẵn bài hát cụ thể nào vào mã nguồn — dựng đầy đủ tính năng kỹ thuật, chủ dự án tự tải lên đúng file đã có bản quyền hợp lệ qua Admin.
+
+**Data layer**: thêm `backgroundMusic: string | null` vào `Settings` — quản lý qua endpoint riêng `POST/DELETE /api/admin/background-music` (ghi thẳng settings.json ngay khi upload, cùng khuôn mẫu `siteImages`/`pageBackgrounds` — chỉ 1 lựa chọn tại 1 thời điểm, không cần cơ chế "lưu sau" như mảng ảnh). Chỉ nhận MP3/OGG/WAV, tối đa 20MB, KHÔNG xử lý/nén lại file (khác ảnh — dự án không có công cụ transcode audio, lưu nguyên trạng file admin tải lên). `PUT /api/settings` giữ nguyên `backgroundMusic` từ dữ liệu hiện có (không đọc theo body) — cùng cách `websiteTheme` đã làm.
+
+**Admin UI**: thêm mục "Nhạc nền" trong `admin/giao-dien.vue` (cùng trang với chọn Website Theme — cả 2 đều là lựa chọn TOÀN SITE, đổi ngay lập tức, không thuộc nội dung theo trang như `admin/noi-dung.vue`). Có preview bằng thẻ `<audio controls>` chuẩn trình duyệt (không cần tự vẽ player nghe thử riêng), nút "Đổi bài khác"/"Xoá".
+
+**`BackgroundMusicPlayer.vue`** — nút tròn nổi góc dưới-phải trang công khai, CHỈ hiện khi `backgroundMusic` đã có giá trị (ẩn hoàn toàn nếu chưa chọn, không có placeholder). Đặt ở `app.vue` (ngoài `<NuxtLayout>`) để dùng chung 1 phần tử `<audio>` cho mọi theme, không phải khai báo lặp lại ở 6 file layout riêng.
+
+- **Chính sách tự phát của trình duyệt**: mọi trình duyệt hiện đại chặn tự phát media có tiếng khi trang vừa tải — nút LUÔN khởi đầu ở trạng thái tạm dừng, bấm lần đầu vừa là thao tác "mở khoá" phát tiếng vừa là hành động bật nhạc, không thể tách rời hay bỏ qua bước này bằng bất kỳ kỹ thuật nào (giới hạn cứng của trình duyệt, không phải thiếu sót code).
+- **Giữ trạng thái phát khi chuyển trang**: nhờ đặt ở `app.vue` (gốc cây component, không nằm trong nội dung `<NuxtPage>` bị thay khi điều hướng SPA), phần tử `<audio>` không bị huỷ/tạo lại khi khách chuyển trang — nhạc tiếp tục phát liền mạch xuyên suốt các trang, không giật/ngắt quãng.
+- **Chỉ báo trực quan đang phát**: 3 vạch nhỏ kiểu "sóng âm" nhảy lên xuống lệch nhịp ở góc nút, chỉ hiện khi đang phát — tôn trọng `prefers-reduced-motion` (đứng yên thay vì nhảy).
+- Không hiện ở `/admin/**` (kiểm tra `route.path`).
+
+**Tự kiểm tra**: `npx vue-tsc --noEmit` sạch. Playwright (dùng 1 file WAV tự sinh bằng sóng sine thuần tuý qua Python — KHÔNG phải nhạc thật, chỉ để kiểm tra cơ chế) — xác nhận: chưa có nhạc → nút không hiện; upload xong → nút hiện, `GET /api/settings` phản ánh đúng đường dẫn; bấm nút → chuyển trạng thái đang phát (`audio.paused === false`); điều hướng sang trang khác → vẫn đang phát (không bị ngắt); bấm lại → tạm dừng; trang `/admin` không bao giờ hiện nút. Quét lại ma trận 40 tổ hợp (7 theme × 5 trang) sau khi thêm — 0 lỗi, 0 tràn ngang. Xoá file test + đưa `backgroundMusic` về `null` sau khi kiểm tra xong.
+
+**Thành phần thêm/sửa**: `server/utils/types.ts`, `server/utils/store.ts`, `server/utils/paths.ts`, `server/api/admin/background-music.post.ts` + `.delete.ts` (mới), `server/api/settings.put.ts`, `app/pages/admin/giao-dien.vue`, `app/components/BackgroundMusicPlayer.vue` (mới), `app/app.vue`.
+
 ---
 
 *Tài liệu này là bước phân tích & định hướng thiết kế, đã chốt đầy đủ: stack **Nuxt 3**, hosting **Oracle Cloud Always Free**, upload công khai **mở từ đầu** với lớp bảo vệ bắt buộc (giới hạn file + admin duyệt, chưa bật captcha/rate-limit). Sẵn sàng chuyển sang bước dựng code theo design system (mục 1–12) và checklist (mục 17). Việc còn treo lại, chỉ cần xác nhận khi tới lúc deploy thật (không chặn việc bắt đầu code): (1) có gắn tên miền riêng hay dùng IP/subdomain tạm, (2) có bật `noindex`/mật khẩu xem công khai hay để site mở hoàn toàn.*

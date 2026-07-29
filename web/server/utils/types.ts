@@ -69,6 +69,17 @@ export interface Settings {
    */
   siteImages: Record<SiteImageKey, string | null>
   /**
+   * Nhạc nền phát trên trang công khai (spec.md mục 41) — đường dẫn 1 file
+   * âm thanh trong `/uploads/audio/`, hoặc `null` nếu admin chưa chọn (khi
+   * đó KHÔNG hiển thị nút phát nhạc, không có nhạc mặc định kèm sẵn — trái
+   * bài hát dùng phải do admin tự tải lên, đã trả lời bản quyền hợp lệ).
+   * Quản lý qua endpoint riêng `POST/DELETE /api/admin/background-music`
+   * (ghi thẳng settings.json ngay khi upload, giống `siteImages`/
+   * `pageBackgrounds` — chỉ 1 lựa chọn tại 1 thời điểm, không cần cơ chế
+   * "lưu sau" như mảng nhiều ảnh).
+   */
+  backgroundMusic: string | null
+  /**
    * Phong cách giao diện đang áp dụng cho toàn bộ trang công khai (khớp id
    * trong shared/themes.ts — spec.md mục 36). Chỉ đổi LAYOUT/COMPONENT/STYLE
    * hiển thị, không đụng tới field nào khác của Settings — mọi theme đọc

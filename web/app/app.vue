@@ -59,5 +59,6 @@ const layoutName = computed(() => {
     <NuxtLayout :name="layoutName">
       <NuxtPage />
     </NuxtLayout>
+    <BackgroundMusicPlayer />
   </div>
 </template>

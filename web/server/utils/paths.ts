@@ -21,7 +21,7 @@ export function dataFilePath(fileName: string): string {
 }
 
 export function uploadsSubdir(
-  sub: 'originals' | 'thumbnails' | 'pending' | 'backgrounds' | 'love-story' | 'site-images' | 'hero-images'
+  sub: 'originals' | 'thumbnails' | 'pending' | 'backgrounds' | 'love-story' | 'site-images' | 'hero-images' | 'audio'
 ): string {
   return path.join(getUploadsDir(), sub)
 }
