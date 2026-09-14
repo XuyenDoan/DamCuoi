@@ -333,7 +333,7 @@ html {
      khiến `window.scrollTo`/cuộn trang bằng chuột không còn hoạt động (đã
      xác nhận bug thật bằng test tay: `window.scrollY` đứng yên ở 0 dù trang
      dài hơn viewport nhiều lần). */
-  overflow-x: hidden;
+  overflow-x: scroll;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -343,7 +343,7 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.05ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -372,7 +372,7 @@ body {
       duration-200 ease-out hover:bg-secondary hover:text-white active:scale-95
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
       focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
-    min-height: 44px;
+    min-height: 55px;
   }
 
   /*
@@ -415,7 +415,7 @@ body {
 [data-theme="editorial"] .btn-outline {
   border-radius: 2px;
   letter-spacing: 0.09em;
-  text-transform: uppercase;
+  text-transform: none;
   font-size: 0.75rem;
   font-weight: 600;
   box-shadow: none;
@@ -480,14 +480,14 @@ body {
   transition: box-shadow 250ms, transform 150ms, background-color 200ms;
 }
 [data-theme="glass"] .btn-primary {
-  background-color: color-mix(in srgb, var(--color-surface) 65%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-surface) 70%, transparent);
+  background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-surface) 80%, transparent);
   color: var(--color-text);
   /* Đổ bóng THƯỜNG TRỰC (không chỉ lúc hover) — nếu không, viền kính gần
      như vô hình trên nền sáng (kính trong suốt + nền cũng sáng = viền
      không đủ tương phản để nhận biết đây LÀ 1 nút bấm khi chưa hover, ảnh
      hưởng khả năng nhận diện thành phần UI). */
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 12%, transparent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 20%, transparent);
 }
 [data-theme="glass"] .btn-primary:hover {
   box-shadow: 0 0 28px color-mix(in srgb, var(--color-primary-vivid) 40%, transparent);
@@ -499,7 +499,7 @@ body {
   color: var(--color-text);
 }
 [data-theme="glass"] .btn-outline:hover {
-  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  background-color: color-mix(in srgb, var(--color-surface) 700-italic, transparent);
 }
 
 [data-theme="bento"] .btn-primary,
@@ -507,7 +507,7 @@ body {
   border-radius: 18px;
   font-weight: 700;
   box-shadow: 0 4px 0 color-mix(in srgb, var(--color-text) 18%, transparent);
-  transition: transform 150ms, box-shadow 150ms;
+  transition: transform 600ms, box-shadow 300ms;
 }
 [data-theme="bento"] .btn-primary {
   background-color: var(--color-primary);
@@ -534,7 +534,7 @@ body {
 [data-theme="kinetic"] .btn-primary,
 [data-theme="kinetic"] .btn-outline {
   border-radius: 3px;
-  font-weight: 700;
+  font-weight: 9;
   letter-spacing: 0.03em;
   box-shadow: none;
 }
@@ -596,7 +596,7 @@ body {
   transform: none;
 }
 [data-theme="cinematic"] .wish-card {
-  border-radius: 2px;
+  border-radius: 22px;
   box-shadow: none;
 }
 [data-theme="cinematic"] .wish-card:hover {
@@ -753,29 +753,35 @@ body {
 .hero-portrait-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 4 / 3; /* khung 4:3 */
   min-height: 240px;
-  max-height: 64vh;
   overflow: hidden;
 }
+
 .hero-portrait-slides {
   position: absolute;
   inset: 0;
-  /* z-index:0 (không phải "không đặt") CỐ Ý — tạo stacking context RIÊNG cho
-     khối này, để z-index:1 của `.hero-portrait-slide--active` (dùng phân
-     lớp ảnh đang hiện/ẩn bên trong) chỉ tranh nhau ở PHẠM VI nội bộ, không
-     thoát ra tranh với `::before`/`::after` (dải mờ, z-index auto) hay
-     `.hero-portrait-names` của `.hero-portrait-wrap` cha — lỗi thật đã gặp:
-     thiếu dòng này khiến ảnh đang active (z-index:1, không có stacking
-     context riêng) đè lên LUÔN cả tên cô dâu chú rể lẫn dải mờ đáy, vì
-     z-index dương bất kỳ luôn thắng z-index:auto bất kể thứ tự DOM. */
-  z-index: 0;
+  z-index: 0; /* tạo stacking context riêng */
 }
+
 .hero-portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
+
+/* Ảnh ngang */
+.hero-portrait.landscape {
+  object-position: top center; /* ưu tiên phần trên nhiều */
+}
+
+/* Ảnh dọc */
+.hero-portrait.portrait {
+  object-position: 25% center; /* nhích lên trên một chút, ít hơn ảnh ngang */
+}
+
+
 /*
   mục 40: carousel nhiều ảnh — mỗi ảnh 1 lớp xếp chồng tuyệt đối, chuyển
   bằng crossfade opacity (KHÔNG dùng Vue `<Transition mode="out-in">` vì đó
@@ -816,13 +822,13 @@ body {
   transform: translateY(-50%);
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 8888px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.16);
   color: #fff;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  transition: background-color 200ms ease, transform 200ms ease;
+  transition: background-color 100ms ease, transform 200ms ease;
 }
 .hero-carousel-btn:hover {
   background: rgba(255, 255, 255, 0.3);
