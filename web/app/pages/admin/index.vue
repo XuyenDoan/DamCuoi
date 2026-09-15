@@ -36,7 +36,7 @@ useHead({ title: 'Bảng Điều Khiển — Quản Trị' })
           class="focus-ring rounded-xl border border-secondary-light/40 p-6 transition-all duration-200 hover:border-primary/30 hover:bg-surface hover:shadow-sm active:scale-[0.98]"
         >
           <h3 class="font-heading text-lg text-text">Lời Chúc</h3>
-          <p class="mt-1 text-sm text-text-muted">Ẩn hoặc xoá lời chúc không phù hợp</p>
+          <p class="mt-1 text-sm text-text-muted">Duyệt, ẩn hoặc xoá lời chúc không phù hợp</p>
         </NuxtLink>
 
         <NuxtLink

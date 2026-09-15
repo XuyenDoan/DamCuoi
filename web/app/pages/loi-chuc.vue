@@ -108,7 +108,7 @@ function bentoCardStyle(wishId: string) {
         v-if="justSubmitted"
         class="mb-6 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success"
       >
-        Cảm ơn bạn đã gửi lời chúc! Lời chúc của bạn đã được đăng.
+        Cảm ơn bạn đã gửi lời chúc! Lời chúc của bạn sẽ hiển thị sau khi được duyệt.
       </div>
 
       <button type="button" class="btn-primary" @click="isSubmitModalOpen = true">

@@ -133,6 +133,12 @@ export interface Wish {
   width: number | null
   height: number | null
   visible: boolean
+  /** Duyệt trước khi hiển thị công khai (phản hồi thật: sợ khách gửi lời
+   *  bậy bạ) — lời chúc mới gửi mặc định `false`, admin bấm "Duyệt" ở
+   *  `/admin/loi-chuc` mới chuyển `true`. Field TUỲ CHỌN để dữ liệu lời chúc
+   *  CŨ (gửi trước khi có kiểm duyệt, đã hiển thị công khai rồi) không tự
+   *  nhiên biến mất — nơi đọc coi `undefined` là đã duyệt (`!== false`). */
+  approved?: boolean
   createdAt: string
 }
 

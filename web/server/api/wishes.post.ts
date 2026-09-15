@@ -71,6 +71,7 @@ export default defineEventHandler(async (event) => {
     width: photoWidth,
     height: photoHeight,
     visible: true,
+    approved: false,
     createdAt: new Date().toISOString()
   }
 
