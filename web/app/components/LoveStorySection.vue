@@ -44,12 +44,32 @@ function prevPhoto() {
 
 // Lỗi thật đã gặp (phản hồi chủ dự án): khung ảnh mốc cố định `4/3` +
 // `object-cover` cắt ảnh dọc mất phần thân — đổi sang lấy đúng tỉ lệ thật
-// của ảnh đầu tiên mỗi mốc (`width`/`height` đã lưu sẵn lúc upload, xem
-// `LightboxPhoto`) nên ảnh dọc hiện dạng dọc, ảnh ngang hiện dạng ngang,
-// không còn 1 khung vuông ép chung cho mọi ảnh.
+// của ảnh đầu tiên mỗi mốc nên ảnh dọc hiện dạng dọc, ảnh ngang hiện dạng
+// ngang, không còn 1 khung vuông ép chung cho mọi ảnh.
+//
+// Lỗi thật KHÁC đã gặp (phản hồi chủ dự án: "chọn ảnh dọc mà vẫn hiện ra
+// ngang"): `width`/`height` lưu sẵn trong `LightboxPhoto` từng bị API upload
+// tính SAI cho ảnh có xoay EXIF (ảnh điện thoại chụp dọc) — đã fix ở
+// `love-story-photo.post.ts`, nhưng ảnh admin tải lên TRƯỚC bản fix đó vẫn
+// còn lưu sai trong `settings.json`. Đo lại kích thước THẬT ngay khi ảnh tải
+// xong trên trình duyệt (`naturalWidth`/`naturalHeight`, luôn đúng vì đọc
+// trực tiếp từ file ảnh đã xoay đúng chiều) rồi ưu tiên dùng số đo này —
+// tự "chữa lành" cả ảnh cũ mà không cần admin tải lại, không cần sửa dữ liệu
+// tay. `width`/`height` lưu sẵn chỉ còn dùng làm giá trị khởi tạo (để
+// SSR/lần vẽ đầu tiên không bị giật khung với ảnh tải sau bản fix).
+const measuredRatios = ref<Record<string, number>>({})
+function onPhotoLoad(e: Event, photoId: string) {
+  const img = e.target as HTMLImageElement
+  if (img.naturalWidth && img.naturalHeight) {
+    measuredRatios.value[photoId] = img.naturalWidth / img.naturalHeight
+  }
+}
 function milestonePhotoRatio(milestone: { photos?: LightboxPhoto[] }): string {
   const photo = milestone.photos?.[0]
-  if (!photo?.width || !photo?.height) return '4 / 3'
+  if (!photo) return '4 / 3'
+  const measured = measuredRatios.value[photo.id]
+  if (measured) return String(measured)
+  if (!photo.width || !photo.height) return '4 / 3'
   return `${photo.width} / ${photo.height}`
 }
 </script>
@@ -103,6 +123,7 @@ function milestonePhotoRatio(milestone: { photos?: LightboxPhoto[] }): string {
                 :height="milestone.photos[0]!.height"
                 loading="lazy"
                 class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                @load="onPhotoLoad($event, milestone.photos[0]!.id)"
               />
               <span
                 v-if="milestone.photos.length > 1"

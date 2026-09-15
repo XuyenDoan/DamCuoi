@@ -43,16 +43,25 @@ export default defineEventHandler(async (event) => {
     }
 
     const id = `ls_${genId()}`
-    const oriented = sharp(file.data).rotate()
-    const metadata = await oriented.metadata()
-    const buffer = await oriented.resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 85 }).toBuffer()
+    // Lỗi thật đã gặp (phản hồi chủ dự án: "ảnh dọc hiển thị luôn ra ngang"):
+    // `sharp(...).rotate()` rồi gọi `.metadata()` RIÊNG trả về kích thước ảnh
+    // GỐC TRƯỚC KHI XOAY (EXIF orientation chưa áp dụng vào pixel) — ảnh điện
+    // thoại chụp dọc (orientation 6/8) bị lưu nhầm thành số đo NGANG. Phải lấy
+    // `info` từ chính `toBuffer({resolveWithObject: true})` — đó là kích
+    // thước THẬT của file đã xoay xong, đúng với những gì trình duyệt hiển
+    // thị (giống cách `wishes.post.ts` đã làm đúng từ đầu).
+    const { data: buffer, info } = await sharp(file.data)
+      .rotate()
+      .resize({ width: 1600, withoutEnlargement: true })
+      .webp({ quality: 85 })
+      .toBuffer({ resolveWithObject: true })
     await fs.writeFile(path.join(dir, `${id}.webp`), buffer)
 
     uploaded.push({
       id,
       filename: `love-story/${id}.webp`,
-      width: metadata.width ?? 0,
-      height: metadata.height ?? 0
+      width: info.width,
+      height: info.height
     })
   }
 

@@ -33,6 +33,18 @@
  * làm nền, `.hero-portrait` (ảnh THẬT, `object-fit: contain`) nổi trên nhìn
  * đủ trọn vẹn không mất chi tiết nào — đúng nguyên tắc "không cắt/méo ảnh cá
  * nhân" đã chốt từ đầu dự án (spec.md mục 17.4).
+ *
+ * Lỗi thật đã gặp đợt sau (phản hồi chủ dự án: "hiển thị đúng tỉ lệ ảnh đầu
+ * vào luôn"): khung `.hero-portrait-wrap` vẫn cố định 4:3/3:2 nên dù không
+ * crop, ảnh vẫn bị viền mờ 2 bên/trên-dưới thường trực thay vì khớp khít
+ * khung. Đo kích thước THẬT của ảnh đang hiện (`naturalWidth`/`naturalHeight`
+ * lúc tải xong — không đoán qua đuôi file) rồi gán thẳng `aspect-ratio` của
+ * khung theo đúng ảnh đó qua inline style — khung sẽ khớp khít ảnh trong
+ * PHẦN LỚN trường hợp (đặc biệt ảnh ngang, phổ biến nhất). CSS `max-height`ở
+ * dưới vẫn giữ lại làm lưới an toàn cho ảnh dọc quá khổ (nếu không, khung
+ * cao theo đúng tỉ lệ ảnh dọc trên màn hình rộng sẽ cao vô lý, gần hết trang)
+ * — khi đó khung buộc lệch tỉ lệ thật, 2 lớp ảnh nền mờ/ảnh thật lại phát
+ * huy tác dụng che khoảng trống, không còn crop dù không khớp 100% tỉ lệ.
  */
 const { data: settings } = useSiteSettings()
 const images = computed(() => settings.value?.heroImages ?? [])
@@ -45,6 +57,19 @@ const activeIndex = ref(0)
 let autoplayTimer: ReturnType<typeof setInterval> | undefined
 let resumeTimer: ReturnType<typeof setTimeout> | undefined
 let prefersReducedMotion = false
+
+const naturalRatios = ref<Record<string, number>>({})
+function onImageLoad(e: Event, image: string) {
+  const img = e.target as HTMLImageElement
+  if (img.naturalWidth && img.naturalHeight) {
+    naturalRatios.value[image] = img.naturalWidth / img.naturalHeight
+  }
+}
+const activeAspectRatio = computed(() => {
+  const activeImage = images.value[activeIndex.value]
+  const ratio = activeImage ? naturalRatios.value[activeImage] : undefined
+  return ratio ? String(ratio) : undefined
+})
 
 function clampIndex(i: number): number {
   const n = images.value.length
@@ -106,6 +131,7 @@ watch(images, (imgs) => {
     v-reveal="0"
     class="hero-portrait-wrap"
     :class="{ 'hero-portrait-wrap--carousel': isCarousel }"
+    :style="activeAspectRatio ? { aspectRatio: activeAspectRatio } : undefined"
     @mouseenter="stopAutoplay"
     @mouseleave="startAutoplay"
   >
@@ -117,7 +143,7 @@ watch(images, (imgs) => {
         :class="{ 'hero-portrait-slide--active': i === activeIndex }"
       >
         <img :src="`/uploads/${image}`" alt="" class="hero-portrait-backdrop" aria-hidden="true" />
-        <img :src="`/uploads/${image}`" alt="" class="hero-portrait" />
+        <img :src="`/uploads/${image}`" alt="" class="hero-portrait" @load="onImageLoad($event, image)" />
       </div>
     </div>
 

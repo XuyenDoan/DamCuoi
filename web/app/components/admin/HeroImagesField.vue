@@ -41,9 +41,16 @@ function onFilesSelected(e: Event) {
       <div
         v-for="(image, i) in images"
         :key="image"
-        class="group relative aspect-[4/3] overflow-hidden rounded-md border border-secondary-light/40"
+        class="group relative aspect-[4/3] overflow-hidden rounded-md border border-secondary-light/40 bg-surface"
       >
-        <img :src="`/uploads/${image}`" alt="" class="h-full w-full object-cover" />
+        <!-- Lỗi thật đã gặp (phản hồi chủ dự án: "lúc nào cũng hiển thị ảnh
+             nằm ngang nên khó phân biệt") — `object-cover` trên ô lưới 4:3
+             luôn cắt ảnh dọc để LẤP ĐẦY ô, trông giống hệt ảnh ngang, admin
+             không phân biệt được ảnh mình vừa tải lên là ngang hay dọc.
+             `object-contain` hiện trọn ảnh thật (ảnh dọc sẽ có khoảng trống
+             2 bên trong ô, `bg-surface` ở div cha lấp khoảng đó) — nhận ra
+             ngay tỉ lệ thật, đúng ý nghĩa 1 ô xem trước (preview). -->
+        <img :src="`/uploads/${image}`" alt="" class="h-full w-full object-contain" />
 
         <span
           class="absolute left-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white"

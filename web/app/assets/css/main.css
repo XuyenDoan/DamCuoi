@@ -732,12 +732,12 @@ body {
 
   Vì ảnh chạm sát 2 mép màn hình, bỏ hẳn khung viền/bo góc riêng theo theme
   (khác hẳn `.couple-intro-portrait-wrap` bên dưới — đó vẫn là thẻ nhỏ trong
-  nội dung, giữ khung riêng theo theme). Dải mờ (fade) ở 2 mép trên/dưới
-  dùng `var(--color-bg)` nên TỰ ĐỘNG đổi màu đúng theo từng theme mà không
-  cần viết CSS riêng: dải DƯỚI tạo chuyển tiếp mượt vào nội dung bên dưới;
-  dải TRÊN đảm bảo thanh điều hướng `position: fixed` (đang trong suốt lúc
-  chưa cuộn ở 1 số theme) luôn đọc được chữ dù ảnh admin tải lên sáng/tối/
-  màu sắc bất kỳ — an toàn tương phản AAA bất kể nội dung ảnh.
+  nội dung, giữ khung riêng theo theme). Dải mờ (fade) ở mép DƯỚI dùng
+  `var(--color-bg)` nên TỰ ĐỘNG đổi màu đúng theo từng theme mà không cần
+  viết CSS riêng — tạo chuyển tiếp mượt vào nội dung bên dưới. Dải tối mép
+  TRÊN (từng dùng để giữ chữ nav đọc được khi nav nổi trên ảnh) đã BỎ — nav
+  giờ luôn nằm NGOÀI khung ảnh (xem khối `margin-top` bên dưới), không còn
+  lý do gì để làm tối ảnh admin tải lên nữa.
 */
 .hero-portrait-wrap {
   position: relative;
@@ -745,37 +745,54 @@ body {
   aspect-ratio: 4 / 3; /* mobile: khung gần vuông, đủ cao cho ảnh dọc */
   min-height: 240px;
   overflow: hidden;
+  /* Khớp mượt khi đổi từ tỉ lệ mặc định sang tỉ lệ THẬT của ảnh (đo xong lúc
+     tải, xem `activeAspectRatio` ở HeroCoupleImage.vue) hoặc khi chuyển ảnh
+     kế tiếp có tỉ lệ khác — tránh khung "giật" đột ngột. */
+  transition: aspect-ratio 500ms ease;
 }
 /* Lỗi thật đã gặp (phản hồi chủ dự án): khung 4:3 cố định trên laptop vừa
    quá cao (không có `max-height` chặn, ảnh chiếm gần hết màn hình) vừa crop
    quá nhiều ảnh chụp ngang. Từ `sm` trở lên nới khung sang 3:2 (gần tỉ lệ máy
    ảnh chụp ngang phổ biến — bớt crop 2 mép trên/dưới) + chặn chiều cao tối đa
-   64vh (khớp giá trị đã dùng ổn trước đây) để không lấn hết viewport trên
-   màn hình rộng/cao. */
+   để không lấn hết viewport trên màn hình rộng/cao — GIÁ TRỊ NÀY vẫn dùng
+   làm lưới an toàn kể cả sau khi thêm `aspect-ratio` đo thật theo ảnh
+   (`HeroCoupleImage.vue`): ảnh dọc trên màn hình rộng nếu không chặn sẽ cao
+   ngất ngưởng (100% chiều rộng ở tỉ lệ dọc = rất cao) — khi `max-height` ghì
+   lại, khung không còn khớp đúng 100% tỉ lệ ảnh, nhưng 2 lớp ảnh nền mờ/ảnh
+   thật (`.hero-portrait-backdrop`/`.hero-portrait`) vẫn đảm bảo không crop.
+   Lỗi thật đã gặp: 64vh (giá trị đợt sửa trước) bóp mất tỉ lệ thật ngay cả
+   với ảnh NGANG bình thường (VD tỉ lệ 3:2/1.6 — rất phổ biến, không phải ca
+   hiếm gặp) trên màn hình không quá cao (đo thật: viewport cao 900px, khung
+   rộng 1265px cần cao 790px cho tỉ lệ 1.6 nhưng 64vh chỉ cho 576px) — tức
+   lưới an toàn LÀM SAI chính ca thường gặp nhất nó cần phục vụ đúng. Nới lên
+   80vh (hero chiếm phần lớn màn hình nhưng vẫn chừa 1 dải dưới gợi ý "còn
+   nội dung, cuộn tiếp") — vẫn giữ ảnh dọc không bị cao vô hạn. */
 @media (min-width: 640px) {
   .hero-portrait-wrap {
     aspect-ratio: 3 / 2;
-    max-height: 64vh;
+    max-height: 80vh;
   }
 }
 
 /*
-  Lỗi thật đã gặp (phản hồi chủ dự án): header `position: fixed` trong suốt
-  (bg-bg/40 + backdrop-blur-sm lúc chưa cuộn) đè thẳng lên ~1/4 chiều cao ảnh
-  hero trên điện thoại (đo thật: header ~76-84px / khung hero chỉ ~280px) —
-  chữ tên cô dâu chú rể bên trái nav nằm ngay trên ảnh, cộng `backdrop-blur`
-  làm mờ hẳn phần ảnh bên dưới. Chừa khoảng trống bằng chiều cao header (padding
-  py-4/py-5 + nút 44px, đã đo qua devtools) NGAY TRÊN khung ảnh trên mobile —
-  header khi đó nổi trên nền trang (`--color-bg`) thay vì đè lên ảnh. Theme
-  "bento" dùng header `sticky` (đã tự chiếm chỗ trong luồng, không đè lên gì)
-  nên loại trừ riêng, không cộng dồn khoảng trống. */
-@media (max-width: 767px) {
-  .hero-portrait-wrap {
-    margin-top: 5.25rem;
-  }
-  [data-theme="bento"] .hero-portrait-wrap {
-    margin-top: 0;
-  }
+  Lỗi thật đã gặp (phản hồi chủ dự án, cả bản mobile-only trước đây LẪN
+  desktop): header `position: fixed` trong suốt/bán trong suốt đè thẳng lên
+  đỉnh ảnh hero ở MỌI kích thước màn hình (không chỉ mobile) — chữ tên cô dâu
+  chú rể + menu điều hướng nằm ngay trên ảnh. Bỏ hẳn kiểu "nav nổi trên ảnh +
+  dải tối làm nền cho chữ đọc được" (giải pháp cũ, dễ vỡ khi khung hero đổi
+  tỉ lệ động theo ảnh — có ảnh sẽ làm khung rất thấp, dải tối 35% khi đó gần
+  như phủ hết ảnh), thay bằng cách rõ ràng/tinh tế hơn: chừa khoảng trống
+  bằng đúng chiều cao header (đo qua devtools — py-4/py-5 + nút 44px) NGAY
+  TRÊN khung ảnh ở MỌI breakpoint — header khi đó luôn nổi trên nền trang
+  (`--color-bg`), không bao giờ chồng lên ảnh. Áp dụng cho mọi kích thước màn
+  hình (không còn giới hạn `max-width: 767px` như bản trước). Theme "bento"
+  dùng header `sticky` (đã tự chiếm chỗ trong luồng, không đè lên gì) nên
+  loại trừ riêng, không cộng dồn khoảng trống. */
+.hero-portrait-wrap {
+  margin-top: 5.25rem;
+}
+[data-theme="bento"] .hero-portrait-wrap {
+  margin-top: 0;
 }
 
 .hero-portrait-slides {
@@ -926,14 +943,6 @@ body {
   background: #fff;
 }
 
-.hero-portrait-wrap::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 35%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.38), transparent);
-  pointer-events: none;
-}
 .hero-portrait-wrap::after {
   content: '';
   position: absolute;
