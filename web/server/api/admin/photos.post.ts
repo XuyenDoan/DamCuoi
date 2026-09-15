@@ -61,9 +61,17 @@ export default defineEventHandler(async (event) => {
 
     try {
       const id = `photo_${genId()}`
-      const oriented = sharp(file.data).rotate()
-      const metadata = await oriented.metadata()
-      const originalBuffer = await oriented.webp({ quality: 90 }).toBuffer()
+      // Lỗi thật đã gặp (cùng lỗi đã fix ở love-story-photo.post.ts/
+      // upload.post.ts): `.metadata()` gọi riêng sau `.rotate()` trả về kích
+      // thước ảnh GỐC TRƯỚC KHI XOAY — ảnh admin tải lên chụp dọc bằng điện
+      // thoại bị lưu nhầm số đo ngang, làm lệch lưới masonry ở Album. Lấy
+      // `info` từ `toBuffer({resolveWithObject: true})` của bản ORIGINAL
+      // (đủ dùng cho tỉ lệ hiển thị dù ảnh thumbnail được resize riêng bên
+      // dưới — resize giữ nguyên tỉ lệ nên không lệch).
+      const { data: originalBuffer, info } = await sharp(file.data)
+        .rotate()
+        .webp({ quality: 90 })
+        .toBuffer({ resolveWithObject: true })
       await fs.writeFile(path.join(originalsDir, `${id}.webp`), originalBuffer)
 
       const thumbBuffer = await sharp(file.data)
@@ -77,8 +85,8 @@ export default defineEventHandler(async (event) => {
         id,
         filename: `originals/${id}.webp`,
         thumbnail: `thumbnails/${id}.webp`,
-        width: metadata.width ?? 0,
-        height: metadata.height ?? 0,
+        width: info.width,
+        height: info.height,
         albumId,
         caption: '',
         order: 0,

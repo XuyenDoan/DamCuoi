@@ -167,12 +167,15 @@ async function deletePhoto(photo: Photo) {
           <div
             v-for="photo in pendingPhotos"
             :key="photo.id"
-            class="overflow-hidden rounded-lg border border-secondary-light/40"
+            class="overflow-hidden rounded-lg border border-secondary-light/40 bg-surface"
           >
+            <!-- object-contain (rà soát theo yêu cầu chủ dự án, cùng lý do
+                 đã sửa ở HeroImagesField.vue): giữ nguyên tỉ lệ thật khi
+                 duyệt, không cắt mất phần ảnh khách gửi. -->
             <img
               :src="`/api/admin/photo-preview/${photo.id}`"
               :alt="`Ảnh chờ duyệt từ ${photo.uploadedBy}`"
-              class="h-48 w-full object-cover"
+              class="h-48 w-full object-contain"
             />
             <div class="p-3">
               <p class="mb-2 truncate text-sm text-text-muted">Gửi bởi: {{ photo.uploadedBy }}</p>
@@ -270,10 +273,10 @@ async function deletePhoto(photo: Photo) {
           <div
             v-for="photo in pagedPublished"
             :key="photo.id"
-            class="overflow-hidden rounded-lg border border-secondary-light/40"
+            class="overflow-hidden rounded-lg border border-secondary-light/40 bg-surface"
           >
             <div class="relative">
-              <img :src="`/uploads/${photo.thumbnail}`" :alt="photo.caption || 'Ảnh cưới'" class="h-48 w-full object-cover" />
+              <img :src="`/uploads/${photo.thumbnail}`" :alt="photo.caption || 'Ảnh cưới'" class="h-48 w-full object-contain" />
             </div>
             <div class="flex flex-col gap-2 p-3">
               <input

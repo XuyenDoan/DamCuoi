@@ -69,17 +69,24 @@ export default defineEventHandler(async (event) => {
 
     try {
       const id = `guest_${genId()}`
-      const image = sharp(file.data).rotate() // tự xoay theo EXIF trước khi bỏ metadata
-      const metadata = await image.metadata()
-      const webpBuffer = await image.webp({ quality: 85 }).toBuffer()
+      // Lỗi thật đã gặp (cùng lỗi đã fix ở love-story-photo.post.ts): gọi
+      // `.metadata()` RIÊNG sau `.rotate()` trả về kích thước ảnh GỐC TRƯỚC
+      // KHI XOAY (EXIF orientation chưa áp dụng vào pixel) — ảnh khách gửi
+      // chụp dọc bằng điện thoại bị lưu nhầm thành số đo ngang, làm lệch
+      // lưới masonry ở Album. Lấy `info` từ chính `toBuffer({resolveWithObject:
+      // true})` — kích thước THẬT của file đã xoay xong.
+      const { data: webpBuffer, info } = await sharp(file.data)
+        .rotate() // tự xoay theo EXIF trước khi bỏ metadata
+        .webp({ quality: 85 })
+        .toBuffer({ resolveWithObject: true })
       await fs.writeFile(path.join(pendingDir, `${id}.webp`), webpBuffer)
 
       newPhotoEntries.push({
         id,
         filename: `pending/${id}.webp`,
         thumbnail: `pending/${id}.webp`,
-        width: metadata.width ?? 0,
-        height: metadata.height ?? 0,
+        width: info.width,
+        height: info.height,
         albumId: GUEST_ALBUM_ID,
         caption: '',
         order: 0,

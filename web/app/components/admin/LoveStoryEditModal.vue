@@ -89,9 +89,13 @@ async function removePhoto(photoId: string) {
           <div
             v-for="photo in milestone.photos"
             :key="photo.id"
-            class="group relative aspect-square overflow-hidden rounded-md border border-secondary-light/40"
+            class="group relative aspect-square overflow-hidden rounded-md border border-secondary-light/40 bg-surface"
           >
-            <img :src="`/uploads/${photo.filename}`" alt="" class="h-full w-full object-cover" />
+            <!-- object-contain thay vì object-cover (rà soát theo yêu cầu chủ
+                 dự án, cùng lý do đã sửa ở HeroImagesField.vue): ô vuông
+                 object-cover khiến ảnh dọc trông giống hệt ảnh ngang trong
+                 lưới xem trước, khó phân biệt. -->
+            <img :src="`/uploads/${photo.filename}`" alt="" class="h-full w-full object-contain" />
             <button
               type="button"
               class="focus-ring-dark absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-all duration-200 hover:bg-black/80 group-hover:opacity-100 focus-visible:opacity-100"

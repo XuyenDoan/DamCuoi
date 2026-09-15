@@ -57,11 +57,26 @@ function prevPhoto() {
           class="focus-ring-dark group relative block h-56 w-full overflow-hidden"
           @click="openMilestonePhoto(milestone.photos, 0)"
         >
+          <!-- Lỗi thật đã gặp (rà soát theo yêu cầu chủ dự án): `object-cover`
+               cắt ảnh dọc mất phần thân để lấp đầy khung 224px cố định — khung
+               cố định là CHỦ Ý của bố cục "cuộn phim" (mọi thẻ cùng cỡ mới
+               thẳng hàng khi cuộn ngang) nên không thể đổi sang khung co giãn
+               theo ảnh như theme mặc định. Dùng đúng kỹ thuật đã áp dụng cho
+               ảnh hero: lớp ẢNH NỀN mờ + phóng to lấp đầy khung, lớp ẢNH THẬT
+               `object-fit: contain` nổi trên hiện đủ trọn ảnh — vẫn giữ khung
+               224px đều tăm tắp mà không cắt mất chi tiết nào. -->
+          <img
+            :src="`/uploads/${milestone.photos[0].filename}`"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            class="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl brightness-75"
+          />
           <img
             :src="`/uploads/${milestone.photos[0].filename}`"
             :alt="milestone.photos[0].caption || milestone.title"
             loading="lazy"
-            class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            class="absolute inset-0 h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
           />
           <span class="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-80" />
           <span class="absolute bottom-3 left-3 font-heading text-sm text-primary">{{ milestone.year }}</span>
