@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../../server/utils/types'
 
 /**
- * "Câu Chuyện Của Chúng Tôi" — theme Kính Mờ Ánh Sáng (spec.md mục 37).
+ * "Câu Chuyện Tình Yêu" — theme Kính Mờ Ánh Sáng (spec.md mục 37).
  * Mỗi mốc là 1 khối kính mờ nổi riêng biệt, lệch trái/phải xen kẽ — tái
  * dùng đúng dữ liệu `loveStory` + `PhotoLightbox` chung.
  */
@@ -33,7 +33,7 @@ function prevPhoto() {
   <section class="relative px-6 pb-32 pt-8">
     <div class="mx-auto mb-14 max-w-xl text-center">
       <span class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-primary-vivid)]">Câu chuyện</span>
-      <h2 class="mt-2 font-heading text-4xl text-text">Câu Chuyện Của Chúng Tôi</h2>
+      <h2 class="mt-2 font-heading text-4xl text-text">Câu Chuyện Tình Yêu</h2>
     </div>
 
     <div v-if="loveStory.length === 0" class="mx-auto max-w-md text-center">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Khối giới thiệu cô dâu + chú rể, đặt ngay trước "Câu Chuyện Của Chúng Tôi"
+ * Khối giới thiệu cô dâu + chú rể, đặt ngay trước "Câu Chuyện Tình Yêu"
  * (spec.md mục 38, bố cục "cối xay gió" tại mục 38.11) — 2 ảnh chân dung
  * giao chéo (cô dâu trên-trái, chú rể dưới-phải — đúng ưu tiên "cô dâu
  * trước"), tên đặt vào đúng 2 GÓC TRỐNG đối diện chéo với từng ảnh (tên cô
@@ -32,8 +32,8 @@ const bothImages = computed(() => !!brideImage.value && !!groomImage.value)
       </div>
 
       <div v-reveal="60" class="couple-duo-name couple-duo-name-bride">
-        <p class="font-accent text-sm italic tracking-[0.2em] text-primary">Cô Dâu</p>
-        <h3 class="mt-2 font-heading text-lg text-text sm:text-2xl md:text-3xl">{{ settings?.coupleNames.bride }}</h3>
+        <p class="font-accent text-base italic tracking-[0.2em] text-primary sm:text-lg">Cô Dâu</p>
+        <h3 class="mt-2 font-heading text-2xl text-text sm:text-3xl md:text-4xl">{{ settings?.coupleNames.bride }}</h3>
         <div class="couple-intro-divider mt-3" />
       </div>
 
@@ -42,8 +42,8 @@ const bothImages = computed(() => !!brideImage.value && !!groomImage.value)
       </div>
 
       <div v-reveal="180" class="couple-duo-name couple-duo-name-groom">
-        <p class="font-accent text-sm italic tracking-[0.2em] text-primary">Chú Rể</p>
-        <h3 class="mt-2 font-heading text-lg text-text sm:text-2xl md:text-3xl">{{ settings?.coupleNames.groom }}</h3>
+        <p class="font-accent text-base italic tracking-[0.2em] text-primary sm:text-lg">Chú Rể</p>
+        <h3 class="mt-2 font-heading text-2xl text-text sm:text-3xl md:text-4xl">{{ settings?.coupleNames.groom }}</h3>
         <div class="couple-intro-divider mt-3" />
       </div>
     </div>
@@ -56,8 +56,8 @@ const bothImages = computed(() => !!brideImage.value && !!groomImage.value)
         <img :src="`/uploads/${groomImage}`" alt="" class="couple-intro-portrait" />
       </div>
       <div v-reveal="60" class="couple-intro-name-block">
-        <p class="font-accent text-sm italic tracking-[0.2em] text-primary">{{ brideImage ? 'Cô Dâu' : 'Chú Rể' }}</p>
-        <h3 class="mt-2 font-heading text-2xl text-text sm:text-3xl">
+        <p class="font-accent text-base italic tracking-[0.2em] text-primary sm:text-lg">{{ brideImage ? 'Cô Dâu' : 'Chú Rể' }}</p>
+        <h3 class="mt-2 font-heading text-3xl text-text sm:text-4xl">
           {{ brideImage ? settings?.coupleNames.bride : settings?.coupleNames.groom }}
         </h3>
         <div class="couple-intro-divider mx-auto mt-3" />

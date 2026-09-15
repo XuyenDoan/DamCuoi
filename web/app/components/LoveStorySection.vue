@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../server/utils/types'
 
 /**
- * Section "Câu Chuyện Của Chúng Tôi" (chỉ dùng ở theme mặc định + "Sen Màu
+ * Section "Câu Chuyện Tình Yêu" (chỉ dùng ở theme mặc định + "Sen Màu
  * Nước" — 2 theme tái dùng chung `DefaultHomeView.vue`, spec.md mục 41).
  *
  * Dựng lại timeline (đợt sửa sau mục 40 — bản trước "hiển thị đơn giản
@@ -41,11 +41,22 @@ function prevPhoto() {
   if (lightboxIndex.value === null) return
   lightboxIndex.value = (lightboxIndex.value - 1 + lightboxPhotos.value.length) % lightboxPhotos.value.length
 }
+
+// Lỗi thật đã gặp (phản hồi chủ dự án): khung ảnh mốc cố định `4/3` +
+// `object-cover` cắt ảnh dọc mất phần thân — đổi sang lấy đúng tỉ lệ thật
+// của ảnh đầu tiên mỗi mốc (`width`/`height` đã lưu sẵn lúc upload, xem
+// `LightboxPhoto`) nên ảnh dọc hiện dạng dọc, ảnh ngang hiện dạng ngang,
+// không còn 1 khung vuông ép chung cho mọi ảnh.
+function milestonePhotoRatio(milestone: { photos?: LightboxPhoto[] }): string {
+  const photo = milestone.photos?.[0]
+  if (!photo?.width || !photo?.height) return '4 / 3'
+  return `${photo.width} / ${photo.height}`
+}
 </script>
 
 <template>
   <section class="mx-auto max-w-3xl px-6 pb-24">
-    <h2 class="mb-10 text-center font-heading text-3xl text-text sm:mb-14">Câu Chuyện Của Chúng Tôi</h2>
+    <h2 class="mb-10 text-center font-heading text-3xl text-text sm:mb-14">Câu Chuyện Tình Yêu</h2>
 
     <div v-if="loveStory.length === 0" class="py-10 text-center">
       <LotusMotif class="mx-auto h-14 w-14 text-secondary-light" />
@@ -81,13 +92,15 @@ function prevPhoto() {
             <button
               v-if="milestone.photos?.length"
               type="button"
-              class="focus-ring group relative w-[38%] shrink-0 overflow-hidden rounded-2xl bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md sm:w-[42%]"
-              style="aspect-ratio: 4 / 3"
+              class="focus-ring group relative w-[46%] shrink-0 overflow-hidden rounded-2xl bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md sm:w-1/2"
+              :style="{ aspectRatio: milestonePhotoRatio(milestone) }"
               @click="openMilestonePhoto(milestone.photos)"
             >
               <img
                 :src="`/uploads/${milestone.photos[0]!.filename}`"
                 :alt="milestone.photos[0]!.caption || milestone.title"
+                :width="milestone.photos[0]!.width"
+                :height="milestone.photos[0]!.height"
                 loading="lazy"
                 class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
               />

@@ -28,17 +28,6 @@
 @import "@fontsource/be-vietnam-pro/400.css";
 @import "@fontsource/be-vietnam-pro/500.css";
 @import "@fontsource/playfair-display/500.css";
-/*
-  Dancing Script (700) — CHỈ dùng cho tên cô dâu chú rể trên carousel ảnh
-  đầu trang chủ (`HeroCoupleImage.vue`, spec.md mục 40), tham khảo nét chữ
-  thư pháp trong ảnh mẫu chủ dự án gửi. Đã KIỂM TRA THẬT gói
-  @fontsource/dancing-script có xuất bản đủ file `vietnamese-*.css` (không
-  đoán) — đủ dấu tiếng Việt. Cố định DÙNG CHUNG cho cả 7 theme (không đổi
-  theo `--font-heading` từng theme) vì đây là 1 chi tiết thương hiệu trang
-  bìa có chủ đích, giống cách chữ trên ảnh hero vốn đã cố định trắng+shadow
-  bất kể theme từ mục 38.10.
-*/
-@import "@fontsource/dancing-script/700.css";
 @import "@fontsource/cormorant-garamond/500-italic.css";
 
 /*
@@ -795,24 +784,32 @@ body {
   z-index: 0; /* tạo stacking context riêng */
 }
 
-.hero-portrait {
+/* Lỗi thật đã gặp (phản hồi chủ dự án, kèm ảnh chụp): `object-fit: cover`
+   trên khung tỉ lệ cố định cắt mất phần thật của ảnh (đáy ảnh ngang, thân
+   ảnh dọc) — không có 1 `object-position` nào đúng cho mọi ảnh khách đưa
+   lên. 2 lớp chồng nhau thay thế hẳn cách crop cũ: `.hero-portrait-backdrop`
+   (ảnh y hệt, mờ + phóng to lấp khung) làm nền cho khoảng trống 2 bên/trên
+   dưới, `.hero-portrait` (`object-fit: contain`) nổi trên hiển thị ĐỦ TRỌN
+   ảnh thật không mất chi tiết nào — không còn cần đoán ảnh ngang/dọc để lệch
+   object-position như trước. */
+.hero-portrait-backdrop {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1.15); /* che viền nhoè do blur tạo ra */
+  filter: blur(32px) brightness(0.82) saturate(115%);
+}
+
+.hero-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
-
-/* Ảnh ngang — xác định qua kích thước thật của ảnh lúc tải (xem
-   `HeroCoupleImage.vue`, không đoán từ đuôi file/tên). */
-.hero-portrait.landscape {
-  object-position: top center; /* ưu tiên phần trên nhiều */
-}
-
-/* Ảnh dọc */
-.hero-portrait.portrait {
-  object-position: 25% center; /* nhích lên trên một chút, ít hơn ảnh ngang */
-}
-
 
 /*
   mục 40: carousel nhiều ảnh — mỗi ảnh 1 lớp xếp chồng tuyệt đối, chuyển
@@ -946,113 +943,6 @@ body {
   pointer-events: none;
 }
 
-/*
-  Tên cô dâu chú rể hiện NGAY TRÊN ảnh hero (mục 38.10 — sửa lại từ "tấm
-  bảng" nền mờ ở mục 38.9 theo phản hồi "chỉ cần chữ, không cần nền đè lên
-  ảnh"). Chữ trắng thuần (không theo `--color-text` từng theme — trên ẢNH
-  THẬT bất kỳ, trắng+đổ bóng là lựa chọn AN TOÀN VÀ PHỔ BIẾN NHẤT trên các
-  trang AAA/tạp chí/điện ảnh, không phụ thuộc theme sáng/tối). 2 lớp
-  `text-shadow` chồng nhau: lớp SÁT (khoảng cách nhỏ, mờ ít) khắc nét viền
-  chữ chống lẫn vào ảnh sáng; lớp TOẢ RỘNG (mờ nhiều, độ đục thấp) tạo cảm
-  giác chữ "nổi khối" phía trên ảnh — không có khối nền/khối mờ nào phía
-  sau. Dấu `&` vẫn tô `--color-primary` (khớp mọi tiêu đề H1 khác trong
-  site) nhưng KẾ THỪA nguyên `text-shadow` từ thẻ cha (thuộc tính có tính kế
-  thừa trong CSS) nên vẫn đủ nổi bật.
-*/
-.hero-portrait-names {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  padding: 1.5rem;
-  pointer-events: none;
-}
-.hero-portrait-tagline {
-  margin: 0;
-  max-width: 90%;
-  text-align: center;
-  color: #fff;
-  font-style: italic;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.55),
-    0 4px 14px rgba(0, 0, 0, 0.45);
-}
-@media (min-width: 640px) {
-  .hero-portrait-tagline {
-    font-size: 1.25rem;
-  }
-}
-[data-theme="kinetic"] .hero-portrait-tagline {
-  font-style: normal;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.8rem;
-}
-@media (min-width: 640px) {
-  [data-theme="kinetic"] .hero-portrait-tagline {
-    font-size: 0.95rem;
-  }
-}
-/*
-  mục 40: đổi sang font thư pháp "Dancing Script" cho tên cô dâu chú rể trên
-  ảnh hero, tham khảo đúng nét chữ trong ảnh mẫu chủ dự án gửi (đã kiểm tra
-  gói font có đủ dấu tiếng Việt — xem chú thích ở đầu file, khối `@import`).
-  Cỡ chữ tăng hơn bản Playfair trước (script mảnh, cùng cỡ point nhìn "bé"
-  hơn serif đứng) để giữ đúng cảm giác choán không gian tương đương. Cố định
-  DÙNG CHUNG mọi theme, TRỪ Bento/Kinetic (2 theme có bản sắc hình học/kiểu
-  chữ đậm-in-hoa riêng — chữ thư pháp bay bướm sẽ lệch hẳn tinh thần thiết
-  kế) tiếp tục dùng `--font-heading` riêng của theme như trước.
-*/
-.hero-portrait-names-text {
-  margin: 0;
-  max-width: 92%;
-  text-align: center;
-  color: #fff;
-  font-family: "Dancing Script", "Cormorant Garamond", cursive, serif;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-  /* Cỡ mobile GIỮ NGUYÊN 1.75rem (giá trị cũ đã kiểm chứng vừa khít khung
-     `min-height: 240px` cạnh nav `position: fixed` phía trên) — lỗi thật đã
-     gặp: tăng lên 2.25rem như bản đầu khiến khối chữ 2 dòng (dòng tagline +
-     dòng tên) đẩy lên CHỜM VÀO vùng nav ở mobile (đo `getBoundingClientRect()`
-     xác nhận tagline chồng lên nav ~16px). Chỉ tăng cỡ chữ ở breakpoint
-     `sm`/`lg` trở lên, nơi khung hero cao hẳn theo `aspect-ratio` (không còn
-     bị chặn bởi sàn `min-height`) nên dư khoảng trống an toàn. */
-  font-size: 1.75rem;
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.55),
-    0 4px 14px rgba(0, 0, 0, 0.45),
-    0 18px 44px rgba(0, 0, 0, 0.35);
-}
-@media (min-width: 640px) {
-  .hero-portrait-names-text {
-    font-size: 3.4rem;
-  }
-}
-@media (min-width: 1024px) {
-  .hero-portrait-names-text {
-    font-size: 4.25rem;
-  }
-}
-[data-theme="bento"] .hero-portrait-names-text {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  letter-spacing: 0.01em;
-}
-[data-theme="kinetic"] .hero-portrait-names-text {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 
 /* Ảnh chân dung cô dâu/chú rể (`CoupleIntroSection.vue`) — vẫn là thẻ nhỏ
    trong nội dung (không full-bleed), giữ khung/viền/bo góc riêng theo theme
@@ -1066,6 +956,12 @@ body {
   border-radius: 28px;
   border: 1px solid color-mix(in srgb, var(--color-secondary) 25%, transparent);
   box-shadow: 0 16px 40px color-mix(in srgb, var(--color-text) 12%, transparent);
+  /* `transition` KHÔNG khai ở đây — xem khối cuối file gần `.reveal-init`,
+     lý do cascade y hệt bug đã ghi chú ở `.couple-duo-frame` bên dưới. */
+}
+.couple-intro-portrait-wrap:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 48px color-mix(in srgb, var(--color-text) 18%, transparent);
 }
 .couple-intro-portrait {
   width: 100%;
@@ -1140,6 +1036,13 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+/* `transition` cho hiệu ứng hover của 2 khối này KHÔNG khai ở đây — cùng lý
+   do cascade với `.couple-intro-portrait-wrap` ở trên, xem khối cuối file
+   gần `.reveal-init`. */
+.couple-duo-name:hover,
+.couple-intro-name-block:hover {
+  transform: translateY(-6px);
+}
 .couple-duo-name-bride {
   left: var(--duo-w);
   top: 0;
@@ -1198,7 +1101,7 @@ body {
   background: color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 
-/* Nhãn "Cô Dâu"/"Chú Rể" trước Câu Chuyện Của Chúng Tôi — Editorial/Kinetic
+/* Nhãn "Cô Dâu"/"Chú Rể" trước Câu Chuyện Tình Yêu — Editorial/Kinetic
    bỏ chữ nghiêng font-accent (không hợp phong cách sắc/thẳng), dùng chữ hoa
    rời chữ thay thế. */
 [data-theme="editorial"] .couple-intro-name-block p:first-child,
@@ -1292,6 +1195,22 @@ body {
 .reveal-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+/* Lỗi thật đã gặp (đúng bug đã ghi chú ở `.couple-duo-frame`): phần tử vừa
+   mang class hiệu ứng hover VỪA mang `v-reveal` (cùng đặc hiệu selector 1
+   class, `.reveal-init` đứng SAU trong file) khiến shorthand `transition`
+   khai ở `.couple-intro-portrait-wrap`/`.couple-duo-name` bị đè mất hoàn
+   toàn theo thứ tự cascade — đặt lại 2 khai báo `transition` NGAY SAU
+   `.reveal-init`/`.reveal-visible` (cùng đặc hiệu, đứng sau nên thắng) để
+   khôi phục đúng hiệu ứng nổi lên mượt khi hover (mục 40, phản hồi chủ dự
+   án). */
+.couple-intro-portrait-wrap {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.couple-duo-name,
+.couple-intro-name-block {
+  transition: transform 200ms ease;
 }
 
 /* Nghiêng 3D theo chuột (v-tilt directive, spec.md mục 37 — "Lưới Chuyển

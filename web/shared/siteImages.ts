@@ -23,12 +23,12 @@ export const SITE_IMAGES: SiteImageDef[] = [
   {
     key: 'bridePortrait',
     label: 'Ảnh cô dâu',
-    description: 'Hiển thị ở khối giới thiệu cô dâu, phía trên "Câu Chuyện Của Chúng Tôi".'
+    description: 'Hiển thị ở khối giới thiệu cô dâu, phía trên "Câu Chuyện Tình Yêu".'
   },
   {
     key: 'groomPortrait',
     label: 'Ảnh chú rể',
-    description: 'Hiển thị ở khối giới thiệu chú rể, phía trên "Câu Chuyện Của Chúng Tôi".'
+    description: 'Hiển thị ở khối giới thiệu chú rể, phía trên "Câu Chuyện Tình Yêu".'
   }
 ]
 

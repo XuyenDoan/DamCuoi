@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../../server/utils/types'
 
 /**
- * "Câu Chuyện Của Chúng Tôi" — theme Lưới Chuyển Động (spec.md mục 37).
+ * "Câu Chuyện Tình Yêu" — theme Lưới Chuyển Động (spec.md mục 37).
  * Danh sách đầy đủ các mốc dạng lưới ô màu pastel xen kẽ, nghiêng nhẹ theo
  * chuột (`v-tilt`) — cùng dữ liệu `loveStory` + `PhotoLightbox` chung.
  */
@@ -35,7 +35,7 @@ const cellBg = ['var(--bento-cell-1)', 'var(--bento-cell-2)', 'var(--bento-cell-
   <section class="tilt-grid px-6 pb-32">
     <div class="mx-auto mb-10 max-w-6xl">
       <span class="text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-primary-vivid)]">Câu chuyện</span>
-      <h2 class="mt-1 font-heading text-3xl font-extrabold text-text">Câu Chuyện Của Chúng Tôi</h2>
+      <h2 class="mt-1 font-heading text-3xl font-extrabold text-text">Câu Chuyện Tình Yêu</h2>
     </div>
 
     <div v-if="loveStory.length === 0" class="mx-auto max-w-md text-center">

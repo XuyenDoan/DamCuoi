@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../../server/utils/types'
 
 /**
- * "Câu Chuyện Của Chúng Tôi" — trình bày dạng cuộn phim (mỗi mốc = 1 khung
+ * "Câu Chuyện Tình Yêu" — trình bày dạng cuộn phim (mỗi mốc = 1 khung
  * hình), cuộn ngang trên desktop (`scroll-snap`), xếp dọc tự nhiên trên
  * mobile (spec.md mục 36, Phương án 02). Cùng dữ liệu `loveStory`, tái dùng
  * nguyên `PhotoLightbox`.
@@ -34,7 +34,7 @@ function prevPhoto() {
   <section class="px-6 pb-28 pt-8">
     <div class="mx-auto max-w-6xl">
       <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Cuộn phim</span>
-      <h2 class="mt-2 font-heading text-3xl text-text">Câu Chuyện Của Chúng Tôi</h2>
+      <h2 class="mt-2 font-heading text-3xl text-text">Câu Chuyện Tình Yêu</h2>
     </div>
 
     <div v-if="loveStory.length === 0" class="mx-auto mt-10 max-w-6xl text-center">

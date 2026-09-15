@@ -62,7 +62,7 @@ export interface Settings {
   /**
    * Ảnh chân dung cố định của trang chủ (khớp key trong shared/siteImages.ts
    * — spec.md mục 38): ảnh đầu trang + ảnh cô dâu/chú rể ở khối giới thiệu
-   * trước "Câu Chuyện Của Chúng Tôi". Khác `pageBackgrounds` (ảnh NỀN mờ phía
+   * trước "Câu Chuyện Tình Yêu". Khác `pageBackgrounds` (ảnh NỀN mờ phía
    * sau nội dung) — đây là ảnh hiển thị TRỰC TIẾP trong nội dung. Giá trị
    * null -> không hiển thị khối/ảnh đó (không có placeholder trên trang công
    * khai, chỉ admin thấy khung trống để tải lên).

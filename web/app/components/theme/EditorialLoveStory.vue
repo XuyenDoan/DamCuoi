@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../../server/utils/types'
 
 /**
- * "Câu Chuyện Của Chúng Tôi" — trình bày dạng mục lục tạp chí (số thứ tự +
+ * "Câu Chuyện Tình Yêu" — trình bày dạng mục lục tạp chí (số thứ tự +
  * tiêu đề + trích đoạn, đường kẻ mảnh phân cách) thay cho đường ống trang
  * trí của theme mặc định (spec.md mục 36, Phương án 01). Cùng dữ liệu
  * `loveStory`, tái dùng nguyên `PhotoLightbox` (không viết lại logic
@@ -38,7 +38,7 @@ function ordinal(i: number): string {
 <template>
   <section class="mx-auto max-w-3xl px-6 pb-28 pt-8">
     <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-secondary">Mục lục</p>
-    <h2 class="mb-12 font-heading text-3xl text-text">Câu Chuyện Của Chúng Tôi</h2>
+    <h2 class="mb-12 font-heading text-3xl text-text">Câu Chuyện Tình Yêu</h2>
 
     <div v-if="loveStory.length === 0" class="border-t border-text/10 py-10 text-center">
       <p class="mt-6 text-text-muted">Câu chuyện tình yêu sẽ sớm được cập nhật.</p>

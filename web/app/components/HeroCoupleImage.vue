@@ -23,6 +23,16 @@
  * 2.2.2 (nội dung tự chuyển động không được ép người dùng nhạy cảm phải xem).
  * Dừng hẹn giờ khi tab ẩn (`visibilitychange`) hoặc khi rê chuột vào/focus
  * vào carousel — tự chạy lại sau 1 khoảng nghỉ nếu người dùng bấm tay.
+ *
+ * Lỗi thật đã gặp (phản hồi chủ dự án, kèm ảnh chụp): dùng `object-fit:
+ * cover` trên khung `.hero-portrait-wrap` tỉ lệ cố định luôn CẮT MẤT một
+ * phần ảnh thật (đáy ảnh ngang, hoặc phần thân ảnh dọc) tuỳ bố cục từng tấm
+ * — không có 1 quy tắc `object-position` chung nào đúng cho mọi ảnh khách
+ * đưa lên. Đổi hẳn sang không crop: mỗi slide có 2 lớp ảnh chồng nhau —
+ * `.hero-portrait-backdrop` (ảnh y hệt, phóng to + làm mờ, lấp đầy khung)
+ * làm nền, `.hero-portrait` (ảnh THẬT, `object-fit: contain`) nổi trên nhìn
+ * đủ trọn vẹn không mất chi tiết nào — đúng nguyên tắc "không cắt/méo ảnh cá
+ * nhân" đã chốt từ đầu dự án (spec.md mục 17.4).
  */
 const { data: settings } = useSiteSettings()
 const images = computed(() => settings.value?.heroImages ?? [])
@@ -35,18 +45,6 @@ const activeIndex = ref(0)
 let autoplayTimer: ReturnType<typeof setInterval> | undefined
 let resumeTimer: ReturnType<typeof setTimeout> | undefined
 let prefersReducedMotion = false
-
-// Lỗi thật đã gặp (phản hồi chủ dự án): object-position cố định giữa ảnh
-// khiến ảnh ngang bị crop mất phần dưới, ảnh dọc bị crop mất phần trên (khớp
-// đúng khung `.hero-portrait-wrap` không vuông với mọi ảnh). Đo kích thước
-// THẬT của từng ảnh lúc tải xong (`naturalWidth`/`naturalHeight`, không đoán
-// qua đuôi file) để gắn class `.landscape`/`.portrait` — 2 class này đã có
-// sẵn object-position phù hợp riêng trong `main.css`.
-const orientations = ref<Record<string, 'landscape' | 'portrait'>>({})
-function onImageLoad(e: Event, image: string) {
-  const img = e.target as HTMLImageElement
-  orientations.value[image] = img.naturalWidth >= img.naturalHeight ? 'landscape' : 'portrait'
-}
 
 function clampIndex(i: number): number {
   const n = images.value.length
@@ -118,23 +116,9 @@ watch(images, (imgs) => {
         class="hero-portrait-slide"
         :class="{ 'hero-portrait-slide--active': i === activeIndex }"
       >
-        <img
-          :src="`/uploads/${image}`"
-          alt=""
-          class="hero-portrait"
-          :class="orientations[image]"
-          @load="onImageLoad($event, image)"
-        />
+        <img :src="`/uploads/${image}`" alt="" class="hero-portrait-backdrop" aria-hidden="true" />
+        <img :src="`/uploads/${image}`" alt="" class="hero-portrait" />
       </div>
-    </div>
-
-    <div class="hero-portrait-names">
-      <p v-if="settings?.heroTagline" class="hero-portrait-tagline font-accent">
-        {{ settings.heroTagline }}
-      </p>
-      <p class="hero-portrait-names-text">
-        {{ settings?.coupleNames.bride }} <span class="text-primary">&amp;</span> {{ settings?.coupleNames.groom }}
-      </p>
     </div>
 
     <template v-if="isCarousel">

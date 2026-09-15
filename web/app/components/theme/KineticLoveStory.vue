@@ -2,7 +2,7 @@
 import type { LightboxPhoto } from '../../../server/utils/types'
 
 /**
- * "Câu Chuyện Của Chúng Tôi" — theme Chữ Cuộn Kịch Tính (spec.md mục 37).
+ * "Câu Chuyện Tình Yêu" — theme Chữ Cuộn Kịch Tính (spec.md mục 37).
  * Mỗi mốc kể bằng 2 dòng chữ lớn (`v-kinetic`): năm+tiêu đề, rồi nội dung —
  * đậm nét/đổi màu khi cuộn tới đúng dải giữa màn hình. Cùng dữ liệu
  * `loveStory` + `PhotoLightbox` chung — KHÔNG bớt nội dung nào, chỉ đổi
