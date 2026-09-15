@@ -333,7 +333,7 @@ html {
      khiến `window.scrollTo`/cuộn trang bằng chuột không còn hoạt động (đã
      xác nhận bug thật bằng test tay: `window.scrollY` đứng yên ở 0 dù trang
      dài hơn viewport nhiều lần). */
-  overflow-x: scroll;
+  overflow-x: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -343,7 +343,7 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.05ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -372,7 +372,7 @@ body {
       duration-200 ease-out hover:bg-secondary hover:text-white active:scale-95
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
       focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
-    min-height: 55px;
+    min-height: 44px;
   }
 
   /*
@@ -415,7 +415,7 @@ body {
 [data-theme="editorial"] .btn-outline {
   border-radius: 2px;
   letter-spacing: 0.09em;
-  text-transform: none;
+  text-transform: uppercase;
   font-size: 0.75rem;
   font-weight: 600;
   box-shadow: none;
@@ -480,14 +480,14 @@ body {
   transition: box-shadow 250ms, transform 150ms, background-color 200ms;
 }
 [data-theme="glass"] .btn-primary {
-  background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-surface) 80%, transparent);
+  background-color: color-mix(in srgb, var(--color-surface) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-surface) 70%, transparent);
   color: var(--color-text);
   /* Đổ bóng THƯỜNG TRỰC (không chỉ lúc hover) — nếu không, viền kính gần
      như vô hình trên nền sáng (kính trong suốt + nền cũng sáng = viền
      không đủ tương phản để nhận biết đây LÀ 1 nút bấm khi chưa hover, ảnh
      hưởng khả năng nhận diện thành phần UI). */
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 20%, transparent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 [data-theme="glass"] .btn-primary:hover {
   box-shadow: 0 0 28px color-mix(in srgb, var(--color-primary-vivid) 40%, transparent);
@@ -499,7 +499,7 @@ body {
   color: var(--color-text);
 }
 [data-theme="glass"] .btn-outline:hover {
-  background-color: color-mix(in srgb, var(--color-surface) 700-italic, transparent);
+  background-color: color-mix(in srgb, var(--color-surface) 55%, transparent);
 }
 
 [data-theme="bento"] .btn-primary,
@@ -507,7 +507,7 @@ body {
   border-radius: 18px;
   font-weight: 700;
   box-shadow: 0 4px 0 color-mix(in srgb, var(--color-text) 18%, transparent);
-  transition: transform 600ms, box-shadow 300ms;
+  transition: transform 150ms, box-shadow 150ms;
 }
 [data-theme="bento"] .btn-primary {
   background-color: var(--color-primary);
@@ -534,7 +534,7 @@ body {
 [data-theme="kinetic"] .btn-primary,
 [data-theme="kinetic"] .btn-outline {
   border-radius: 3px;
-  font-weight: 9;
+  font-weight: 700;
   letter-spacing: 0.03em;
   box-shadow: none;
 }
@@ -596,7 +596,7 @@ body {
   transform: none;
 }
 [data-theme="cinematic"] .wish-card {
-  border-radius: 22px;
+  border-radius: 2px;
   box-shadow: none;
 }
 [data-theme="cinematic"] .wish-card:hover {
@@ -753,9 +753,40 @@ body {
 .hero-portrait-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3; /* khung 4:3 */
+  aspect-ratio: 4 / 3; /* mobile: khung gần vuông, đủ cao cho ảnh dọc */
   min-height: 240px;
   overflow: hidden;
+}
+/* Lỗi thật đã gặp (phản hồi chủ dự án): khung 4:3 cố định trên laptop vừa
+   quá cao (không có `max-height` chặn, ảnh chiếm gần hết màn hình) vừa crop
+   quá nhiều ảnh chụp ngang. Từ `sm` trở lên nới khung sang 3:2 (gần tỉ lệ máy
+   ảnh chụp ngang phổ biến — bớt crop 2 mép trên/dưới) + chặn chiều cao tối đa
+   64vh (khớp giá trị đã dùng ổn trước đây) để không lấn hết viewport trên
+   màn hình rộng/cao. */
+@media (min-width: 640px) {
+  .hero-portrait-wrap {
+    aspect-ratio: 3 / 2;
+    max-height: 64vh;
+  }
+}
+
+/*
+  Lỗi thật đã gặp (phản hồi chủ dự án): header `position: fixed` trong suốt
+  (bg-bg/40 + backdrop-blur-sm lúc chưa cuộn) đè thẳng lên ~1/4 chiều cao ảnh
+  hero trên điện thoại (đo thật: header ~76-84px / khung hero chỉ ~280px) —
+  chữ tên cô dâu chú rể bên trái nav nằm ngay trên ảnh, cộng `backdrop-blur`
+  làm mờ hẳn phần ảnh bên dưới. Chừa khoảng trống bằng chiều cao header (padding
+  py-4/py-5 + nút 44px, đã đo qua devtools) NGAY TRÊN khung ảnh trên mobile —
+  header khi đó nổi trên nền trang (`--color-bg`) thay vì đè lên ảnh. Theme
+  "bento" dùng header `sticky` (đã tự chiếm chỗ trong luồng, không đè lên gì)
+  nên loại trừ riêng, không cộng dồn khoảng trống. */
+@media (max-width: 767px) {
+  .hero-portrait-wrap {
+    margin-top: 5.25rem;
+  }
+  [data-theme="bento"] .hero-portrait-wrap {
+    margin-top: 0;
+  }
 }
 
 .hero-portrait-slides {
@@ -771,7 +802,8 @@ body {
   display: block;
 }
 
-/* Ảnh ngang */
+/* Ảnh ngang — xác định qua kích thước thật của ảnh lúc tải (xem
+   `HeroCoupleImage.vue`, không đoán từ đuôi file/tên). */
 .hero-portrait.landscape {
   object-position: top center; /* ưu tiên phần trên nhiều */
 }
@@ -822,13 +854,13 @@ body {
   transform: translateY(-50%);
   align-items: center;
   justify-content: center;
-  border-radius: 8888px;
+  border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.16);
   color: #fff;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  transition: background-color 100ms ease, transform 200ms ease;
+  transition: background-color 200ms ease, transform 200ms ease;
 }
 .hero-carousel-btn:hover {
   background: rgba(255, 255, 255, 0.3);

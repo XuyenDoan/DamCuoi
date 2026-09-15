@@ -36,6 +36,18 @@ let autoplayTimer: ReturnType<typeof setInterval> | undefined
 let resumeTimer: ReturnType<typeof setTimeout> | undefined
 let prefersReducedMotion = false
 
+// Lỗi thật đã gặp (phản hồi chủ dự án): object-position cố định giữa ảnh
+// khiến ảnh ngang bị crop mất phần dưới, ảnh dọc bị crop mất phần trên (khớp
+// đúng khung `.hero-portrait-wrap` không vuông với mọi ảnh). Đo kích thước
+// THẬT của từng ảnh lúc tải xong (`naturalWidth`/`naturalHeight`, không đoán
+// qua đuôi file) để gắn class `.landscape`/`.portrait` — 2 class này đã có
+// sẵn object-position phù hợp riêng trong `main.css`.
+const orientations = ref<Record<string, 'landscape' | 'portrait'>>({})
+function onImageLoad(e: Event, image: string) {
+  const img = e.target as HTMLImageElement
+  orientations.value[image] = img.naturalWidth >= img.naturalHeight ? 'landscape' : 'portrait'
+}
+
 function clampIndex(i: number): number {
   const n = images.value.length
   return n === 0 ? 0 : ((i % n) + n) % n
@@ -106,7 +118,13 @@ watch(images, (imgs) => {
         class="hero-portrait-slide"
         :class="{ 'hero-portrait-slide--active': i === activeIndex }"
       >
-        <img :src="`/uploads/${image}`" alt="" class="hero-portrait" />
+        <img
+          :src="`/uploads/${image}`"
+          alt=""
+          class="hero-portrait"
+          :class="orientations[image]"
+          @load="onImageLoad($event, image)"
+        />
       </div>
     </div>
 
