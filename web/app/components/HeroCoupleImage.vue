@@ -45,6 +45,19 @@
  * cao theo đúng tỉ lệ ảnh dọc trên màn hình rộng sẽ cao vô lý, gần hết trang)
  * — khi đó khung buộc lệch tỉ lệ thật, 2 lớp ảnh nền mờ/ảnh thật lại phát
  * huy tác dụng che khoảng trống, không còn crop dù không khớp 100% tỉ lệ.
+ *
+ * Lỗi thật đã gặp đợt sau nữa (phản hồi chủ dự án: trên điện thoại chiều cao
+ * khung đổi loạn xạ giữa các ảnh — ảnh ngang cao A, qua ảnh dọc lại nhảy
+ * sang cao B, "kỳ quá"). Đã tham khảo cách các carousel/slider chuyên nghiệp
+ * làm (Bootstrap Carousel, Swiper.js...): khung slideshow LUÔN cố định 1
+ * chiều cao cho mọi slide, từng ảnh co giãn/lấp đầy BÊN TRONG khung đó chứ
+ * khung không đổi kích thước theo ảnh — người xem cuộn trang mà nội dung bên
+ * dưới cứ nhảy lên xuống theo nhịp tự động chuyển ảnh (6s/lần) là trải
+ * nghiệm tệ, đặc biệt trên màn hình nhỏ. Chỉ bật `aspect-ratio` khớp ảnh thật
+ * ở MÀN HÌNH TỪ `sm` (≥640px) TRỞ LÊN — đúng nơi yêu cầu "đúng tỉ lệ ảnh đầu
+ * vào" ban đầu nhắm tới (desktop/laptop). Điện thoại giữ nguyên khung 4:3 cố
+ * định xuyên suốt carousel (như mọi carousel chuẩn), 2 lớp ảnh nền mờ/ảnh
+ * thật đã có sẵn đảm nhiệm việc không cắt ảnh dù không khớp 100% tỉ lệ.
  */
 const { data: settings } = useSiteSettings()
 const images = computed(() => settings.value?.heroImages ?? [])
@@ -65,7 +78,21 @@ function onImageLoad(e: Event, image: string) {
     naturalRatios.value[image] = img.naturalWidth / img.naturalHeight
   }
 }
+
+// Chỉ khớp `aspect-ratio` theo ảnh thật từ `sm` trở lên — xem chú thích lớn
+// ở đầu file (bug "chiều cao khung nhảy loạn xạ giữa các slide trên điện
+// thoại"). Khớp đúng CSS breakpoint `sm` (640px) đang dùng ở main.css.
+const isDesktopViewport = ref(false)
+let desktopMql: MediaQueryList | undefined
+function onDesktopViewportChange(e: MediaQueryList | MediaQueryListEvent) {
+  isDesktopViewport.value = e.matches
+}
+function onDesktopViewportResize() {
+  if (desktopMql) isDesktopViewport.value = desktopMql.matches
+}
+
 const activeAspectRatio = computed(() => {
+  if (!isDesktopViewport.value) return undefined
   const activeImage = images.value[activeIndex.value]
   const ratio = activeImage ? naturalRatios.value[activeImage] : undefined
   return ratio ? String(ratio) : undefined
@@ -112,11 +139,23 @@ onMounted(() => {
   prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   startAutoplay()
   document.addEventListener('visibilitychange', onVisibilityChange)
+
+  desktopMql = window.matchMedia('(min-width: 640px)')
+  isDesktopViewport.value = desktopMql.matches
+  desktopMql.addEventListener('change', onDesktopViewportChange)
+  // Bù thêm `resize` (không chỉ dựa vào sự kiện `change` của MediaQueryList)
+  // — 1 số trình duyệt/devtools mô phỏng đổi kích thước viewport (xoay máy,
+  // thanh công cụ responsive) không luôn bắn đúng sự kiện `change` gắn vào
+  // MediaQueryList đã tạo trước đó, dù `matches` đọc lại NGAY LÚC ĐÓ đã
+  // đúng — nghe thêm `resize` để tự đồng bộ lại làm lưới an toàn.
+  window.addEventListener('resize', onDesktopViewportResize)
 })
 onBeforeUnmount(() => {
   stopAutoplay()
   if (resumeTimer) clearTimeout(resumeTimer)
   document.removeEventListener('visibilitychange', onVisibilityChange)
+  desktopMql?.removeEventListener('change', onDesktopViewportChange)
+  window.removeEventListener('resize', onDesktopViewportResize)
 })
 
 watch(images, (imgs) => {
