@@ -56,7 +56,19 @@ function milestonePhotoRatio(milestone: { photos?: LightboxPhoto[] }): string {
 
 <template>
   <section class="mx-auto max-w-3xl px-6 pb-24">
-    <h2 class="mb-10 text-center font-heading text-3xl text-text sm:mb-14">Câu Chuyện Tình Yêu</h2>
+    <!-- Rà soát theo ảnh mẫu chủ dự án gửi (kiểu "Our LOVE STORY" — chữ nhỏ
+         viết tay phía trên + chữ to in hoa đậm bên dưới, 2 màu). Giữ NGUYÊN 1
+         thẻ `<h2>` duy nhất (2 `<span>` con) thay vì tách 2 thẻ riêng — đúng
+         ngữ nghĩa 1 tiêu đề trong outline trang, dù trình bày 2 dòng/2 cỡ
+         chữ khác nhau. Màu lấy thẳng từ token theme (`--color-secondary`
+         xanh rêu cho chữ viết tay, `--color-primary` hồng cho chữ đậm) —
+         trùng khớp màu ảnh mẫu mà không cần hardcode màu riêng. -->
+    <h2 class="mb-10 text-center sm:mb-14">
+      <span class="font-script block text-3xl leading-tight text-secondary sm:text-4xl">Câu chuyện</span>
+      <span class="mt-1 block font-heading text-3xl font-bold uppercase tracking-[0.12em] text-primary sm:text-5xl">
+        Tình Yêu
+      </span>
+    </h2>
 
     <div v-if="loveStory.length === 0" class="py-10 text-center">
       <LotusMotif class="mx-auto h-14 w-14 text-secondary-light" />

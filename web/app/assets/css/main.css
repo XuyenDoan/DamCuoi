@@ -29,6 +29,14 @@
 @import "@fontsource/be-vietnam-pro/500.css";
 @import "@fontsource/playfair-display/500.css";
 @import "@fontsource/cormorant-garamond/500-italic.css";
+/*
+  Dancing Script (600) — CHỈ dùng cho chữ "Câu chuyện" viết tay phía trên
+  tiêu đề "Câu Chuyện Tình Yêu" (rà soát theo ảnh mẫu chủ dự án gửi, kiểu
+  "Our LOVE STORY" — chữ nhỏ viết tay + chữ to in hoa đậm bên dưới). Gói này
+  ĐÃ dùng trước đây cho chữ trên ảnh hero (gỡ khi bỏ chữ đè lên ảnh) — đã
+  KIỂM TRA THẬT có xuất bản đủ file `vietnamese-*.css`, đủ dấu tiếng Việt.
+*/
+@import "@fontsource/dancing-script/600.css";
 
 /*
   Font riêng cho 2 theme mới (spec.md mục 36 — "Biên Tập Sang Trọng" +
@@ -90,6 +98,10 @@
   --font-heading: "Playfair Display", "Times New Roman", serif;
   --font-accent: "Cormorant Garamond", "Playfair Display", serif;
   --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+  /* Cố định DÙNG CHUNG cho mọi theme (không đổi theo từng theme như
+     font-heading/font-accent) — chỉ dùng riêng cho tiêu đề "Câu Chuyện Tình
+     Yêu" ở theme mặc định, xem `LoveStorySection.vue`. */
+  --font-script: "Dancing Script", cursive;
 
   --color-primary: #db2777;
   --color-primary-light: #f9a8d4;
