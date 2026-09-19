@@ -37,7 +37,7 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
     description:
       'Lấy cảm hứng tạp chí thời trang cao cấp — typography lớn, ảnh full-bleed, khoảng trắng chủ động, không hoạ tiết trang trí.',
     palette: ['#1C2333', '#F5F1E6', '#FFFFFF', '#644C2A'],
-    fonts: { heading: 'Bodoni Moda', body: 'Libre Franklin' }
+    fonts: { heading: 'Noto Serif Display', body: 'Libre Franklin' }
   },
   {
     id: 'cinematic',
@@ -46,7 +46,7 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
     description:
       'Mỗi màn hình là 1 cảnh phim full-bleed, cuộn qua từng khoảnh khắc câu chuyện — chuyển động chậm, có kiểm soát.',
     palette: ['#16130F', '#F2EAD9', '#D4A463', '#AD7B72'],
-    fonts: { heading: 'Fraunces', body: 'Karla' }
+    fonts: { heading: 'Fraunces', body: 'Barlow' }
   },
   {
     id: 'glass',
@@ -55,7 +55,7 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
     description:
       'Nền cực quang (aurora) trôi chậm, nội dung đặt trong khối kính mờ nổi bồng bềnh — ánh sáng theo dõi con trỏ chuột.',
     palette: ['#2B2438', '#FAF7F5', '#7A3157', '#554B87'],
-    fonts: { heading: 'Instrument Serif', body: 'Manrope' }
+    fonts: { heading: 'Newsreader', body: 'Manrope' }
   },
   {
     id: 'bento',
@@ -64,7 +64,7 @@ export const WEBSITE_THEMES: WebsiteThemeMeta[] = [
     description:
       'Trang chủ dạng lưới ô to/nhỏ xen kẽ kiểu Apple/Notion, nghiêng nhẹ theo chuột, bay vào theo nhịp khi tải trang.',
     palette: ['#262220', '#FAF6EF', '#973520', '#33543F'],
-    fonts: { heading: 'Sora', body: 'Plus Jakarta Sans' }
+    fonts: { heading: 'Lexend', body: 'Plus Jakarta Sans' }
   },
   {
     id: 'kinetic',

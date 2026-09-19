@@ -54,7 +54,6 @@
   dưới (cùng nguyên tắc đã áp dụng khi tự lưu trữ font mục 34) — không tải
   cả bộ 9 weight có sẵn của mỗi font.
 */
-@import "@fontsource/bodoni-moda/600.css";
 @import "@fontsource/bodoni-moda/700.css";
 @import "@fontsource/bodoni-moda/700-italic.css";
 @import "@fontsource/libre-franklin/400.css";
@@ -63,9 +62,29 @@
 @import "@fontsource/fraunces/500.css";
 @import "@fontsource/fraunces/600.css";
 @import "@fontsource/fraunces/500-italic.css";
-@import "@fontsource/karla/400.css";
-@import "@fontsource/karla/500.css";
-@import "@fontsource/karla/600.css";
+/*
+  Lỗi thật đã gặp (rà soát giao diện): Bodoni Moda, Instrument Serif, Sora và
+  Karla KHÔNG có bộ ký tự tiếng Việt (`@fontsource` chỉ phát hành subset
+  latin/latin-ext) — chữ có dấu chồng như "ầ", "ề", "ủ" rơi xuống font dự
+  phòng từng ký tự, hiện thành "a" + dấu rời ("Lâ`n đâ`u gặp gỡ"). Đổi phông
+  HIỂN THỊ TIẾNG VIỆT của 4 theme sang font cùng phong cách nhưng đủ bộ dấu
+  (kiểm tra thật: mỗi gói đều có `vietnamese-*.css`):
+    Biên Tập (heading/accent): Bodoni Moda -> Noto Serif Display
+    Điện Ảnh (body):           Karla       -> Barlow
+    Kính Mờ (heading/accent):  Instrument Serif -> Newsreader
+    Lưới Chuyển Động:          Sora        -> Lexend
+  Bodoni Moda + Instrument Serif vẫn giữ lại CHỈ cho chữ tiếng Anh "Our
+  Story" (`LoveStoryHeading`, không cần dấu) để giữ nét sang trọng đã chọn.
+*/
+@import "@fontsource/noto-serif-display/500.css";
+@import "@fontsource/noto-serif-display/600.css";
+@import "@fontsource/noto-serif-display/500-italic.css";
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/newsreader/400.css";
+@import "@fontsource/newsreader/400-italic.css";
+@import "@fontsource/newsreader/600.css";
 
 /*
   Font riêng cho 3 theme mới (spec.md mục 37 — "Kính Mờ Ánh Sáng" + "Lưới
@@ -80,8 +99,9 @@
 @import "@fontsource/manrope/400.css";
 @import "@fontsource/manrope/600.css";
 @import "@fontsource/manrope/700.css";
-@import "@fontsource/sora/700.css";
-@import "@fontsource/sora/800.css";
+@import "@fontsource/lexend/600.css";
+@import "@fontsource/lexend/700.css";
+@import "@fontsource/lexend/800.css";
 @import "@fontsource/plus-jakarta-sans/400.css";
 @import "@fontsource/plus-jakarta-sans/500.css";
 @import "@fontsource/plus-jakarta-sans/600.css";
@@ -140,8 +160,8 @@
   thứ tự layer nội bộ của Tailwind v4.
 */
 [data-theme="editorial"] {
-  --font-heading: "Bodoni Moda", Georgia, "Times New Roman", serif;
-  --font-accent: "Bodoni Moda", Georgia, serif;
+  --font-heading: "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --font-accent: "Noto Serif Display", Georgia, serif;
   --font-body: "Libre Franklin", system-ui, sans-serif;
 
   --color-primary: #1c2333;
@@ -164,7 +184,7 @@
 [data-theme="cinematic"] {
   --font-heading: "Fraunces", Georgia, serif;
   --font-accent: "Fraunces", Georgia, serif;
-  --font-body: "Karla", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, sans-serif;
 
   /* Đo lại tương phản thật (WCAG AAA, xem spec.md mục 36.4): #ce9a55 chỉ đạt
      7.39:1/6.91:1 (chưa AAA trên surface) — tăng sáng nhẹ thành #d4a463 để
@@ -192,8 +212,8 @@
   `--color-primary` (dùng cho text/nút, luôn tối hơn 1 chút để đủ AAA).
 */
 [data-theme="glass"] {
-  --font-heading: "Instrument Serif", Georgia, serif;
-  --font-accent: "Instrument Serif", Georgia, serif;
+  --font-heading: "Newsreader", Georgia, serif;
+  --font-accent: "Newsreader", Georgia, serif;
   --font-body: "Manrope", system-ui, sans-serif;
 
   --color-primary: #7a3157;
@@ -212,8 +232,8 @@
 }
 
 [data-theme="bento"] {
-  --font-heading: "Sora", system-ui, sans-serif;
-  --font-accent: "Sora", system-ui, sans-serif;
+  --font-heading: "Lexend", system-ui, sans-serif;
+  --font-accent: "Lexend", system-ui, sans-serif;
   --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
 
   --color-primary: #973520;
@@ -1366,13 +1386,14 @@ body {
    phong cách sắc/thẳng, không hoạ tiết), "Our" in nghiêng Bodoni màu nâu
    đồng, "STORY" Bodoni đậm màu xanh navy. */
 [data-theme="editorial"] .love-story-title__script {
-  font-family: var(--font-accent);
+  font-family: "Bodoni Moda", var(--font-accent);
   font-style: italic;
   font-weight: 700;
   font-size: clamp(2.25rem, 9vw, 3.5rem);
   margin-bottom: 0;
 }
 [data-theme="editorial"] .love-story-title__main {
+  font-family: "Bodoni Moda", var(--font-heading);
   color: var(--color-text);
   letter-spacing: 0.06em;
   font-size: clamp(3.5rem, 15vw, 6.25rem);
@@ -1396,20 +1417,21 @@ body {
 /* Kính Mờ Ánh Sáng — Instrument Serif (chỉ có weight 400, không đậm) nghiêng
    cho "Our" màu chàm, "STORY" cỡ lớn màu mận. */
 [data-theme="glass"] .love-story-title__script {
-  font-family: var(--font-accent);
+  font-family: "Instrument Serif", var(--font-accent);
   font-style: italic;
   font-weight: 400;
   font-size: clamp(3.25rem, 13vw, 4.75rem);
   color: var(--color-secondary);
 }
 [data-theme="glass"] .love-story-title__main {
+  font-family: "Instrument Serif", var(--font-heading);
   font-weight: 400;
   letter-spacing: 0.12em;
   font-size: clamp(3.75rem, 16vw, 6.25rem);
   color: var(--color-primary);
 }
 
-/* Lưới Chuyển Động — hình học/thân thiện: "Our" Sora xanh lá, "STORY" Sora
+/* Lưới Chuyển Động — hình học/thân thiện: "Our" Lexend xanh lá, "STORY" Lexend
    siêu đậm màu đất nung, khít chữ. */
 [data-theme="bento"] .love-story-title__script {
   font-family: var(--font-heading);
