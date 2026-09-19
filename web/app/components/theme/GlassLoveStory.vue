@@ -32,8 +32,7 @@ function prevPhoto() {
 <template>
   <section class="relative px-6 pb-32 pt-8">
     <div class="mx-auto mb-14 max-w-xl text-center">
-      <span class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-primary-vivid)]">Câu chuyện</span>
-      <h2 class="mt-2 font-heading text-4xl text-text">Câu Chuyện Tình Yêu</h2>
+      <LoveStoryHeading />
     </div>
 
     <div v-if="loveStory.length === 0" class="mx-auto max-w-md text-center">

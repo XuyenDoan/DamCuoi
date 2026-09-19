@@ -34,7 +34,7 @@ function prevPhoto() {
 <template>
   <section class="px-6 pb-16 pt-8">
     <div class="mx-auto max-w-3xl text-center">
-      <span class="text-xs font-bold uppercase tracking-[0.14em] text-primary">Câu chuyện</span>
+      <LoveStoryHeading />
     </div>
 
     <div v-if="loveStory.length === 0" class="mx-auto mt-8 max-w-md text-center">

@@ -37,6 +37,16 @@
   KIỂM TRA THẬT có xuất bản đủ file `vietnamese-*.css`, đủ dấu tiếng Việt.
 */
 @import "@fontsource/dancing-script/600.css";
+/*
+  Tiêu đề "Our Story" (`LoveStoryHeading.vue`) — chữ Latin thuần nên không
+  cần dấu tiếng Việt. Playfair Display 700 / Cormorant Garamond 700: trước
+  đây chỉ tải weight 500 nên khi yêu cầu đậm 700 trình duyệt phải TỰ GIẢ LẬP
+  chữ đậm (faux bold — nét méo, kém thanh lịch); nạp đúng weight thật.
+  Great Vibes: chữ thư pháp mềm cho theme "Sen Màu Nước".
+*/
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/cormorant-garamond/700.css";
+@import "@fontsource/great-vibes/400.css";
 
 /*
   Font riêng cho 2 theme mới (spec.md mục 36 — "Biên Tập Sang Trọng" +
@@ -1294,4 +1304,138 @@ body {
 }
 .scroll-hint-icon {
   animation: gentle-float 2s ease-in-out infinite;
+}
+
+/*
+  Tiêu đề "Our Story" (`LoveStoryHeading.vue`) — chữ "Our" nhỏ phía trên +
+  "STORY" to in hoa bên dưới (theo ảnh mẫu chủ dự án). Cỡ chữ co giãn theo
+  bề rộng màn hình (`clamp`) để vừa cả điện thoại lẫn laptop. Mỗi theme chọn
+  font + màu riêng hợp phông nền (khối `[data-theme]` bên dưới); mặc định
+  (theme "default" — nền trắng hồng, hoa sen) dùng Dancing Script xanh rêu +
+  Playfair Display đậm hồng — đúng 2 màu chủ đạo của palette.
+*/
+.love-story-title {
+  /* `position: relative` BẮT BUỘC: lớp nền trang (`PageBackdrop` — VD nền màu
+     nước có `.watercolor-wash` màu đặc, `position: fixed`) là phần tử có
+     `position` nên theo quy tắc xếp lớp CSS luôn vẽ ĐÈ LÊN chữ không có
+     `position` — thiếu dòng này chữ "STORY" bị nền che mất hoàn toàn (bug
+     thật đã gặp khi kiểm tra theme "Sen Màu Nước"). */
+  position: relative;
+  margin: 0;
+  line-height: 1;
+}
+.love-story-title__script {
+  position: relative;
+  display: block;
+  font-family: var(--font-script);
+  font-weight: 600;
+  font-size: clamp(3.25rem, 13vw, 4.75rem);
+  line-height: 1;
+  color: var(--color-secondary);
+  margin-bottom: -0.12em;
+}
+.love-story-title__main {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(3.5rem, 15vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+/* Chữ có `letter-spacing` luôn chừa khoảng trống SAU chữ cuối — khi căn giữa
+   sẽ lệch trái nửa khoảng đó; bù lại ở ngữ cảnh căn giữa. */
+.text-center .love-story-title__main,
+.text-center.love-story-title .love-story-title__main {
+  padding-left: 0.1em;
+}
+
+/* Sen Màu Nước — nền tranh màu nước mềm: thư pháp Great Vibes xanh lá đậm +
+   Cormorant Garamond đậm màu mận. */
+[data-theme="watercolor"] .love-story-title__script {
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+  font-size: clamp(3.75rem, 15vw, 5.75rem);
+}
+[data-theme="watercolor"] .love-story-title__main {
+  letter-spacing: 0.14em;
+}
+
+/* Biên Tập Sang Trọng — tạp chí thời trang: KHÔNG chữ viết tay (không hợp
+   phong cách sắc/thẳng, không hoạ tiết), "Our" in nghiêng Bodoni màu nâu
+   đồng, "STORY" Bodoni đậm màu xanh navy. */
+[data-theme="editorial"] .love-story-title__script {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 9vw, 3.5rem);
+  margin-bottom: 0;
+}
+[data-theme="editorial"] .love-story-title__main {
+  color: var(--color-text);
+  letter-spacing: 0.06em;
+  font-size: clamp(3.5rem, 15vw, 6.25rem);
+}
+
+/* Điện Ảnh Cuộn — nền tối: "Our" Fraunces nghiêng vàng đồng, "STORY" kem
+   sáng cách chữ rộng như tên phim. */
+[data-theme="cinematic"] .love-story-title__script {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  color: var(--color-primary);
+}
+[data-theme="cinematic"] .love-story-title__main {
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--color-text);
+}
+
+/* Kính Mờ Ánh Sáng — Instrument Serif (chỉ có weight 400, không đậm) nghiêng
+   cho "Our" màu chàm, "STORY" cỡ lớn màu mận. */
+[data-theme="glass"] .love-story-title__script {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3.25rem, 13vw, 4.75rem);
+  color: var(--color-secondary);
+}
+[data-theme="glass"] .love-story-title__main {
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  font-size: clamp(3.75rem, 16vw, 6.25rem);
+  color: var(--color-primary);
+}
+
+/* Lưới Chuyển Động — hình học/thân thiện: "Our" Sora xanh lá, "STORY" Sora
+   siêu đậm màu đất nung, khít chữ. */
+[data-theme="bento"] .love-story-title__script {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  margin-bottom: 0.1em;
+}
+[data-theme="bento"] .love-story-title__main {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(3.25rem, 13vw, 5rem);
+}
+
+/* Chữ Cuộn Kịch Tính — "Our" thành nhãn nhỏ in hoa cách chữ rộng, "STORY"
+   Bricolage siêu đậm đỏ sẫm cỡ lớn. */
+[data-theme="kinetic"] .love-story-title__script {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1rem, 3.4vw, 1.35rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 0.4em;
+  color: var(--color-text);
+}
+[data-theme="kinetic"] .love-story-title__main {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-size: clamp(4rem, 17vw, 7.5rem);
 }

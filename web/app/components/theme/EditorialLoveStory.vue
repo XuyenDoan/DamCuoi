@@ -38,7 +38,7 @@ function ordinal(i: number): string {
 <template>
   <section class="mx-auto max-w-3xl px-6 pb-28 pt-8">
     <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-secondary">Mục lục</p>
-    <h2 class="mb-12 font-heading text-3xl text-text">Câu Chuyện Tình Yêu</h2>
+    <LoveStoryHeading class="mb-12" />
 
     <div v-if="loveStory.length === 0" class="border-t border-text/10 py-10 text-center">
       <p class="mt-6 text-text-muted">Câu chuyện tình yêu sẽ sớm được cập nhật.</p>
