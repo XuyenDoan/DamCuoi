@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DEFAULT_WEBSITE_THEME, isValidThemeId } from '#shared/themes'
+import { SHARE_IMAGE_HEIGHT, SHARE_IMAGE_WIDTH, pickShareImageSource } from '#shared/shareImage'
 
 /**
  * Chọn layout công khai theo websiteTheme (spec.md mục 36) — `<NuxtLayout
@@ -28,6 +29,62 @@ useHead({
   htmlAttrs: {
     'data-theme': activeTheme
   }
+})
+
+/**
+ * Thẻ chia sẻ link (Open Graph + Twitter Card) — để dán link vào Zalo /
+ * Facebook / Messenger hiện đúng ảnh bìa + tên cô dâu chú rể + lời ngỏ thay
+ * vì khung trống. Lấy từ settings thật (đổi trong admin là đổi theo). Trang
+ * /admin/** KHÔNG có thẻ chia sẻ và bị đánh dấu `noindex` để công cụ tìm kiếm
+ * không lập chỉ mục trang quản trị.
+ *
+ * URL ảnh phải TUYỆT ĐỐI (mạng xã hội không hiểu đường dẫn tương đối):
+ * `runtimeConfig.public.siteUrl` nếu có (ổn định nhất — đặt biến
+ * `NUXT_PUBLIC_SITE_URL`), không thì lấy theo địa chỉ request. Ảnh do route
+ * `/og-image.jpg` cắt sẵn 1200×630 JPEG; `?v=` là tên file nguồn (chứa mã
+ * ngẫu nhiên) để mạng xã hội tự làm mới bản đã lưu khi admin đổi ảnh hero.
+ */
+const runtimeConfig = useRuntimeConfig()
+const requestUrl = useRequestURL()
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
+const siteUrl = computed(() => (runtimeConfig.public.siteUrl || requestUrl.origin).replace(/\/+$/, ''))
+
+const shareTitle = computed(() => {
+  const n = settings.value?.coupleNames
+  return n?.bride && n?.groom ? `${n.bride} & ${n.groom}` : 'Album Cưới'
+})
+const shareDescription = computed(() => {
+  const msg = settings.value?.welcomeMessage?.replace(/\s+/g, ' ').trim()
+  if (!msg) return 'Trân trọng kính mời bạn đến chung vui cùng chúng tôi trong ngày trọng đại.'
+  return msg.length > 200 ? `${msg.slice(0, 197)}...` : msg
+})
+const shareImage = computed(() => {
+  const source = settings.value ? pickShareImageSource(settings.value) : null
+  if (!source) return undefined
+  return `${siteUrl.value}/og-image.jpg?v=${encodeURIComponent(source.split('/').pop() ?? '')}`
+})
+
+const publicOnly = <T,>(value: () => T) => computed(() => (isAdminRoute.value ? undefined : value()))
+const imageOnly = <T,>(value: () => T) =>
+  computed(() => (isAdminRoute.value || !shareImage.value ? undefined : value()))
+
+useSeoMeta({
+  robots: computed(() => (isAdminRoute.value ? 'noindex, nofollow' : undefined)),
+  description: publicOnly(() => shareDescription.value),
+  ogType: publicOnly(() => 'website' as const),
+  ogSiteName: publicOnly(() => 'Album Cưới'),
+  ogLocale: publicOnly(() => 'vi_VN'),
+  ogTitle: publicOnly(() => shareTitle.value),
+  ogDescription: publicOnly(() => shareDescription.value),
+  ogUrl: publicOnly(() => `${siteUrl.value}${route.fullPath}`),
+  ogImage: publicOnly(() => shareImage.value),
+  ogImageWidth: imageOnly(() => SHARE_IMAGE_WIDTH),
+  ogImageHeight: imageOnly(() => SHARE_IMAGE_HEIGHT),
+  ogImageAlt: imageOnly(() => shareTitle.value),
+  twitterCard: publicOnly(() => (shareImage.value ? ('summary_large_image' as const) : ('summary' as const))),
+  twitterTitle: publicOnly(() => shareTitle.value),
+  twitterDescription: publicOnly(() => shareDescription.value),
+  twitterImage: publicOnly(() => shareImage.value)
 })
 
 /**

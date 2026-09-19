@@ -6,15 +6,9 @@ import GlassHomeView from '../components/theme/GlassHomeView.vue'
 import BentoHomeView from '../components/theme/BentoHomeView.vue'
 import KineticHomeView from '../components/theme/KineticHomeView.vue'
 
-useHead({
-  title: 'Album Cưới',
-  meta: [
-    {
-      name: 'description',
-      content: 'Album ảnh cưới — lưu giữ những khoảnh khắc đáng nhớ trong ngày trọng đại.'
-    }
-  ]
-})
+// Mô tả + thẻ chia sẻ (Open Graph) đặt chung ở app.vue theo nội dung thật trong
+// settings (tên cô dâu chú rể, lời ngỏ, ảnh hero) — không khai lại ở đây.
+useHead({ title: 'Album Cưới' })
 
 const theme = useWebsiteTheme()
 </script>

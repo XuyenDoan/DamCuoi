@@ -54,6 +54,13 @@ export default defineNuxtConfig({
     // cấu hình gì thêm.
     adminSessionSecret: process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-in-production-32',
     dataDir: process.env.DATA_DIR || '',
-    uploadsDir: process.env.UPLOADS_DIR || ''
+    uploadsDir: process.env.UPLOADS_DIR || '',
+    public: {
+      // Địa chỉ gốc công khai của web (VD https://gocnha.tino.page), dùng
+      // dựng URL TUYỆT ĐỐI cho thẻ Open Graph (ảnh xem trước khi chia sẻ
+      // link). Bỏ trống thì tự lấy theo địa chỉ request. Đổi được khi chạy
+      // (không cần build lại) qua biến môi trường `NUXT_PUBLIC_SITE_URL`.
+      siteUrl: ''
+    }
   }
 })
