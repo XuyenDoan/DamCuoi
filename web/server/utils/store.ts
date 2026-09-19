@@ -16,7 +16,6 @@ const EMPTY_SITE_IMAGES = Object.fromEntries(SITE_IMAGES.map((s) => [s.key, null
 
 const DEFAULT_SETTINGS: Settings = {
   coupleNames: { groom: 'Chú Rể', bride: 'Cô Dâu' },
-  heroTagline: '',
   welcomeMessage: '',
   heroImages: [],
   loveStory: [],
@@ -80,7 +79,11 @@ function migrateSettings(raw: unknown): Settings {
         ? [legacyHero]
         : (r.heroImages ?? [])
 
-  return { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme, siteImages, heroImages }
+  const migrated = { ...DEFAULT_SETTINGS, ...r, eventInfo, websiteTheme, siteImages, heroImages }
+  // `heroTagline` (chữ tagline trên ảnh hero) đã bỏ — dữ liệu cũ còn key này
+  // trong settings.json thì bỏ đi khi đọc, để khỏi lộ ra ở /api/settings.
+  delete (migrated as Record<string, unknown>).heroTagline
+  return migrated
 }
 
 const DEFAULT_ALBUMS: AlbumsFile = { albums: [] }

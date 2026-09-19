@@ -15,7 +15,6 @@ const form = ref<Settings>(
     ? structuredClone(initialSettings.value)
     : {
         coupleNames: { bride: '', groom: '' },
-        heroTagline: '',
         welcomeMessage: '',
         heroImages: [],
         loveStory: [],
@@ -270,20 +269,6 @@ async function save() {
                 style="min-height: 44px"
               />
             </div>
-          </div>
-
-          <div>
-            <label for="hero-tagline" class="mb-2 block text-sm font-medium text-text">
-              Câu tagline hero
-            </label>
-            <input
-              id="hero-tagline"
-              v-model="form.heroTagline"
-              type="text"
-              placeholder="VD: Chúng tôi sắp kết hôn"
-              class="w-full rounded-lg border border-secondary-light/60 px-4 py-3 text-text placeholder:text-text-muted/60 transition-colors duration-200 hover:border-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              style="min-height: 44px"
-            />
           </div>
         </fieldset>
 
@@ -652,10 +637,7 @@ async function save() {
       <aside class="h-fit rounded-xl border border-secondary-light/40 bg-surface p-6 lg:sticky lg:top-6">
         <p class="mb-4 text-xs font-medium uppercase tracking-wide text-text-muted">Xem trước trang bìa</p>
         <div class="rounded-lg bg-bg p-6 text-center">
-          <p v-if="form.heroTagline" class="font-accent text-sm italic text-text-muted">
-            {{ form.heroTagline }}
-          </p>
-          <h2 class="mt-2 font-heading text-2xl text-text">
+          <h2 class="font-heading text-2xl text-text">
             {{ form.coupleNames.bride || 'Cô Dâu' }}
             <span class="text-primary">&amp;</span>
             {{ form.coupleNames.groom || 'Chú Rể' }}

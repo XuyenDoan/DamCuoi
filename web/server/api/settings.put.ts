@@ -44,7 +44,6 @@ export default defineEventHandler(async (event) => {
       bride: body.coupleNames.bride.trim(),
       groom: body.coupleNames.groom.trim()
     },
-    heroTagline: body.heroTagline?.trim() ?? '',
     welcomeMessage: body.welcomeMessage?.trim() ?? '',
     // Giống hệt cơ chế loveStory[].photos: /api/admin/hero-image chỉ lưu file
     // vật lý, mảng thứ tự thật sự chỉ ghi vào settings.json ở đây.

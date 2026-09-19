@@ -28,7 +28,6 @@ export interface EventInfoBlock {
 
 export interface Settings {
   coupleNames: { groom: string; bride: string }
-  heroTagline: string
   welcomeMessage: string
   /**
    * Ảnh carousel đầu trang chủ (spec.md mục 40) — 0..n ảnh, TỰ ĐỘNG chuyển
