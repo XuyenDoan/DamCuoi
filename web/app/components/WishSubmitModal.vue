@@ -1,6 +1,16 @@
 <script setup lang="ts">
-defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: []; submitted: [] }>()
+
+// Chống spam: ô ẩn + đo thời gian điền form (xem useBotTraps.ts). Mở lại
+// popup = bắt đầu đếm lại từ đầu.
+const botTraps = useBotTraps()
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) botTraps.start()
+  }
+)
 
 const name = ref('')
 const message = ref('')
@@ -57,6 +67,7 @@ async function submitWish() {
   formData.append('name', name.value.trim())
   formData.append('message', message.value.trim())
   if (photoFile.value) formData.append('photo', photoFile.value)
+  botTraps.appendTo(formData)
 
   try {
     await $fetch('/api/wishes', { method: 'POST', body: formData })
@@ -82,7 +93,8 @@ function handleClose() {
       <h2 class="font-heading text-lg text-text">Gửi Lời Chúc</h2>
     </template>
 
-    <form class="flex flex-col gap-4" @submit.prevent="submitWish">
+    <form class="relative flex flex-col gap-4" @submit.prevent="submitWish">
+      <BotTrapField v-model="botTraps.website.value" />
       <div>
         <label for="wish-name" class="mb-2 block text-sm font-medium text-text">Tên của bạn</label>
         <input

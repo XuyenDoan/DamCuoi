@@ -4,6 +4,9 @@ useHead({ title: 'Gửi Ảnh — Album Cưới' })
 
 const theme = useWebsiteTheme()
 
+// Chống spam: ô ẩn + đo thời gian điền form (xem useBotTraps.ts).
+const botTraps = useBotTraps()
+
 const MAX_FILE_SIZE = 15 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_FILES = 20
@@ -86,6 +89,7 @@ async function submitUpload() {
   const formData = new FormData()
   formData.append('name', name.value)
   for (const q of toUpload) formData.append('files', q.file)
+  botTraps.appendTo(formData)
 
   try {
     const res = await $fetch<{ results: Array<{ originalName: string; status: string; message?: string }> }>(
@@ -105,12 +109,17 @@ async function submitUpload() {
       }
     }
     successCount.value += succeeded
-  } catch {
+  } catch (err: unknown) {
+    // Lỗi do máy chủ CHỦ Ý từ chối (chống spam: 429 gửi quá nhanh/nhiều, 503
+    // hàng chờ duyệt đầy...) có `statusMessage` tiếng Việt rõ ràng — hiện đúng
+    // câu đó thay vì báo chung chung "không kết nối được máy chủ".
+    const serverMessage = (err as { data?: { statusMessage?: string } })?.data?.statusMessage
     toUpload.forEach((q) => {
       q.status = 'error'
-      q.message = 'Không kết nối được máy chủ, vui lòng thử lại'
+      q.message = serverMessage || 'Không kết nối được máy chủ, vui lòng thử lại'
     })
-    submitError.value = 'Có lỗi khi gửi ảnh. Vui lòng kiểm tra kết nối mạng và thử lại.'
+    submitError.value =
+      serverMessage || 'Có lỗi khi gửi ảnh. Vui lòng kiểm tra kết nối mạng và thử lại.'
   } finally {
     isSubmitting.value = false
     queue.value = queue.value.filter((q) => q.status !== 'success')
@@ -135,7 +144,8 @@ async function submitUpload() {
         </div>
       </Transition>
 
-      <form @submit.prevent="submitUpload">
+      <form class="relative" @submit.prevent="submitUpload">
+        <BotTrapField v-model="botTraps.website.value" />
         <label class="mb-2 block text-sm font-medium text-text" for="uploader-name">
           Tên của bạn (không bắt buộc)
         </label>

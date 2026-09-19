@@ -4,10 +4,13 @@ import { customAlphabet } from 'nanoid'
 import { uploadsSubdir } from '../utils/paths'
 import { photosStore } from '../utils/store'
 import { sharp } from '../utils/sharpLoader'
+import { UPLOAD_LIMITS, looksLikeBot, takeQuota } from '../utils/antiSpam'
 import type { Photo } from '../utils/types'
 
-// Lớp bảo vệ bắt buộc khi upload công khai (spec.md mục 15.3) — captcha/rate-limit
-// chưa bật theo quyết định đã trao đổi, chỉ giới hạn dung lượng/loại file + duyệt thủ công.
+// Lớp bảo vệ khi upload công khai (spec.md mục 15.3): giới hạn dung lượng/loại
+// file + duyệt thủ công + chống spam nhiều lớp (honeypot, thời gian điền form,
+// hạn mức theo IP/toàn cục, trần hàng chờ) — xem server/utils/antiSpam.ts.
+// Không dùng captcha của bên thứ 3.
 const MAX_FILE_SIZE = 15 * 1024 * 1024 // 15MB
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_FILES_PER_REQUEST = 20
@@ -22,13 +25,24 @@ interface UploadResult {
 }
 
 export default defineEventHandler(async (event) => {
+  // Chống spam (xem server/utils/antiSpam.ts): số LẦN gửi theo IP kiểm trước
+  // khi đọc body; số FILE (theo IP + toàn cục) kiểm ngay sau khi biết số file.
+  takeQuota(
+    event,
+    'upload-req',
+    UPLOAD_LIMITS.perIpRequests,
+    [],
+    1,
+    'Bạn gửi ảnh hơi nhiều lần liên tiếp, vui lòng đợi ít phút rồi gửi tiếp nhé.'
+  )
+
   const parts = await readMultipartFormData(event)
   if (!parts || parts.length === 0) {
     throw createError({ statusCode: 400, statusMessage: 'Không có dữ liệu gửi lên' })
   }
 
   const nameField = parts.find((p) => p.name === 'name')
-  const uploaderName = nameField?.data.toString('utf-8').trim() || 'Ẩn danh'
+  const uploaderName = (nameField?.data.toString('utf-8').trim() || 'Ẩn danh').slice(0, 100)
 
   const fileParts = parts.filter((p) => p.name === 'files' && p.filename)
   if (fileParts.length === 0) {
@@ -38,6 +52,33 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: `Chỉ được gửi tối đa ${MAX_FILES_PER_REQUEST} ảnh mỗi lần`
+    })
+  }
+
+  // Bẫy bot (ô ẩn `website` + thời gian điền form) — trả "thành công" giả,
+  // không lưu file nào, để bot không biết mình bị chặn.
+  const honeypot = parts.find((p) => p.name === 'website')?.data.toString('utf-8') ?? ''
+  const fillMs = parts.find((p) => p.name === 'fillMs')?.data.toString('utf-8') ?? ''
+  if (looksLikeBot(honeypot, fillMs)) {
+    return {
+      results: fileParts.map((f) => ({ originalName: f.filename || 'anh.jpg', status: 'success' as const }))
+    }
+  }
+
+  takeQuota(
+    event,
+    'upload-files',
+    [...UPLOAD_LIMITS.perIpFiles],
+    UPLOAD_LIMITS.globalFiles,
+    fileParts.length,
+    'Bạn đã gửi khá nhiều ảnh trong thời gian ngắn, vui lòng đợi một lúc rồi gửi tiếp nhé.'
+  )
+
+  const currentPhotos = await photosStore.read()
+  if (currentPhotos.photos.filter((p) => p.status === 'pending').length >= UPLOAD_LIMITS.pendingCap) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Hiện có quá nhiều ảnh đang chờ duyệt, bạn vui lòng quay lại gửi sau nhé.'
     })
   }
 

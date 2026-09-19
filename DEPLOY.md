@@ -34,6 +34,7 @@ Trên server: `~/repo` là bản clone Git đầy đủ (để tham khảo/debug
 | `NUXT_ADMIN_SESSION_SECRET` | (chuỗi ngẫu nhiên 64 ký tự hex, đã tạo) |
 | `NUXT_DATA_DIR` | `/home/gocnhati1/damcuoi-data/data` |
 | `NUXT_UPLOADS_DIR` | `/home/gocnhati1/damcuoi-data/uploads` |
+| `NUXT_PUBLIC_SITE_URL` *(khuyến nghị, tuỳ chọn)* | Địa chỉ gốc công khai, VD `https://gocnha.tino.page` — dùng dựng URL tuyệt đối của ảnh xem trước khi chia sẻ link (Open Graph). Bỏ trống thì tự lấy theo địa chỉ request (đủ dùng, nhưng nếu proxy của hosting làm mất `https` thì ảnh xem trước có thể ra `http://`). |
 
 Sau khi đổi biến môi trường, PHẢI `cloudlinux-selector restart` (hoặc bấm "Restart" trong cPanel) để áp dụng — riêng lần đầu còn cần kiểm tra không còn tiến trình `lsnode` CŨ nào sót lại (`ps aux | grep lsnode`), nếu có phải `kill` thủ công vì Passenger đôi khi không tắt hẳn tiến trình cũ khi restart.
 
@@ -69,3 +70,9 @@ Muốn chạy tay 1 lần (không cần push code mới): vào tab Actions → w
 - **Chưa có HTTPS riêng cho domain thật** (mới chỉ test qua IP) — cPanel có sẵn AutoSSL, thường tự cấp khi domain đã phân giải đúng, kiểm tra ở cPanel → SSL/TLS Status.
 - **Chưa thiết lập backup định kỳ** — dữ liệu (`~/damcuoi-data`) nằm ngoài Git, nên sao lưu định kỳ ra ngoài server (VD: JetBackup có sẵn trong cPanel, hoặc cron + rclone đẩy lên Google Drive).
 - ~~Chưa đặt mật khẩu admin lần đầu~~ **Đã xong** — `~/damcuoi-data/data/admin.json` đã có `passwordHash` (bcrypt), đăng nhập tại `https://gocnha.tino.page/admin` đã verify hoạt động (`{"success":true}` → `{"authenticated":true}`). Lưu ý: hiện admin CHƯA có UI tự đổi mật khẩu — muốn đổi phải nhờ sửa trực tiếp `admin.json` trên server (hash bằng `bcryptjs`, cost 12) hoặc bổ sung tính năng đổi mật khẩu sau này.
+
+## Chống spam & ảnh xem trước khi chia sẻ link
+
+- **Chống spam** (`web/server/utils/antiSpam.ts`) cho form gửi lời chúc và gửi ảnh: ô ẩn (honeypot) + đo thời gian điền form, giới hạn tần suất theo IP (lời chúc: 3/phút, 8/giờ, 20/ngày; ảnh: 4 lần/10 phút, 40 ảnh/giờ, 120 ảnh/ngày) + giới hạn toàn cục (60 lời chúc/giờ, 300 ảnh/giờ), chặn lời chúc chứa link/trùng lặp, và trần hàng chờ duyệt (200 lời chúc, 500 ảnh). Trạng thái đếm nằm trong bộ nhớ tiến trình (mất khi restart — chấp nhận được). Các con số chỉnh ở đầu file `antiSpam.ts`.
+- **Cần kiểm tra sau khi deploy:** hạn mức theo IP chỉ hoạt động nếu server thấy được IP thật của khách (qua `X-Real-IP`/`X-Forwarded-For` do proxy của hosting gắn). Nếu hosting không chuyển IP thật, hệ thống tự BỎ QUA hạn mức theo IP (không khoá oan khách) và chỉ còn hạn mức toàn cục + bẫy bot + trần hàng chờ.
+- **Ảnh xem trước khi dán link** (Zalo/Facebook/Messenger): thẻ Open Graph tự lấy tên cô dâu chú rể, lời ngỏ và ảnh hero đầu tiên (fallback ảnh cô dâu/chú rể) từ nội dung trong admin; ảnh do route `/og-image.jpg` cắt sẵn 1200×630. Mạng xã hội lưu cache bản xem trước — sau khi đổi ảnh hero, dùng công cụ "Sharing Debugger" của Facebook để làm mới nếu cần.

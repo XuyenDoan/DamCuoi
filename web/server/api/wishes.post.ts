@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid'
 import { uploadsSubdir } from '../utils/paths'
 import { wishesStore } from '../utils/store'
 import { sharp } from '../utils/sharpLoader'
+import { WISH_LIMITS, countLinks, isDuplicateMessage, looksLikeBot, takeQuota } from '../utils/antiSpam'
 const genId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10)
 
 const MAX_MESSAGE_LENGTH = 1000
@@ -12,9 +13,28 @@ const MAX_FILE_SIZE = 15 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export default defineEventHandler(async (event) => {
+  // Chống spam (xem server/utils/antiSpam.ts): hạn mức theo IP + toàn cục
+  // kiểm TRƯỚC khi đọc body để kẻ spam không tốn tài nguyên xử lý ảnh.
+  takeQuota(
+    event,
+    'wish',
+    WISH_LIMITS.perIp,
+    WISH_LIMITS.global,
+    1,
+    'Bạn gửi hơi nhanh rồi, vui lòng đợi một chút rồi gửi lại nhé.'
+  )
+
   const parts = await readMultipartFormData(event)
   if (!parts) {
     throw createError({ statusCode: 400, statusMessage: 'Thiếu dữ liệu gửi lên' })
+  }
+
+  // Bẫy bot: ô ẩn `website` + thời gian điền form. Trả về "thành công" giả
+  // (không lưu gì) để bot không biết mình bị chặn mà đổi cách né.
+  const honeypot = parts.find((p) => p.name === 'website')?.data.toString('utf-8') ?? ''
+  const fillMs = parts.find((p) => p.name === 'fillMs')?.data.toString('utf-8') ?? ''
+  if (looksLikeBot(honeypot, fillMs)) {
+    return { id: 'wish_ok', name: '', message: '', photo: null, width: null, height: null, visible: false, approved: false, createdAt: new Date().toISOString() }
   }
 
   const nameField = parts.find((p) => p.name === 'name')
@@ -29,6 +49,23 @@ export default defineEventHandler(async (event) => {
   }
   if (!message) {
     throw createError({ statusCode: 400, statusMessage: 'Vui lòng nhập lời chúc' })
+  }
+  if (countLinks(name) > 0 || countLinks(message) > 1) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Lời chúc không nên chứa đường link, bạn vui lòng bỏ link rồi gửi lại nhé.'
+    })
+  }
+  if (isDuplicateMessage(event, message)) {
+    throw createError({ statusCode: 400, statusMessage: 'Bạn vừa gửi đúng lời chúc này rồi, cảm ơn bạn!' })
+  }
+
+  const current = await wishesStore.read()
+  if (current.wishes.filter((w) => w.approved === false).length >= WISH_LIMITS.pendingCap) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Hiện có quá nhiều lời chúc đang chờ duyệt, bạn vui lòng quay lại gửi sau nhé.'
+    })
   }
 
   let photoPath: string | null = null
